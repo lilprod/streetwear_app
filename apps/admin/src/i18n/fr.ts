@@ -42,6 +42,7 @@ export const fr = {
   'login.enroll.title': 'Activer la double authentification',
   'login.enroll.help':
     'Première connexion : ajoutez cette clé dans votre application d’authentification, puis saisissez le code affiché.',
+  'login.enroll.qr': 'QR code d’enrôlement de l’application d’authentification',
   'login.enroll.secret': 'Clé secrète',
   'login.error.invalidEmail': 'Saisissez une adresse e-mail valide.',
   'login.error.passwordRequired': 'Saisissez votre mot de passe.',

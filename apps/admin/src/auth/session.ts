@@ -1,43 +1,34 @@
-import { ADMIN_ROLES, type AdminRole } from '@streetwear/shared';
+import type { AdminRole } from '@streetwear/shared';
+import type { AdminSession } from './auth-api';
 
 export const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
 const KEY = 'streetwear.admin.session';
 
 export type Session = {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
+  userId: string;
   role: AdminRole;
   email: string;
+  name: string;
+  /** Fin absolue de la session : connexion + 8 h, jamais prolongée par un refresh. */
   expiresAt: number;
 };
 
-export function decodeJwt(token: string): Record<string, unknown> | null {
-  try {
-    const part = token.split('.')[1];
-    if (!part) return null;
-    const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
-    const bin = atob(b64.padEnd(Math.ceil(b64.length / 4) * 4, '='));
-    const json = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
-    return JSON.parse(json) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
-
-export function sessionFromTokens(
-  tokens: { accessToken: string; refreshToken?: string },
-  now = Date.now(),
-): Session | null {
-  const claims = decodeJwt(tokens.accessToken);
-  const role = claims?.role;
-  if (!claims || claims.typ !== 'admin' || !ADMIN_ROLES.includes(role as AdminRole)) return null;
+export function sessionFromApi(s: AdminSession, now = Date.now()): Session {
   return {
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
-    role: role as AdminRole,
-    email: typeof claims.email === 'string' ? claims.email : '',
+    accessToken: s.accessToken,
+    refreshToken: s.refreshToken,
+    userId: s.user.id,
+    role: s.user.role,
+    email: s.user.email,
+    name: s.user.name,
     expiresAt: now + SESSION_DURATION_MS,
   };
+}
+
+export function withRefreshedTokens(prev: Session, s: AdminSession): Session {
+  return { ...prev, accessToken: s.accessToken, refreshToken: s.refreshToken };
 }
 
 export function loadSession(now = Date.now()): Session | null {

@@ -2,14 +2,21 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import type { AdminRole } from '@streetwear/shared';
 import { configureApi } from '../lib/api';
-import { clearSession, loadSession, saveSession, sessionFromTokens, type Session } from './session';
-import type { AuthTokens } from './auth-api';
+import {
+  clearSession,
+  loadSession,
+  saveSession,
+  sessionFromApi,
+  withRefreshedTokens,
+  type Session,
+} from './session';
+import { adminLogout, adminRefresh, type AdminSession } from './auth-api';
 
 type AuthValue = {
   session: Session | null;
   role: AdminRole | null;
   expired: boolean;
-  signIn: (tokens: AuthTokens) => Session | null;
+  signIn: (s: AdminSession) => Session;
   signOut: () => void;
 };
 
@@ -20,13 +27,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [expired, setExpired] = useState(false);
 
   const signOut = useCallback(() => {
+    const current = loadSession();
+    if (current) void adminLogout(current.refreshToken).catch(() => undefined);
     clearSession();
     setSession(null);
   }, []);
 
-  const signIn = useCallback((tokens: AuthTokens) => {
-    const s = sessionFromTokens(tokens);
-    if (!s) return null;
+  const signIn = useCallback((api: AdminSession) => {
+    const s = sessionFromApi(api);
     saveSession(s);
     setSession(s);
     setExpired(false);
@@ -34,13 +42,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const expire = () => {
+      clearSession();
+      setSession(null);
+      setExpired(true);
+    };
     configureApi({
       getToken: () => loadSession()?.accessToken ?? null,
-      onUnauthorized: () => {
-        clearSession();
-        setSession(null);
-        setExpired(true);
+      refresh: async () => {
+        const current = loadSession();
+        if (!current) return null;
+        try {
+          const next = withRefreshedTokens(current, await adminRefresh(current.refreshToken));
+          saveSession(next);
+          setSession(next);
+          return next.accessToken;
+        } catch {
+          return null;
+        }
       },
+      onUnauthorized: expire,
     });
   }, []);
 
@@ -56,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Math.max(delay, 0),
     );
     return () => clearTimeout(id);
-  }, [session]);
+  }, [session?.expiresAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const value = useMemo(
     () => ({ session, role: session?.role ?? null, expired, signIn, signOut }),

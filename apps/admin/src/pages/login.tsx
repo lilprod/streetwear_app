@@ -2,10 +2,11 @@ import { useId, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import { QRCodeSVG } from 'qrcode.react';
 import { fr } from '../i18n/fr';
 import { errorMessage } from '../lib/errors';
 import { useAuth } from '../auth/auth-context';
-import { adminLogin, adminTotp, isChallenge, type TotpEnrollment } from '../auth/auth-api';
+import { adminLogin, adminTotp, type AdminSession, type TotpEnrollment } from '../auth/auth-api';
 import { homePath } from '../auth/modules';
 import { Button } from '../components/button';
 
@@ -14,7 +15,7 @@ const fieldClass =
   'min-h-11 w-full rounded-admin border border-borderStrong bg-surface px-3 text-sm';
 
 type Step =
-  { kind: 'credentials' } | { kind: 'totp'; challenge: string; enrollment?: TotpEnrollment };
+  { kind: 'credentials' } | { kind: 'totp'; challenge: string; enrollment: TotpEnrollment | null };
 
 function Field({
   label,
@@ -59,10 +60,9 @@ export function LoginPage() {
 
   if (session) return <Navigate to={homePath(session.role)} replace />;
 
-  const finish = (tokens: { accessToken: string; refreshToken?: string }) => {
-    const s = signIn(tokens);
-    if (!s) setFormError(fr['error.unknown']);
-    else navigate(homePath(s.role), { replace: true });
+  const finish = (api: AdminSession) => {
+    const s = signIn(api);
+    navigate(homePath(s.role), { replace: true });
   };
 
   const submitCredentials = async (e: FormEvent) => {
@@ -76,9 +76,9 @@ export function LoginPage() {
     setBusy(true);
     try {
       const res = await adminLogin({ email: email.trim(), password });
-      if (isChallenge(res)) {
+      if (res.type === 'totp_required') {
         setStep({ kind: 'totp', challenge: res.challenge, enrollment: res.enrollment });
-      } else finish(res);
+      } else finish(res.session);
     } catch (err) {
       setFormError(errorMessage(err));
     } finally {
@@ -158,6 +158,15 @@ export function LoginPage() {
             <p className="text-sm text-inkSecondary">
               {step.enrollment ? fr['login.enroll.help'] : fr['login.totp.help']}
             </p>
+            {step.enrollment && (
+              <div className="flex justify-center rounded-admin bg-surface p-2">
+                <QRCodeSVG
+                  value={step.enrollment.otpauthUrl}
+                  size={160}
+                  title={fr['login.enroll.qr']}
+                />
+              </div>
+            )}
             {step.enrollment && (
               <p className="text-sm">
                 {fr['login.enroll.secret']} :{' '}

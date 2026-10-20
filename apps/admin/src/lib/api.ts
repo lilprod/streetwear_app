@@ -1,8 +1,16 @@
 import { ApiRequestError, errorFromBody } from './errors';
 import { fr } from '../i18n/fr';
 
-type TokenSource = { getToken: () => string | null; onUnauthorized: () => void };
-let source: TokenSource = { getToken: () => null, onUnauthorized: () => undefined };
+type TokenSource = {
+  getToken: () => string | null;
+  refresh: () => Promise<string | null>;
+  onUnauthorized: () => void;
+};
+let source: TokenSource = {
+  getToken: () => null,
+  refresh: () => Promise.resolve(null),
+  onUnauthorized: () => undefined,
+};
 export const configureApi = (s: TokenSource): void => {
   source = s;
 };
@@ -18,7 +26,15 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
-export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T> {
+let refreshing: Promise<string | null> | null = null;
+const refreshOnce = (): Promise<string | null> => {
+  refreshing ??= source.refresh().finally(() => {
+    refreshing = null;
+  });
+  return refreshing;
+};
+
+export async function api<T>(path: string, opts: RequestOptions = {}, retried = false): Promise<T> {
   const target = new URL(url(path));
   for (const [k, v] of Object.entries(opts.query ?? {})) {
     if (v !== undefined && v !== '') target.searchParams.set(k, String(v));
@@ -37,9 +53,11 @@ export async function api<T>(path: string, opts: RequestOptions = {}): Promise<T
   if (res.status === 204) return undefined as T;
   const json: unknown = await res.json().catch(() => null);
   if (!res.ok) {
-    const err = errorFromBody(res.status, json);
-    if (res.status === 401 && token) source.onUnauthorized();
-    throw err;
+    if (res.status === 401 && token) {
+      if (!retried && (await refreshOnce())) return api<T>(path, opts, true);
+      source.onUnauthorized();
+    }
+    throw errorFromBody(res.status, json);
   }
   if (json === null) throw new ApiRequestError(res.status, null, fr['error.unknown']);
   return json as T;

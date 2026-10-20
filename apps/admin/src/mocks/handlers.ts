@@ -40,9 +40,16 @@ export function fakeJwt(account: DemoAccount, nowSec = Math.floor(Date.now() / 1
   return `${header}.${payload}.demo`;
 }
 
-const tokens = (a: DemoAccount) => ({
+export const demoSession = (a: DemoAccount) => ({
   accessToken: fakeJwt(a),
-  refreshToken: `demo-refresh-${a.role}`,
+  refreshToken: `demo-refresh-${a.role}-${a.email}`,
+  expiresAt: new Date(Date.now() + 8 * 3600_000).toISOString(),
+  user: {
+    id: `demo-${a.role}`,
+    email: a.email,
+    name: a.email.split('@')[0] ?? a.email,
+    role: a.role,
+  },
 });
 
 const err = (status: number, code: ApiError['error']['code'], message: string) =>
@@ -73,20 +80,21 @@ export const handlers = [
     if (!account || parsed.data.password !== DEMO_PASSWORD) {
       return err(401, 'UNAUTHENTICATED', 'E-mail ou mot de passe incorrect.');
     }
-    if (account.role === 'courier') return HttpResponse.json(tokens(account));
+    if (account.role === 'courier') {
+      return HttpResponse.json({ type: 'session', session: demoSession(account) });
+    }
     const challenge = `challenge-${challenges.size + 1}-${Math.random().toString(36).slice(2)}`;
     challenges.set(challenge, account);
-    return HttpResponse.json(
-      account.enrolled
-        ? { challenge }
+    return HttpResponse.json({
+      type: 'totp_required',
+      challenge,
+      enrollment: account.enrolled
+        ? null
         : {
-            challenge,
-            enrollment: {
-              secret: DEMO_ENROLL_SECRET,
-              otpauthUrl: `otpauth://totp/Streetwear:${account.email}?secret=${DEMO_ENROLL_SECRET}&issuer=Streetwear`,
-            },
+            secret: DEMO_ENROLL_SECRET,
+            otpauthUrl: `otpauth://totp/Streetwear:${account.email}?secret=${DEMO_ENROLL_SECRET}&issuer=Streetwear`,
           },
-    );
+    });
   }),
 
   http.post('*/v1/admin/auth/totp', async ({ request }) => {
@@ -97,8 +105,17 @@ export const handlers = [
     if (parsed.data.code !== DEMO_TOTP_CODE) return err(401, 'UNAUTHENTICATED', 'Code incorrect.');
     challenges.delete(parsed.data.challenge);
     account.enrolled = true;
-    return HttpResponse.json(tokens(account));
+    return HttpResponse.json(demoSession(account));
   }),
+
+  http.post('*/v1/admin/auth/refresh', async ({ request }) => {
+    const body = (await request.json().catch(() => null)) as { refreshToken?: string } | null;
+    const account = DEMO_ACCOUNTS.find((a) => demoSession(a).refreshToken === body?.refreshToken);
+    if (!account) return err(401, 'UNAUTHENTICATED', 'Session expirée. Reconnectez-vous.');
+    return HttpResponse.json(demoSession(account));
+  }),
+
+  http.post('*/v1/admin/auth/logout', () => new HttpResponse(null, { status: 204 })),
 
   http.get('*/v1/admin/stats/summary', ({ request }) => {
     const role = roleFromAuthHeader(request.headers.get('Authorization'));
