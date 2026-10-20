@@ -148,6 +148,10 @@ type Order = { id: string; number: string; status: OrderStatus; items: OrderItem
   deliveryFeeXof: number; totalXof: number; depositXof: number | null; paymentMethod: string;
   reception: { type: 'home'; address: Address } | { type: 'pickup'; store: Store; slot: PickupSlot };
   history: { status: OrderStatus; at: string }[]; expiresAt: string | null; createdAt: string };
+type OrderSummary = { id: string; number: string; status: OrderStatus; totalXof: number;
+  paymentMethod: string; itemCount: number; createdAt: string };
+type OrderItem = { id: string; design: { spec: DesignSpec; previewFrontUrl: string | null; previewBackUrl: string | null };
+  colorId: string; size: Size; quantity: number; unitPriceXof: number; lineTotalXof: number };
 ```
 
 ### Paiements — SP05

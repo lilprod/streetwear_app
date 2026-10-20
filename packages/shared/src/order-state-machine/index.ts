@@ -43,7 +43,7 @@ export type TransitionRule = {
   to: OrderStatus;
   /** Acteurs non-admin autorisés. */
   actors: readonly Exclude<OrderActorType, 'admin'>[];
-  /** Rôles admin autorisés (liste exacte, pas de surcharge implicite par super_admin). */
+  /** Rôles admin autorisés ; `super_admin` l'est aussi dès que la liste n'est pas vide. */
   roles: readonly AdminRole[];
   preconditions: readonly Precondition[];
   /** Type de réception exigé, le cas échéant. */
@@ -118,16 +118,18 @@ export function getTransition(from: OrderStatus, to: OrderStatus): TransitionRul
 }
 
 function actorAllowed(t: TransitionRule, actor: OrderActor): boolean {
-  return actor.type === 'admin' ? t.roles.includes(actor.role) : t.actors.includes(actor.type);
+  if (actor.type !== 'admin') return t.actors.includes(actor.type);
+  return t.roles.length > 0 && (actor.role === 'super_admin' || t.roles.includes(actor.role));
 }
 
 function contextAllowed(t: TransitionRule, ctx?: TransitionContext): boolean {
-  return !t.receptionType || !ctx?.receptionType || ctx.receptionType === t.receptionType;
+  return !t.receptionType || ctx?.receptionType === t.receptionType;
 }
 
 /**
- * Vrai si la transition existe, si l'acteur y est autorisé et (quand `context.receptionType` est
- * fourni) si le type de réception correspond. Les préconditions se vérifient via `unmetPreconditions`.
+ * Vrai si la transition existe, si l'acteur y est autorisé et si le type de réception correspond
+ * (obligatoire dans `context` pour les transitions qui en dépendent). Les préconditions se
+ * vérifient via `unmetPreconditions`.
  */
 export function canTransition(
   from: OrderStatus,

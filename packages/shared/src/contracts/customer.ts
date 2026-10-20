@@ -278,7 +278,6 @@ export const OrderSchema = z.object({
   expiresAt: isoDate.nullable(),
   createdAt: isoDate,
 });
-/** `OrderSummary` n'est pas détaillé dans le contrat : sous-ensemble proposé. */
 export const OrderSummarySchema = OrderSchema.pick({
   id: true,
   number: true,

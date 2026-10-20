@@ -123,7 +123,7 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 | SP | État | Branche | Dernier compte rendu |
 |---|---|---|---|
 | SP00 | Terminé — Docker Compose et CI GitHub à confirmer à la première PR | `ccr-beb850b2-5rmap5` | 20/10/2026 |
-| SP01 | À faire | | |
+| SP01 | Terminé — règles du super admin et du type de réception corrigées à la relecture | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP02 | À faire | | |
 | SP03 | À faire | | |
 | SP04 | À faire | | |

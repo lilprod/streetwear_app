@@ -25,10 +25,13 @@ describe('transition table', () => {
   it.each(ORDER_TRANSITIONS.map((t) => [t.from, t.to, t] as const))(
     '%s -> %s: allowed for listed actors only',
     (from, to, t) => {
+      const ctx = t.receptionType ? { receptionType: t.receptionType } : undefined;
       for (const actor of ALL_ACTORS) {
         const expected =
-          actor.type === 'admin' ? t.roles.includes(actor.role) : t.actors.includes(actor.type);
-        expect(canTransition(from, to, actor)).toBe(expected);
+          actor.type === 'admin'
+            ? t.roles.length > 0 && (actor.role === 'super_admin' || t.roles.includes(actor.role))
+            : t.actors.includes(actor.type);
+        expect(canTransition(from, to, actor, ctx)).toBe(expected);
       }
     },
   );
@@ -77,13 +80,23 @@ describe('transition table', () => {
     expect(canTransition('in_production', 'cancelled', admin('super_admin'))).toBe(false);
   });
 
-  it('restricts by reception type when provided', () => {
+  it('lets super_admin do any team transition but none reserved to provider, system or customer', () => {
+    const sa = admin('super_admin');
+    expect(canTransition('in_production', 'ready', sa)).toBe(true);
+    expect(canTransition('shipped', 'delivered', sa, { receptionType: 'home' })).toBe(true);
+    expect(canTransition('pending_payment', 'paid', sa)).toBe(false);
+    expect(canTransition('pending_payment', 'expired', sa)).toBe(false);
+    expect(canTransition('payment_failed', 'pending_payment', sa)).toBe(false);
+  });
+
+  it('requires the matching reception type when the transition depends on it', () => {
     const l = admin('logistics');
     expect(canTransition('ready', 'shipped', l, { receptionType: 'home' })).toBe(true);
     expect(canTransition('ready', 'shipped', l, { receptionType: 'pickup' })).toBe(false);
     expect(canTransition('ready', 'ready_for_pickup', l, { receptionType: 'pickup' })).toBe(true);
     expect(canTransition('ready', 'ready_for_pickup', l, { receptionType: 'home' })).toBe(false);
-    expect(canTransition('ready', 'ready_for_pickup', l, {})).toBe(true);
+    expect(canTransition('ready', 'ready_for_pickup', l, {})).toBe(false);
+    expect(canTransition('ready', 'shipped', l)).toBe(false);
     expect(
       canTransition('paid', 'in_production', admin('production'), { receptionType: 'home' }),
     ).toBe(true);
@@ -97,10 +110,10 @@ describe('allowedTransitions', () => {
       'deposit_paid',
       'payment_failed',
     ]);
-    expect(allowedTransitions('ready', admin('logistics'))).toEqual([
+    expect(allowedTransitions('ready', admin('logistics'), { receptionType: 'home' })).toEqual([
       'shipped',
-      'ready_for_pickup',
     ]);
+    expect(allowedTransitions('ready', admin('logistics'))).toEqual([]);
     expect(allowedTransitions('ready', admin('logistics'), { receptionType: 'pickup' })).toEqual([
       'ready_for_pickup',
     ]);

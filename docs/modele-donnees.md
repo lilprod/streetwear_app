@@ -111,6 +111,10 @@ refunded  : depuis cancelled ou returned (super_admin)
 
 Toute autre transition renvoie `409 INVALID_TRANSITION`.
 
+- `super_admin` peut faire toute transition ouverte à au moins un rôle de l'équipe ; jamais celles réservées au fournisseur de paiement, au système ou au client.
+- Les transitions liées au type de réception (`shipped`, `ready_for_pickup`, `delivered`, `delivery_failed`) exigent que l'API passe `context.receptionType` à `canTransition` ; sans lui, elles sont refusées.
+- Les préconditions (opérateur, fichiers HD, livreur, code) se vérifient avec `unmetPreconditions`, appelée par `OrdersService.transition`.
+
 ## Règles transactionnelles
 
 1. **Création de commande :** dans une transaction, lire les prix (`price_rules`), recalculer chaque ligne, réserver le stock (`SELECT … FOR UPDATE` sur `stock_items`), créer `orders` + `order_items` + `stock_movements(reserve)`. Stock insuffisant → `409 OUT_OF_STOCK` avec les lignes concernées.

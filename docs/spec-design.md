@@ -62,6 +62,7 @@ suivre les gabarits de l'atelier sans changer le code.
 4. `patternId`, `fontId`, `colorId` existent et sont actifs (vérifié par l'API, pas par Zod) → sinon `422 PATTERN_INACTIVE`.
 5. Le texte ne contient aucun mot de `banned_words` (comparaison sans accents, insensible à la casse) → sinon `422 TEXT_REJECTED`.
 6. Traits de texte : `sizeMm ≥ 8`.
+7. Boîte englobante d'un texte (sans métriques de police) : largeur = nombre de caractères × `sizeMm`, hauteur = 1,4 × `sizeMm`. Constantes dans `packages/shared/src/design-spec/zones.ts` ; le rendu HD (SP08) doit rester dans cette boîte.
 
 ## Calcul du prix unitaire
 
