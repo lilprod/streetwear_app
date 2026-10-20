@@ -1,1 +1,5 @@
-{ "extends": "@streetwear/config/tsconfig.base.json", "include": ["src", "*.ts"] }
+{
+  "extends": "@streetwear/config/tsconfig.base.json",
+  "compilerOptions": { "types": [] },
+  "include": ["src", "*.ts"]
+}
