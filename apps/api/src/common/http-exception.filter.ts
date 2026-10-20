@@ -4,16 +4,17 @@ import {
   type ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
 
 const CODES: Record<number, string> = {
-  400: 'VALIDATION_ERROR',
-  401: 'UNAUTHORIZED',
+  400: 'VALIDATION_FAILED',
+  401: 'UNAUTHENTICATED',
   403: 'FORBIDDEN',
   404: 'NOT_FOUND',
   409: 'CONFLICT',
-  429: 'TOO_MANY_REQUESTS',
+  429: 'RATE_LIMITED',
   503: 'SERVICE_UNAVAILABLE',
 };
 
@@ -29,12 +30,19 @@ const MESSAGES: Record<number, string> = {
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger('Exceptions');
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>();
     const status = exception instanceof HttpException ? exception.getStatus() : 500;
     let code = CODES[status] ?? 'INTERNAL_ERROR';
     let message = MESSAGES[status] ?? 'Une erreur est survenue. Réessayez plus tard.';
     let details: unknown;
+
+    if (status >= 500 && !(exception instanceof HttpException)) {
+      const e = exception instanceof Error ? exception : new Error('unknown');
+      this.logger.error(`${e.name}: ${e.message.split('\n').slice(-2).join(' ').slice(0, 300)}`);
+    }
 
     if (exception instanceof HttpException) {
       const body = exception.getResponse();

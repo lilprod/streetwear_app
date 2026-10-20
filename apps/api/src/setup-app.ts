@@ -1,10 +1,12 @@
 import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AllExceptionsFilter } from './common/http-exception.filter';
 
 export function setupApp(app: INestApplication): void {
   app.useLogger(app.get(Logger));
+  (app as NestExpressApplication).useBodyParser('json', { limit: '1mb' });
   app.setGlobalPrefix('v1');
   app.useGlobalFilters(new AllExceptionsFilter());
   const doc = SwaggerModule.createDocument(

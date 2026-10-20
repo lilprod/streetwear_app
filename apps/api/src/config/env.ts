@@ -8,6 +8,16 @@ export const envSchema = z.object({
   REDIS_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
   SENTRY_DSN: z.string().default(''),
+  RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(100),
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  APPLE_CLIENT_ID: z.string().default(''),
+  SEED_ADMIN_EMAIL: z.string().default(''),
+  SEED_ADMIN_PASSWORD: z.string().default(''),
+  MEDIA_PROVIDER: z.enum(['local', 'cloudinary']).default('local'),
+  MEDIA_BASE_URL: z.string().default('http://localhost:3000/media'),
+  CLOUDINARY_CLOUD_NAME: z.string().default(''),
+  CLOUDINARY_API_KEY: z.string().default(''),
+  CLOUDINARY_API_SECRET: z.string().default(''),
 });
 
 export type Env = z.infer<typeof envSchema>;

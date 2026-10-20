@@ -18,7 +18,7 @@ const phoneOut = z.string().regex(/^\+228\d{8}$/);
 // Auth et compte
 export const UserSchema = z.object({
   id: uuid,
-  phone: phoneOut,
+  phone: phoneOut.nullable(),
   name: z.string().nullable(),
   email: z.string().email().nullable(),
   createdAt: isoDate,

@@ -22,7 +22,7 @@ export function sessionFromApi(s: AdminSession, now = Date.now()): Session {
     userId: s.user.id,
     role: s.user.role,
     email: s.user.email,
-    name: s.user.name,
+    name: s.user.name ?? s.user.email,
     expiresAt: now + SESSION_DURATION_MS,
   };
 }

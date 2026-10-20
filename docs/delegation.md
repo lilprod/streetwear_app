@@ -124,14 +124,14 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 |---|---|---|---|
 | SP00 | Terminé — Docker Compose et CI GitHub à confirmer à la première PR | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP01 | Terminé — règles du super admin et du type de réception corrigées à la relecture | `ccr-beb850b2-5rmap5` | 20/10/2026 |
-| SP02 | À faire | | |
-| SP03 | À faire | | |
+| SP02 | Terminé — fusionné avec SP03 (170 tests API) | `ccr-beb850b2-5rmap5` | 20/10/2026 |
+| SP03 | Terminé — fusionné avec SP02 | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP04 | À faire | | |
 | SP05 | À faire | | |
 | SP06 | À faire | | |
 | SP07 | À faire | | |
 | SP08 | À faire | | |
-| SP09 | À faire | | |
+| SP09 | Terminé en mode mock — fluidité et appareils à vérifier sur téléphone | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP10 | À faire | | |
-| SP11 | À faire | | |
+| SP11 | Lot A terminé ; lots B et C à faire | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP12 | À faire | | |

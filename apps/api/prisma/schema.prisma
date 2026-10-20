@@ -14,3 +14,244 @@ model Setting {
 
   @@map("settings")
 }
+
+enum AdminRole {
+  super_admin
+  order_manager
+  production
+  logistics
+  courier
+
+  @@map("admin_role")
+}
+
+enum PushPlatform {
+  android
+  ios
+
+  @@map("push_platform")
+}
+
+model User {
+  id            String         @id @db.Uuid
+  phone         String?        @unique
+  name          String?
+  email         String?
+  appleSub      String?        @unique @map("apple_sub")
+  googleSub     String?        @unique @map("google_sub")
+  deletedAt     DateTime?      @map("deleted_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  addresses     Address[]
+  pushTokens    PushToken[]
+  refreshTokens RefreshToken[]
+  designs       Design[]
+
+  @@map("users")
+}
+
+model Address {
+  id             String   @id @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  label          String
+  lat            Float
+  lng            Float
+  district       String
+  landmark       String
+  recipientPhone String   @map("recipient_phone")
+  zoneId         String?  @map("zone_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model OtpCode {
+  id         String    @id @db.Uuid
+  phone      String
+  codeHash   String    @map("code_hash")
+  expiresAt  DateTime  @map("expires_at")
+  attempts   Int       @default(0)
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([phone, createdAt])
+  @@map("otp_codes")
+}
+
+model AdminUser {
+  id            String         @id @db.Uuid
+  email         String         @unique
+  name          String?
+  passwordHash  String         @map("password_hash")
+  role          AdminRole
+  totpSecret    String?        @map("totp_secret")
+  active        Boolean        @default(true)
+  failedLogins  Int            @default(0) @map("failed_logins")
+  lockedUntil   DateTime?      @map("locked_until")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("admin_users")
+}
+
+model RefreshToken {
+  id          String     @id @db.Uuid
+  userId      String?    @map("user_id") @db.Uuid
+  adminUserId String?    @map("admin_user_id") @db.Uuid
+  tokenHash   String     @unique @map("token_hash")
+  familyId    String     @map("family_id") @db.Uuid
+  expiresAt   DateTime   @map("expires_at")
+  revokedAt   DateTime?  @map("revoked_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PushToken {
+  id        String       @id @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  token     String       @unique
+  platform  PushPlatform
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_tokens")
+}
+
+model AuditLog {
+  id          String     @id @db.Uuid
+  adminUserId String?    @map("admin_user_id") @db.Uuid
+  action      String
+  entity      String
+  entityId    String?    @map("entity_id")
+  before      Json?
+  after       Json?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ---- SP03 : catalogue et designs ----
+
+enum PatternPriceTier {
+  standard
+  premium
+
+  @@map("pattern_price_tier")
+}
+
+model PatternCategory {
+  id        String    @id @default(uuid(7))
+  slug      String    @unique
+  name      String
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  patterns  Pattern[]
+
+  @@map("pattern_categories")
+}
+
+model Pattern {
+  id             String           @id @default(uuid(7))
+  categoryId     String           @map("category_id")
+  name           String
+  origin         String           @default("")
+  tags           String[]
+  priceTier      PatternPriceTier @default(standard) @map("price_tier")
+  imagePublicId  String           @map("image_public_id")
+  widthPx        Int              @map("width_px")
+  heightPx       Int              @map("height_px")
+  rightsHolder   String?          @map("rights_holder")
+  rightsProofUrl String?          @map("rights_proof_url")
+  active         Boolean          @default(false)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  category       PatternCategory  @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([active, name, id])
+  @@map("patterns")
+}
+
+model TshirtColor {
+  id        String   @id @default(uuid(7))
+  name      String
+  hex       String
+  isDark    Boolean  @map("is_dark")
+  active    Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tshirt_colors")
+}
+
+model Font {
+  id           String   @id @default(uuid(7))
+  name         String
+  family       String
+  filePublicId String   @map("file_public_id")
+  licenseRef   String?  @map("license_ref")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("fonts")
+}
+
+model PriceRule {
+  id        String   @id @default(uuid(7))
+  key       String   @unique
+  amountXof Int      @map("amount_xof")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("price_rules")
+}
+
+model BannedWord {
+  id        String   @id @default(uuid(7))
+  word      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("banned_words")
+}
+
+model Design {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  spec            Json
+  specVersion     Int      @default(1) @map("spec_version")
+  previewFrontUrl String?  @map("preview_front_url")
+  previewBackUrl  String?  @map("preview_back_url")
+  isDraft         Boolean  @default(true) @map("is_draft")
+  name            String?
+  idempotencyKey  String?  @map("idempotency_key") @db.Uuid
+  idempotencyHash String?  @map("idempotency_hash")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, updatedAt(sort: Desc), id(sort: Desc)])
+  @@map("designs")
+}

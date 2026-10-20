@@ -12,6 +12,32 @@ import { AddressSchema } from './customer';
 
 export const AdminRoleSchema = z.enum(ADMIN_ROLES);
 
+export const AdminUserSchema = z.object({
+  id: uuid,
+  email: z.string().email(),
+  name: z.string().nullable(),
+  role: AdminRoleSchema,
+});
+export type AdminUser = z.infer<typeof AdminUserSchema>;
+
+export const AdminSessionSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresAt: isoDate,
+  user: AdminUserSchema,
+});
+export type AdminSession = z.infer<typeof AdminSessionSchema>;
+
+export const AdminLoginResultSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('session'), session: AdminSessionSchema }),
+  z.object({
+    type: z.literal('totp_required'),
+    challenge: z.string(),
+    enrollment: z.object({ secret: z.string(), otpauthUrl: z.string() }).nullable(),
+  }),
+]);
+export type AdminLoginResult = z.infer<typeof AdminLoginResultSchema>;
+
 export const AdminLoginInputSchema = z
   .object({ email: z.string().email(), password: z.string().min(1).max(200) })
   .strict();

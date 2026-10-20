@@ -1,5 +1,5 @@
 import type { DesignSpec } from '../design-spec/schema';
-import type { PriceRules } from '../pricing';
+import { computeUnitPriceXof, type PriceRules } from '../pricing';
 import type { OrderStatus } from '../order-state-machine';
 import type {
   Address,
@@ -239,6 +239,9 @@ export const INVALID_DESIGNS: InvalidDesignFixture[] = [
   },
 ];
 
+const priceOf = (spec: DesignSpec): number =>
+  computeUnitPriceXof(spec, FIXTURE_PRICE_RULES, FIXTURE_PATTERNS_BY_ID);
+
 const designOf = (n: number, spec: DesignSpec, unitPriceXof: number): Design => ({
   id: uid(n),
   name: null,
@@ -332,6 +335,14 @@ export const FIXTURE_ORDERS: Order[] = [
 
 export const FIXTURE_DESIGNS: Design[] = [
   designOf(400, VALID_DESIGNS.patternOnly as DesignSpec, 11000),
-  designOf(401, VALID_DESIGNS.patternAndText as DesignSpec, 11500),
-  designOf(402, VALID_DESIGNS.frontBackTiled as DesignSpec, 13500),
+  designOf(
+    401,
+    VALID_DESIGNS.patternAndText as DesignSpec,
+    priceOf(VALID_DESIGNS.patternAndText as DesignSpec),
+  ),
+  designOf(
+    402,
+    VALID_DESIGNS.frontBackTiled as DesignSpec,
+    priceOf(VALID_DESIGNS.frontBackTiled as DesignSpec),
+  ),
 ];

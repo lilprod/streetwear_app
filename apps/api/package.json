@@ -11,25 +11,34 @@
     "start:worker": "node --env-file-if-exists=.env dist/worker.js",
     "lint": "eslint .",
     "typecheck": "prisma generate && tsc --noEmit",
-    "test": "jest --silent --runInBand"
+    "test": "jest --silent --runInBand",
+    "db:seed": "prisma db seed"
   },
   "prisma": {
+    "seed": "tsx prisma/seed.ts",
     "schema": "prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.1.0",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/client": "^6.19.0",
     "@sentry/node": "^10.0.0",
+    "@streetwear/shared": "workspace:^",
+    "argon2": "^0.45.1",
     "bullmq": "^5.61.0",
     "ioredis": "^5.8.0",
+    "jose": "^5.10.0",
     "nestjs-pino": "^4.4.0",
+    "otplib": "^12.0.1",
     "pino": "^9.9.0",
     "pino-http": "^10.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "sanitize-html": "2.13.1",
     "zod": "^3.25.0"
   },
   "devDependencies": {
@@ -39,12 +48,14 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.0",
+    "@types/sanitize-html": "^2.16.2",
     "@types/supertest": "^6.0.0",
     "eslint": "^9.39.0",
     "jest": "^30.0.0",
     "prisma": "^6.19.0",
     "supertest": "^7.1.0",
     "ts-jest": "^29.4.0",
+    "tsx": "^4.23.15",
     "typescript": "~5.9.0"
   }
 }

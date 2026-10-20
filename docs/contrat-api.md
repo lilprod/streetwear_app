@@ -214,7 +214,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 
 ```ts
 type AdminRole = 'super_admin' | 'order_manager' | 'production' | 'logistics' | 'courier';
-type AdminUser = { id: string; email: string; name: string; role: AdminRole };
+type AdminUser = { id: string; email: string; name: string | null; role: AdminRole }; // affichage : name ?? email
 type AdminSession = { accessToken: string; refreshToken: string; expiresAt: string; user: AdminUser };
 // Rôle courier : pas de TOTP, la session est renvoyée directement.
 // Premier login d'un autre rôle : `enrollment` contient le secret TOTP à enregistrer.
