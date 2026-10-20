@@ -37,6 +37,9 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 422 | `PATTERN_INACTIVE` | Motif désactivé dans le design |
 | 429 | `RATE_LIMITED` | Trop de requêtes |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
+| 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
+
+`GET /v1/health` (public) → `200 { status: "ok", db: "ok", redis: "ok" }` ou `503 SERVICE_UNAVAILABLE`.
 
 ## Routes client (application mobile)
 
