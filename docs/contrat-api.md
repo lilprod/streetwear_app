@@ -173,8 +173,10 @@ l'API facture l'acompte (`kind = 'deposit'`).
 
 | Méthode | Route | Rôles | Sous-projet |
 |---|---|---|---|
-| POST | `/admin/auth/login` `{ email, password }` → `{ challenge }` ou jetons | tous | SP02 |
-| POST | `/admin/auth/totp` `{ challenge, code }` | tous | SP02 |
+| POST | `/admin/auth/login` `{ email, password }` → `AdminLoginResult` | tous | SP02 |
+| POST | `/admin/auth/totp` `{ challenge, code }` → `AdminSession` | tous | SP02 |
+| POST | `/admin/auth/refresh` `{ refreshToken }` → `AdminSession` | tous | SP02 |
+| POST | `/admin/auth/logout` `{ refreshToken }` → `204` | tous | SP02 |
 | GET | `/admin/orders` `?status&receptionType&paymentMethod&from&to&q&cursor` | order_manager, production, logistics, super_admin | SP04 |
 | GET | `/admin/orders/:id` | idem | SP04 |
 | POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note? }` | selon la transition | SP04 |
@@ -197,6 +199,20 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
 | GET / PATCH | `/admin/notification-templates` | super_admin | SP07 |
 | GET | `/admin/stats/summary` `?from&to` → `{ ordersCount, revenueXof, averageOrderXof, byStatus, byReception, topPatterns, topColors }` | order_manager, super_admin | SP11 |
+
+```ts
+type AdminRole = 'super_admin' | 'order_manager' | 'production' | 'logistics' | 'courier';
+type AdminUser = { id: string; email: string; name: string; role: AdminRole };
+type AdminSession = { accessToken: string; refreshToken: string; expiresAt: string; user: AdminUser };
+// Rôle courier : pas de TOTP, la session est renvoyée directement.
+// Premier login d'un autre rôle : `enrollment` contient le secret TOTP à enregistrer.
+type AdminLoginResult =
+  | { type: 'session'; session: AdminSession }
+  | { type: 'totp_required'; challenge: string; enrollment: { secret: string; otpauthUrl: string } | null };
+```
+
+- Session admin : jeton d'accès 15 min ; jeton de rafraîchissement valable 8 h, sans prolongation au-delà de 8 h après la connexion.
+- Le back-office lit l'utilisateur dans `AdminSession.user`, jamais dans les claims du JWT.
 
 ## Routes livreur — `/v1/courier/*` (rôle `courier`)
 
