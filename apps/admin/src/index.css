@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surfaceAdmin font-sans text-sm text-ink antialiased;
+  }
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-focus;
+  }
+  code,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+}
