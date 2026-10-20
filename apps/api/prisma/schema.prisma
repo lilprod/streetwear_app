@@ -45,6 +45,7 @@ model User {
   addresses     Address[]
   pushTokens    PushToken[]
   refreshTokens RefreshToken[]
+  designs       Design[]
 
   @@map("users")
 }
@@ -145,4 +146,112 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ---- SP03 : catalogue et designs ----
+
+enum PatternPriceTier {
+  standard
+  premium
+
+  @@map("pattern_price_tier")
+}
+
+model PatternCategory {
+  id        String    @id @default(uuid(7))
+  slug      String    @unique
+  name      String
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  patterns  Pattern[]
+
+  @@map("pattern_categories")
+}
+
+model Pattern {
+  id             String           @id @default(uuid(7))
+  categoryId     String           @map("category_id")
+  name           String
+  origin         String           @default("")
+  tags           String[]
+  priceTier      PatternPriceTier @default(standard) @map("price_tier")
+  imagePublicId  String           @map("image_public_id")
+  widthPx        Int              @map("width_px")
+  heightPx       Int              @map("height_px")
+  rightsHolder   String?          @map("rights_holder")
+  rightsProofUrl String?          @map("rights_proof_url")
+  active         Boolean          @default(false)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  category       PatternCategory  @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([active, name, id])
+  @@map("patterns")
+}
+
+model TshirtColor {
+  id        String   @id @default(uuid(7))
+  name      String
+  hex       String
+  isDark    Boolean  @map("is_dark")
+  active    Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tshirt_colors")
+}
+
+model Font {
+  id           String   @id @default(uuid(7))
+  name         String
+  family       String
+  filePublicId String   @map("file_public_id")
+  licenseRef   String?  @map("license_ref")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("fonts")
+}
+
+model PriceRule {
+  id        String   @id @default(uuid(7))
+  key       String   @unique
+  amountXof Int      @map("amount_xof")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("price_rules")
+}
+
+model BannedWord {
+  id        String   @id @default(uuid(7))
+  word      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("banned_words")
+}
+
+model Design {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  spec            Json
+  specVersion     Int      @default(1) @map("spec_version")
+  previewFrontUrl String?  @map("preview_front_url")
+  previewBackUrl  String?  @map("preview_back_url")
+  isDraft         Boolean  @default(true) @map("is_draft")
+  name            String?
+  idempotencyKey  String?  @map("idempotency_key") @db.Uuid
+  idempotencyHash String?  @map("idempotency_hash")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, updatedAt(sort: Desc), id(sort: Desc)])
+  @@map("designs")
 }

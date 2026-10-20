@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { AdminRole } from '@prisma/client';
+import type { AdminLoginResult, AdminSession } from '@streetwear/shared';
 import { authenticator } from 'otplib';
 import { apiError } from '../../common/api-error';
 import { decrypt, encrypt } from '../../common/crypto';
@@ -12,20 +13,7 @@ const MAX_FAILURES = 5;
 const LOCK_MINUTES = 15;
 authenticator.options = { window: 1 };
 
-export interface AdminSession {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-  user: { id: string; email: string; name: string | null; role: AdminRole };
-}
-
-export type AdminLoginResult =
-  | { type: 'session'; session: AdminSession }
-  | {
-      type: 'totp_required';
-      challenge: string;
-      enrollment: { secret: string; otpauthUrl: string } | null;
-    };
+export type { AdminLoginResult, AdminSession };
 
 const ACCESS_MS = 15 * 60_000;
 

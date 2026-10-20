@@ -2,7 +2,11 @@ import { Global, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { AdminCatalogModule } from './admin-catalog/admin-catalog.module';
+import { CatalogModule } from './catalog/catalog.module';
 import { ENV, parseEnv } from './config/env';
+import { DesignsModule } from './designs/designs.module';
+import { MediaModule } from './media/media.module';
 import { HealthController } from './health/health.controller';
 import { AdminUsersModule } from './modules/admin-users/admin-users.module';
 import { AuditInterceptor } from './modules/audit/audit.interceptor';
@@ -35,6 +39,10 @@ import { RedisService } from './redis/redis.service';
     SettingsModule,
     UsersModule,
     AdminUsersModule,
+    MediaModule,
+    CatalogModule,
+    DesignsModule,
+    AdminCatalogModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -1,7 +1,9 @@
-import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { AdminRole } from '@prisma/client';
 import { authenticator } from 'otplib';
+import request from 'supertest';
+import type { INestApplication } from '@nestjs/common';
+import { seedCatalog } from '../src/catalog/seed';
 import { AppModule } from '../src/app.module';
 import { apiError } from '../src/common/api-error';
 import { hashPassword } from '../src/common/password';
@@ -86,3 +88,36 @@ export const totpNow = (secret: string): string => authenticator.generate(secret
 export const bearer = (token: string): { Authorization: string } => ({
   Authorization: `Bearer ${token}`,
 });
+
+const ADMIN_ROLES_FOR_TESTS = [
+  'super_admin',
+  'order_manager',
+  'production',
+  'logistics',
+  'courier',
+] as const;
+
+export type AuthHeader = [string, string];
+export type Method = 'get' | 'post' | 'patch' | 'delete';
+
+export function call(app: INestApplication, method: Method, url: string): request.Test {
+  return request(app.getHttpServer())[method](url);
+}
+
+/** App complète + catalogue amorcé + un admin par rôle (vrais jetons signés). */
+export async function buildApp() {
+  const ctx = await createApp();
+  await seedCatalog(ctx.prisma);
+  const admins = {} as Record<AdminRole, AuthHeader>;
+  for (const role of ADMIN_ROLES_FOR_TESTS) {
+    const { token } = await createAdmin(ctx, role);
+    admins[role] = ['Authorization', `Bearer ${token}`];
+  }
+  const adminAuth = (role: AdminRole): AuthHeader => admins[role];
+  const newCustomer = async (): Promise<{ id: string; auth: AuthHeader }> => {
+    const phone = `+228${String(90_000_000 + Math.floor(Math.random() * 9_999_999))}`;
+    const { user, token } = await createCustomer(ctx, phone);
+    return { id: user.id, auth: ['Authorization', `Bearer ${token}`] };
+  };
+  return { app: ctx.app, prisma: ctx.prisma, ctx, adminAuth, newCustomer };
+}

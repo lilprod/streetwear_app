@@ -1,16 +1,16 @@
-import type { AdminLoginInput, AdminRole, AdminTotpInput } from '@streetwear/shared';
+import type {
+  AdminLoginInput,
+  AdminLoginResult,
+  AdminSession,
+  AdminTotpInput,
+} from '@streetwear/shared';
 import { api } from '../lib/api';
 
-export type AdminSession = {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: string;
-  user: { id: string; email: string; name: string; role: AdminRole };
-};
-export type TotpEnrollment = { secret: string; otpauthUrl: string };
-export type LoginResponse =
-  | { type: 'session'; session: AdminSession }
-  | { type: 'totp_required'; challenge: string; enrollment: TotpEnrollment | null };
+export type TotpEnrollment = NonNullable<
+  Extract<AdminLoginResult, { type: 'totp_required' }>['enrollment']
+>;
+export type LoginResponse = AdminLoginResult;
+export type { AdminSession };
 
 export const adminLogin = (input: AdminLoginInput) =>
   api<LoginResponse>('/admin/auth/login', { method: 'POST', body: input, auth: false });

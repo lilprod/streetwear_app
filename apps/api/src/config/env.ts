@@ -13,6 +13,11 @@ export const envSchema = z.object({
   APPLE_CLIENT_ID: z.string().default(''),
   SEED_ADMIN_EMAIL: z.string().default(''),
   SEED_ADMIN_PASSWORD: z.string().default(''),
+  MEDIA_PROVIDER: z.enum(['local', 'cloudinary']).default('local'),
+  MEDIA_BASE_URL: z.string().default('http://localhost:3000/media'),
+  CLOUDINARY_CLOUD_NAME: z.string().default(''),
+  CLOUDINARY_API_KEY: z.string().default(''),
+  CLOUDINARY_API_SECRET: z.string().default(''),
 });
 
 export type Env = z.infer<typeof envSchema>;
