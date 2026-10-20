@@ -14,18 +14,25 @@
     "test": "jest --silent --runInBand"
   },
   "prisma": {
+    "seed": "tsx prisma/seed.ts",
     "schema": "prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.1.0",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/client": "^6.19.0",
     "@sentry/node": "^10.0.0",
+    "@streetwear/shared": "workspace:^",
+    "argon2": "^0.45.1",
     "bullmq": "^5.61.0",
     "ioredis": "^5.8.0",
+    "jose": "^5.10.0",
     "nestjs-pino": "^4.4.0",
+    "otplib": "^12.0.1",
     "pino": "^9.9.0",
     "pino-http": "^10.5.0",
     "reflect-metadata": "^0.2.2",
@@ -45,6 +52,7 @@
     "prisma": "^6.19.0",
     "supertest": "^7.1.0",
     "ts-jest": "^29.4.0",
+    "tsx": "^4.23.15",
     "typescript": "~5.9.0"
   }
 }
