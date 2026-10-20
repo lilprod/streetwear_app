@@ -34,7 +34,14 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 409 | `ORDER_NOT_PAYABLE` | Commande expirée, déjà payée ou annulée |
 | 409 | `IDEMPOTENCY_CONFLICT` | Même clé, corps différent |
 | 422 | `TEXT_REJECTED` | Texte du design refusé par la modération |
-| 422 | `PATTERN_INACTIVE` | Motif désactivé dans le design |
+| 422 | `PATTERN_INACTIVE` | Motif, police ou couleur inactif ou inconnu ; `details.items` = `[{ kind, id }]` |
+| 400 | `OTP_INVALID` | Code SMS faux ou expiré |
+| 400 | `OTP_ATTEMPTS_EXCEEDED` | 5 essais dépassés : demander un nouveau code |
+| 401 | `INVALID_CREDENTIALS` | E-mail ou mot de passe admin incorrect |
+| 401 | `INVALID_TOTP` | Code TOTP incorrect |
+| 403 | `ACCOUNT_LOCKED` | Compte admin bloqué 15 min après 5 échecs |
+| 409 | `EMAIL_ALREADY_USED` | E-mail déjà utilisé par un compte équipe |
+| 409 | `CANNOT_MODIFY_SELF` | Un admin ne peut pas changer son propre rôle ni se désactiver |
 | 429 | `RATE_LIMITED` | Trop de requêtes |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
@@ -59,7 +66,8 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | POST | `/me/push-tokens` | `{ token, platform }` | `204` |
 
 ```ts
-type User = { id: string; phone: string; name: string | null; email: string | null; createdAt: string };
+type User = { id: string; phone: string | null; name: string | null; email: string | null; createdAt: string };
+// phone est null pour un compte créé par Apple ou Google ; il est demandé avant la première commande.
 type AddressInput = { label: string; lat: number; lng: number; district: string; landmark: string; recipientPhone: string };
 type Address = AddressInput & { id: string; zone: DeliveryZoneSummary | null };
 ```
@@ -74,7 +82,10 @@ type Address = AddressInput & { id: string; zone: DeliveryZoneSummary | null };
 | GET | `/catalog/colors` | — | `TshirtColor[]` |
 | GET | `/catalog/fonts` | — | `Font[]` |
 | GET | `/catalog/pricing` | — | `PriceRules` |
-| GET | `/catalog/availability` | `colorId` | `{ sizes: { size: Size; available: boolean }[] }` |
+| GET | `/catalog/availability` | `colorId` | `{ sizes: { size: Size; available: boolean }[] }` (cache 30 s) |
+| GET | `/catalog/banned-words` | — | `string[]` normalisés (cache 1 h), pour signaler les mots interdits dès la saisie |
+
+Les routes du catalogue sont mises en cache 5 min (`Cache-Control` + `ETag`), sauf mention contraire. Les identifiants de motifs, couleurs et polices sont des chaînes (pas forcément des UUID).
 
 ```ts
 type Pattern = { id: string; name: string; origin: string; categoryId: string; tags: string[];
@@ -90,7 +101,7 @@ type Size = 'XS' | 'S' | 'M' | 'L' | 'XL' | '2XL' | '3XL';
 | Méthode | Route | Corps | Réponse |
 |---|---|---|---|
 | GET | `/designs` | `?drafts=true` | `Page<Design>` |
-| POST | `/designs` | `{ spec: DesignSpec, name? }` | `Design` |
+| POST | `/designs` | `{ spec: DesignSpec, name? }` + `Idempotency-Key` **optionnel** (synchronisation hors ligne) | `201 Design` (`200` si la clé a déjà servi) |
 | GET / PATCH / DELETE | `/designs/:id` | PATCH `{ spec?, name?, isDraft? }` | `Design` / `204` |
 | POST | `/designs/:id/duplicate` | — | `Design` |
 | POST | `/designs/:id/previews` | `{ front?: base64Png, back?: base64Png }` (≤ 500 Ko chacun) | `Design` |
@@ -191,10 +202,11 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET | `/admin/stock` | production, super_admin | SP04 |
 | POST | `/admin/stock/movements` `{ colorId, size, type: 'in' \| 'adjust', quantity, note }` | production, super_admin | SP04 |
 | PATCH | `/admin/stock/:id` `{ alertThreshold }` | production, super_admin | SP04 |
-| GET / POST / PATCH | `/admin/patterns`, `/admin/pattern-categories`, `/admin/colors`, `/admin/fonts`, `/admin/price-rules` | super_admin | SP03 |
+| GET / POST / PATCH | `/admin/patterns`, `/admin/pattern-categories`, `/admin/colors`, `/admin/fonts`, `/admin/price-rules` (pas de suppression : désactivation par `PATCH`) | super_admin | SP03 |
+| GET / POST / DELETE | `/admin/banned-words` | super_admin | SP03 |
 | POST | `/admin/media/upload-signature` `{ kind: 'pattern' \| 'font' }` | super_admin | SP03 |
 | GET | `/admin/payments` `?status&from&to` · `/admin/reconciliations` | order_manager, super_admin | SP05 |
-| GET / POST / PATCH | `/admin/users` (comptes équipe) | super_admin | SP02 |
+| GET / POST / PATCH | `/admin/users` (comptes équipe ; PATCH `{ name?, role?, active?, password?, resetTotp?: true }`) | super_admin | SP02 |
 | GET | `/admin/audit-logs` `?entity&entityId` | super_admin | SP02 |
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
 | GET / PATCH | `/admin/notification-templates` | super_admin | SP07 |
@@ -213,6 +225,15 @@ type AdminLoginResult =
 
 - Session admin : jeton d'accès 15 min ; jeton de rafraîchissement valable 8 h, sans prolongation au-delà de 8 h après la connexion.
 - Le back-office lit l'utilisateur dans `AdminSession.user`, jamais dans les claims du JWT.
+
+### Import d'un motif ou d'une police (SP03)
+
+1. `POST /admin/media/upload-signature { kind }` → signature d'upload direct vers le fournisseur de médias.
+2. Le back-office envoie le fichier directement au fournisseur.
+3. `POST /admin/patterns` avec `{ …métadonnées, imagePublicId, imageFormat, imageBytes, widthPx, heightPx }` ; pour un SVG, `svgSource` est obligatoire (nettoyé puis stocké par l'API). Les polices suivent le même principe (`fileFormat`, `fileBytes`).
+4. Activation refusée → `400 VALIDATION_FAILED` avec `details.reasons` ∈ `RIGHTS_HOLDER_MISSING`, `IMAGE_TOO_SMALL`.
+
+Toute route `/admin/*` et `/courier/*` exige un jeton d'équipe, sauf les routes d'authentification admin ; un jeton client y reçoit `401`.
 
 ## Routes livreur — `/v1/courier/*` (rôle `courier`)
 
