@@ -14,7 +14,6 @@ const base = [
   {
     languageOptions: { globals: { ...globals.node } },
     rules: {
-      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-extraneous-class': ['error', { allowWithDecorator: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
