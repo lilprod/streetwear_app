@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-mobile` |
+| **Modèle** | `sonnet` (textes i18n → `taches-simples`) |
 | **Vague** | 2 (démarre en mode mock dès la vague 1 si un agent mobile est libre) |
 | **Dépend de** | SP09 ; contrats SP02 à SP07 (API réelle au fil de leur livraison) |
 | **Débloque** | SP12 (tests bout en bout mobile), publication sur les stores |

@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-mobile` |
+| **Modèle** | `sonnet` (`opus` seulement si blocage) |
 | **Vague** | 1 (démarre dès SP01, sur les fixtures ; branche l'API SP03 ensuite) |
 | **Dépend de** | SP00, SP01 ; SP03 pour l'API réelle |
 | **Débloque** | SP10 (le studio s'insère dans le parcours d'achat) |

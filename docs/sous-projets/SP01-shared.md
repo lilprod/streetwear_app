@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` (relu par le lead : ce paquet est le cœur commun) |
+| **Modèle** | `sonnet` |
 | **Vague** | 0 |
 | **Dépend de** | SP00 |
 | **Débloque** | Tous les sous-projets applicatifs |

@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `devops` |
+| **Modèle** | `sonnet` |
 | **Vague** | 0 (premier sous-projet, bloque tous les autres) |
 | **Dépend de** | — |
 | **Débloque** | Tous les sous-projets |

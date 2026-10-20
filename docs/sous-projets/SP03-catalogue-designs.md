@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | `sonnet` (seed → `taches-simples`) |
 | **Vague** | 1 |
 | **Dépend de** | SP00, SP01 |
 | **Débloque** | SP04, SP08, SP09 (branchement API), SP10, SP11 (catalogue) |

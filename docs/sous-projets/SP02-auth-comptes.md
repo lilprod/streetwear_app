@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | `sonnet` |
 | **Vague** | 1 |
 | **Dépend de** | SP00, SP01 |
 | **Débloque** | SP04, SP10 (connexion), SP11 (connexion admin) |

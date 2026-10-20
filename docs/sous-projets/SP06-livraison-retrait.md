@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | `sonnet` (seed des zones → `taches-simples`) |
 | **Vague** | 1 |
 | **Dépend de** | SP00, SP01, SP02 (adresses, rôle `courier`) |
 | **Débloque** | SP04 (frais et créneaux dans la commande), SP10, SP11 (livraisons, vue livreur) |

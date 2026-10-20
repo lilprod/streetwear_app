@@ -61,3 +61,6 @@ pnpm --filter mobile start
 - Avant de pousser : `pnpm lint && pnpm typecheck && pnpm test` doivent passer.
 - Toute story livrée respecte la « définition de terminé » de `docs/conventions.md`.
 - En fin de mission, chaque sous-agent rend le compte rendu décrit dans `docs/delegation.md`.
+- **Économie de tokens :** concision, aucune narration, lectures ciblées, sorties de commandes
+  tronquées, tests ciblés avant la suite complète. Modèle par sous-projet et règles d'escalade :
+  `docs/delegation.md`, section « Choix du modèle ».

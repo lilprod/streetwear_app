@@ -48,6 +48,51 @@ Vague 3                            SP11 (modules restants) · SP12 · correction
 | `packages/ui-tokens` | SP11 (création), puis designer | consomment |
 | `.github/workflows`, `turbo.json`, `docker-compose.yml` | SP00 | demandent l'ajout d'une tâche |
 
+## Choix du modèle (économie de tokens)
+
+Chaque agent a un modèle par défaut dans son fichier `.claude/agents/*.md`. On prend le modèle
+le plus léger qui suffit à la tâche ; on ne monte d'un cran que si l'agent échoue deux fois sur
+les critères d'acceptation.
+
+| Agent | Modèle par défaut | Pourquoi |
+|---|---|---|
+| `taches-simples` | `haiku` | Tâches courtes et cadrées, sans conception |
+| `devops` | `sonnet` | Socle technique, beaucoup de configuration mais peu de logique |
+| `dev-backend` | `sonnet` | Logique métier standard |
+| `dev-mobile` | `sonnet` | Interface et intégration |
+| `dev-backoffice` | `sonnet` | Interface et intégration |
+| `qa-recette` | `sonnet` | Écriture de tests bout en bout et de scripts |
+| `integrateur-paiement` | `opus` | Argent : erreurs coûteuses, sécurité |
+
+Modèle à utiliser par sous-projet (passer `model` à l'outil Agent pour surcharger le défaut) :
+
+| Sous-projet ou lot | Agent | Modèle | Remarque |
+|---|---|---|---|
+| SP00 Fondations | `devops` | `sonnet` | |
+| SP01 Package partagé | `dev-backend` | `sonnet` | Relu par la session principale |
+| SP02 Auth, comptes | `dev-backend` | `sonnet` | |
+| SP03 Catalogue, designs | `dev-backend` | `sonnet` | Seed et mots interdits → `taches-simples` |
+| SP04 Panier, commandes, stock | `dev-backend` | **`opus`** (surcharge) | Concurrence et transactions |
+| SP05 Paiement | `integrateur-paiement` | `opus` | |
+| SP06 Livraison, retrait | `dev-backend` | `sonnet` | Seed des zones → `taches-simples` |
+| SP07 Notifications | `dev-backend` | `sonnet` | Modèles de messages → `taches-simples` |
+| SP08 Production, rendu HD | `dev-backend` | `sonnet` | |
+| SP09 Studio mobile | `dev-mobile` | `sonnet` | Passer en `opus` seulement si les gestes ou les performances bloquent |
+| SP10 Parcours mobile | `dev-mobile` | `sonnet` | Textes i18n → `taches-simples` |
+| SP11 lots A et B | `dev-backoffice` | `sonnet` | Le lot A fixe les modèles d'écran |
+| SP11 lot C (écrans CRUD) | `dev-backoffice` | **`haiku`** (surcharge) | Copie les modèles des lots A et B |
+| SP12 plan de test, matrice | `qa-recette` | **`haiku`** (surcharge) | Rédaction structurée |
+| SP12 bout en bout, performance, sécurité | `qa-recette` | `sonnet` | |
+| Mise à jour de l'état, docs, i18n, fixtures, lint | `taches-simples` | `haiku` | |
+
+## Règles d'économie pour toute délégation
+
+- **Un prompt court et précis :** la tâche, la fiche à lire, la branche, rien d'autre ; la fiche contient déjà le détail.
+- **Des tâches petites :** découper un gros sous-projet en lots (comme SP11) plutôt que tout confier d'un coup ; un agent qui a fini rend la main.
+- **Pas de doublon de lecture :** ne pas recopier les documents dans le prompt, les nommer.
+- **Compte rendu court :** une ligne par champ, 15 lignes maximum, pas de prose.
+- **Escalade :** `haiku` échoue deux fois → relancer en `sonnet` ; `sonnet` échoue deux fois sur une question de justesse (stock, paiement, concurrence) → `opus`.
+
 ## Comment déléguer (session principale)
 
 1. Choisir le sous-projet dont toutes les dépendances sont livrées.
@@ -58,7 +103,8 @@ Vague 3                            SP11 (modules restants) · SP12 · correction
 
 ## Compte rendu attendu de chaque sous-agent
 
-Chaque sous-agent termine sa mission par ce message, et rien d'autre :
+Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne par champ,
+15 lignes maximum, pas de prose) :
 
 ```
 ## Compte rendu SPxx — <nom>

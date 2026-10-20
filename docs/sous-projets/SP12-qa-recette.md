@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `qa-recette` |
+| **Modèle** | **`haiku`** pour le plan de test ; `sonnet` pour bout en bout, performance, sécurité |
 | **Vague** | 3 (plan de test dès la vague 1) |
 | **Dépend de** | Tous les sous-projets |
 | **Débloque** | Pilote fermé, publication sur les stores, lancement |

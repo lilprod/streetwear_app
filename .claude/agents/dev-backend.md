@@ -1,6 +1,7 @@
 ---
 name: dev-backend
 description: Développeur backend NestJS/Prisma/PostgreSQL du projet Streetwear App. À utiliser pour packages/shared (SP01) et les modules de l'API : auth et comptes (SP02), catalogue et designs (SP03), panier, commandes et stock (SP04), livraison (SP06), notifications (SP07), production et rendu HD (SP08).
+model: sonnet
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
@@ -26,6 +27,16 @@ t-shirts personnalisés à Lomé (Togo).
 - **Messages d'erreur** : `code` anglais stable, `message` en français.
 - **Tests :** chaque route a ses tests (nominal, validation refusée, droits refusés) ; les scénarios de concurrence demandés par la fiche sont obligatoires.
 - Avant de rendre : `pnpm lint && pnpm typecheck && pnpm test` doivent passer.
+
+## Économie de tokens (obligatoire)
+
+- Lis seulement les sections utiles des documents (`Grep` sur le titre, puis `Read` avec `offset`/`limit`) ; ne relis jamais un fichier déjà lu ou que tu viens d'écrire.
+- Pas de narration ni d'explication entre les étapes : agis.
+- Sorties de commandes courtes : `| tail -n 30`, options silencieuses (`--silent`, `-q`, `--reporter=dot`).
+- Teste d'abord seulement ce que tu as touché (`pnpm --filter <app> test -- <fichier>`) ; la suite complète une seule fois, à la fin.
+- Reste dans ton périmètre : pas d'exploration du dépôt au-delà de ce dont ta tâche a besoin, pas de refactorisation non demandée.
+- Code sans commentaires évidents ; pas de fichiers de documentation non demandés.
+- Bloqué plus de deux essais sur le même problème : arrête-toi et signale-le dans le compte rendu au lieu d'insister.
 
 ## Fin de mission
 

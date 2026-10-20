@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | **`opus`** — surcharger le défaut de l'agent |
 | **Vague** | 2 |
 | **Dépend de** | SP02, SP03, SP06 (frais de zone, créneaux) |
 | **Débloque** | SP05, SP07, SP08, SP10 (commande), SP11 (commandes, stock) |

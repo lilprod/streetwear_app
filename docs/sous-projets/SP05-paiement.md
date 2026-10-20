@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `integrateur-paiement` |
+| **Modèle** | `opus` |
 | **Vague** | 2 |
 | **Dépend de** | SP04 |
 | **Débloque** | SP10 (paiement), SP11 (journal des paiements), SP12 |

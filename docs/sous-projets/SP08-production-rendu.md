@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | `sonnet` |
 | **Vague** | 2 |
 | **Dépend de** | SP01 (`DesignSpec`), SP03 (motifs, polices), SP04 (commandes, transitions) |
 | **Débloque** | SP11 (écran production), SP12 (validation des impressions) |

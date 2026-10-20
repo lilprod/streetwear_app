@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backend` |
+| **Modèle** | `sonnet` (modèles de messages → `taches-simples`) |
 | **Vague** | 2 |
 | **Dépend de** | SP02 (jetons push, `SmsProvider`), SP04 (événements de commande) |
 | **Débloque** | SP10 (réception des notifications), SP11 (modèles) |

@@ -3,6 +3,7 @@
 | | |
 |---|---|
 | **Agent** | `dev-backoffice` |
+| **Modèle** | `sonnet` pour les lots A et B ; **`haiku`** pour le lot C |
 | **Vague** | 1 (coquille, jetons, connexion) → 3 (modules restants) |
 | **Dépend de** | SP00, SP01 ; chaque module dépend des routes admin de son SP |
 | **Débloque** | SP12 (tests Playwright), formation de l'équipe |
