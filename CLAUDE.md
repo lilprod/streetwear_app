@@ -42,17 +42,24 @@ docs/         Documentation de référence (voir docs/README.md)
 .claude/agents/  Définitions des sous-agents
 ```
 
-## Commandes (à créer par SP00, à garder à jour)
+## Commandes
 
 ```
-pnpm install            # installe tout le monorepo
-pnpm dev                # lance api + admin (+ docker compose postgres/redis)
-pnpm lint               # ESLint sur tout le dépôt
+corepack enable         # une fois : active pnpm 9 (version épinglée dans package.json)
+pnpm install            # installe tout le monorepo (génère aussi le client Prisma)
+docker compose up -d    # PostgreSQL 16 (bases streetwear et streetwear_test) + Redis 7
+cp apps/api/.env.example apps/api/.env   # puis renseigner JWT_SECRET (openssl rand -hex 32)
+pnpm --filter api prisma migrate dev     # applique les migrations en local
+pnpm dev                # docker compose up -d + api (:3000) + admin (:5173)
+pnpm --filter api dev:worker             # worker BullMQ (optionnel)
+pnpm lint               # ESLint sur tout le dépôt (Turborepo)
 pnpm typecheck          # tsc --noEmit partout
-pnpm test               # tests unitaires et d'intégration
-pnpm --filter api prisma migrate dev
+pnpm test               # tests unitaires et d'intégration (l'API exige PostgreSQL + Redis)
+pnpm build              # build de tout le dépôt
 pnpm --filter mobile start
 ```
+
+Santé de l'API : `curl localhost:3000/v1/health` ; documentation OpenAPI : `/v1/docs`.
 
 ## Façon de travailler
 

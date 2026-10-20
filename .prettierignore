@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.turbo
+coverage
+pnpm-lock.yaml
+.expo
+apps/api/prisma/migrations
+docs
+CLAUDE.md
+.claude

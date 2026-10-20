@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Streetwear",
+    "slug": "streetwear-app",
+    "scheme": "streetwear",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true },
+    "android": { "package": "com.streetwear.app" },
+    "ios": { "bundleIdentifier": "com.streetwear.app" }
+  }
+}
