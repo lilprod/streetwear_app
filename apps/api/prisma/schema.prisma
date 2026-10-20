@@ -14,3 +14,135 @@ model Setting {
 
   @@map("settings")
 }
+
+enum AdminRole {
+  super_admin
+  order_manager
+  production
+  logistics
+  courier
+
+  @@map("admin_role")
+}
+
+enum PushPlatform {
+  android
+  ios
+
+  @@map("push_platform")
+}
+
+model User {
+  id            String         @id @db.Uuid
+  phone         String?        @unique
+  name          String?
+  email         String?
+  appleSub      String?        @unique @map("apple_sub")
+  googleSub     String?        @unique @map("google_sub")
+  deletedAt     DateTime?      @map("deleted_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  addresses     Address[]
+  pushTokens    PushToken[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model Address {
+  id             String   @id @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  label          String
+  lat            Float
+  lng            Float
+  district       String
+  landmark       String
+  recipientPhone String   @map("recipient_phone")
+  zoneId         String?  @map("zone_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model OtpCode {
+  id         String    @id @db.Uuid
+  phone      String
+  codeHash   String    @map("code_hash")
+  expiresAt  DateTime  @map("expires_at")
+  attempts   Int       @default(0)
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([phone, createdAt])
+  @@map("otp_codes")
+}
+
+model AdminUser {
+  id            String         @id @db.Uuid
+  email         String         @unique
+  name          String?
+  passwordHash  String         @map("password_hash")
+  role          AdminRole
+  totpSecret    String?        @map("totp_secret")
+  active        Boolean        @default(true)
+  failedLogins  Int            @default(0) @map("failed_logins")
+  lockedUntil   DateTime?      @map("locked_until")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("admin_users")
+}
+
+model RefreshToken {
+  id          String     @id @db.Uuid
+  userId      String?    @map("user_id") @db.Uuid
+  adminUserId String?    @map("admin_user_id") @db.Uuid
+  tokenHash   String     @unique @map("token_hash")
+  familyId    String     @map("family_id") @db.Uuid
+  expiresAt   DateTime   @map("expires_at")
+  revokedAt   DateTime?  @map("revoked_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PushToken {
+  id        String       @id @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  token     String       @unique
+  platform  PushPlatform
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_tokens")
+}
+
+model AuditLog {
+  id          String     @id @db.Uuid
+  adminUserId String?    @map("admin_user_id") @db.Uuid
+  action      String
+  entity      String
+  entityId    String?    @map("entity_id")
+  before      Json?
+  after       Json?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

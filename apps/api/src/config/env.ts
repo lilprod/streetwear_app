@@ -8,6 +8,11 @@ export const envSchema = z.object({
   REDIS_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
   SENTRY_DSN: z.string().default(''),
+  RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(100),
+  GOOGLE_CLIENT_ID: z.string().default(''),
+  APPLE_CLIENT_ID: z.string().default(''),
+  SEED_ADMIN_EMAIL: z.string().default(''),
+  SEED_ADMIN_PASSWORD: z.string().default(''),
 });
 
 export type Env = z.infer<typeof envSchema>;
