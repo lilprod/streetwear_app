@@ -633,4 +633,72 @@ describe('SP06 delivery and pickup', () => {
         .expect(200);
     });
   });
+
+  describe('courier profile sync with /admin/users', () => {
+    const body = (extra: object = {}) => ({
+      email: `c-${uuidv7()}@example.com`,
+      password: 'correct-horse-battery',
+      role: 'courier',
+      ...extra,
+    });
+
+    it('creates an active profile, deactivates it on role change', async () => {
+      const boss = adminAuth('super_admin');
+      const res = await http()
+        .post('/v1/admin/users')
+        .set(...boss)
+        .send(body({ phone: '+22891000000' }))
+        .expect(201);
+      const profile = await prisma.courier.findUniqueOrThrow({
+        where: { adminUserId: res.body.id },
+      });
+      expect(profile).toMatchObject({ active: true, phone: '+22891000000' });
+      const token = ctx.tokens.signAdmin(res.body.id, 'courier');
+      await http()
+        .get('/v1/courier/deliveries')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      await http()
+        .patch(`/v1/admin/users/${res.body.id}`)
+        .set(...boss)
+        .send({ role: 'logistics' })
+        .expect(200);
+      expect(
+        (await prisma.courier.findUniqueOrThrow({ where: { adminUserId: res.body.id } })).active,
+      ).toBe(false);
+      await http()
+        .get('/v1/courier/deliveries')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(403);
+      await http()
+        .patch(`/v1/admin/users/${res.body.id}`)
+        .set(...boss)
+        .send({ role: 'courier' })
+        .expect(200);
+      expect(
+        (await prisma.courier.findUniqueOrThrow({ where: { adminUserId: res.body.id } })).active,
+      ).toBe(true);
+    });
+
+    it('refuses a courier without a valid phone', async () => {
+      const boss = adminAuth('super_admin');
+      const r = await http()
+        .post('/v1/admin/users')
+        .set(...boss)
+        .send(body())
+        .expect(400);
+      expect(r.body.error.code).toBe('VALIDATION_FAILED');
+      await http()
+        .post('/v1/admin/users')
+        .set(...boss)
+        .send(body({ phone: '12345' }))
+        .expect(400);
+      const other = await createAdmin(ctx, 'logistics');
+      await http()
+        .patch(`/v1/admin/users/${other.admin.id}`)
+        .set(...boss)
+        .send({ role: 'courier' })
+        .expect(400);
+    });
+  });
 });

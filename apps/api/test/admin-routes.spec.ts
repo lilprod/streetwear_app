@@ -165,7 +165,12 @@ describe('admin routes: access, users, audit, settings', () => {
       const u = await http()
         .post('/v1/admin/users')
         .set(bearer(token))
-        .send({ email: 'y@example.com', password: 'long-enough-password', role: 'courier' })
+        .send({
+          email: 'y@example.com',
+          password: 'long-enough-password',
+          role: 'courier',
+          phone: '+22890000002',
+        })
         .expect(201);
       await http()
         .patch('/v1/admin/settings')
