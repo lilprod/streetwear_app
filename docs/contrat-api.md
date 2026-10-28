@@ -42,6 +42,10 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 403 | `ACCOUNT_LOCKED` | Compte admin bloqué 15 min après 5 échecs |
 | 409 | `EMAIL_ALREADY_USED` | E-mail déjà utilisé par un compte équipe |
 | 409 | `CANNOT_MODIFY_SELF` | Un admin ne peut pas changer son propre rôle ni se désactiver |
+| 422 | `OUT_OF_ZONE` | Adresse hors des zones de livraison (devis ou commande) |
+| 400 | `HANDOVER_CODE_INVALID` | Code de remise faux ; `details.remainingAttempts` |
+| 403 | `HANDOVER_CODE_LOCKED` | 5 codes faux : la livraison est bloquée, la logistique doit intervenir |
+| 400 | `COD_AMOUNT_MISMATCH` | Solde encaissé différent du solde dû |
 | 429 | `RATE_LIMITED` | Trop de requêtes |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
@@ -198,7 +202,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET / POST / PATCH | `/admin/delivery-zones` | logistics, super_admin | SP06 |
 | GET | `/admin/deliveries` `?status&date` | logistics, super_admin | SP06 |
 | POST | `/admin/deliveries/:id/assign` `{ courierId }` | logistics, super_admin | SP06 |
-| GET / POST / PATCH | `/admin/stores`, `/admin/stores/:id/slots` | logistics, super_admin | SP06 |
+| GET / POST / PATCH | `/admin/stores`, `/admin/stores/:id/slots` (POST `{ days?, capacity? }` génère les créneaux → `{ created }` ; PATCH `/:slotId { capacity }`) | logistics, super_admin | SP06 |
 | GET | `/admin/stock` | production, super_admin | SP04 |
 | POST | `/admin/stock/movements` `{ colorId, size, type: 'in' \| 'adjust', quantity, note }` | production, super_admin | SP04 |
 | PATCH | `/admin/stock/:id` `{ alertThreshold }` | production, super_admin | SP04 |
@@ -206,7 +210,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET / POST / DELETE | `/admin/banned-words` | super_admin | SP03 |
 | POST | `/admin/media/upload-signature` `{ kind: 'pattern' \| 'font' }` | super_admin | SP03 |
 | GET | `/admin/payments` `?status&from&to` · `/admin/reconciliations` | order_manager, super_admin | SP05 |
-| GET / POST / PATCH | `/admin/users` (comptes équipe ; PATCH `{ name?, role?, active?, password?, resetTotp?: true }`) | super_admin | SP02 |
+| GET / POST / PATCH | `/admin/users` (comptes équipe ; PATCH `{ name?, role?, active?, password?, resetTotp?: true, phone? }` ; `phone` obligatoire pour le rôle `courier`, dont le profil livreur est créé automatiquement) | super_admin | SP02, SP06 |
 | GET | `/admin/audit-logs` `?entity&entityId` | super_admin | SP02 |
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
 | GET / PATCH | `/admin/notification-templates` | super_admin | SP07 |
@@ -239,7 +243,7 @@ Toute route `/admin/*` et `/courier/*` exige un jeton d'équipe, sauf les routes
 
 | Méthode | Route | Corps | Réponse |
 |---|---|---|---|
-| GET | `/courier/deliveries` | `?date` (défaut : aujourd'hui) | `CourierDelivery[]` |
+| GET | `/courier/deliveries` | `?date` (défaut : aujourd'hui) | `CourierDelivery[]` (inclut les courses non terminées des jours précédents) |
 | POST | `/courier/deliveries/:id/start` | — | `CourierDelivery` |
 | POST | `/courier/deliveries/:id/complete` | `{ handoverCode, codCollectedXof? }` | `CourierDelivery` |
 | POST | `/courier/deliveries/:id/fail` | `{ reason: 'absent' \| 'refused' \| 'unreachable' \| 'other', note? }` | `CourierDelivery` |

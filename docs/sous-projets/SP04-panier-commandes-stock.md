@@ -15,6 +15,16 @@
 Transformer un panier en commande au prix juste, sans jamais vendre une pièce qui n'existe pas,
 et faire évoluer la commande uniquement par les transitions autorisées.
 
+## Contexte du moment (laissé par SP02, SP03, SP06)
+
+- Remplacer `FakeOrderTransitionPort` (SP06) par une implémentation réelle du token `ORDER_TRANSITION_PORT` : `transition(orderId, 'delivered' | 'delivery_failed', actor, ctx, tx)` et `courierView(orderId)`, branchée sur `OrdersService.transition`.
+- Ajouter les clés étrangères `deliveries.order_id` et `pickups.order_id` vers `orders.id`.
+- `DeliveryService.reserve(reception, { orderId, userId, codBalanceXof? }, tx)` renvoie `handoverCode` ou `pickupCode` en clair une seule fois : les transmettre aux notifications (SP07), ne jamais les stocker en clair.
+- `PRODUCTION_HOURS = 48` est une hypothèse utilisée pour `estimatedReadyAt` : en faire un réglage (`settings`).
+- Fournir le vrai `STOCK_READER` au catalogue (SP03) à la place de « tout disponible ».
+- Vérifier `DELETE /designs/:id` (suppression définitive) face aux lignes de panier et de commande : interdire ou passer en suppression logique.
+- Test : la base de test se réinitialise via `test/helpers.ts` (`resetDb`) ; ajouter les nouvelles tables à la liste.
+
 ## Lire d'abord
 
 `CLAUDE.md`, `docs/modele-donnees.md` (Panier, commandes, stock ; machine à états ; règles
