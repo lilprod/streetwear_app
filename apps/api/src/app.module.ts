@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AdminCatalogModule } from './admin-catalog/admin-catalog.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { ENV, parseEnv } from './config/env';
+import { DeliveryModule } from './modules/delivery/delivery.module';
 import { DesignsModule } from './designs/designs.module';
 import { MediaModule } from './media/media.module';
 import { HealthController } from './health/health.controller';
@@ -43,6 +44,7 @@ import { RedisService } from './redis/redis.service';
     CatalogModule,
     DesignsModule,
     AdminCatalogModule,
+    DeliveryModule,
   ],
   controllers: [HealthController],
   providers: [

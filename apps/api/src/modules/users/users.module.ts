@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
+import { ZonesModule } from '../delivery/zones.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { NullZoneResolver, ZONE_RESOLVER } from './zone-resolver';
 
 @Module({
+  imports: [ZonesModule],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    NullZoneResolver,
-    { provide: ZONE_RESOLVER, useExisting: NullZoneResolver },
-  ],
-  exports: [ZONE_RESOLVER],
+  providers: [UsersService],
+  exports: [ZonesModule],
 })
 export class UsersModule {}
