@@ -128,7 +128,7 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 | SP03 | Terminé — fusionné avec SP02 | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP04 | À faire | | |
 | SP05 | À faire | | |
-| SP06 | À faire | | |
+| SP06 | Terminé — zones approximatives à remplacer par celles de la marque | `ccr-beb850b2-5rmap5` | 28/10/2026 |
 | SP07 | À faire | | |
 | SP08 | À faire | | |
 | SP09 | Terminé en mode mock — fluidité et appareils à vérifier sur téléphone | `ccr-beb850b2-5rmap5` | 20/10/2026 |

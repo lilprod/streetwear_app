@@ -255,3 +255,108 @@ model Design {
   @@index([userId, updatedAt(sort: Desc), id(sort: Desc)])
   @@map("designs")
 }
+
+// ---- SP06 : livraison et retrait ----
+
+enum DeliveryStatus {
+  to_assign
+  assigned
+  in_progress
+  delivered
+  failed
+}
+
+model DeliveryZone {
+  id         String     @id @db.Uuid
+  name       String
+  polygon    Json
+  feeXof     Int        @map("fee_xof")
+  delayHours Int        @map("delay_hours")
+  active     Boolean    @default(true)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  deliveries Delivery[]
+
+  @@map("delivery_zones")
+}
+
+model Courier {
+  id          String     @id @db.Uuid
+  adminUserId String     @unique @map("admin_user_id") @db.Uuid
+  phone       String
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  deliveries  Delivery[]
+
+  @@map("couriers")
+}
+
+model Delivery {
+  id               String         @id @db.Uuid
+  orderId          String         @unique @map("order_id") @db.Uuid
+  addressSnapshot  Json           @map("address_snapshot")
+  zoneId           String         @map("zone_id") @db.Uuid
+  feeXof           Int            @map("fee_xof")
+  courierId        String?        @map("courier_id") @db.Uuid
+  handoverCodeHash String         @map("handover_code_hash")
+  handoverAttempts Int            @default(0) @map("handover_attempts")
+  codBalanceXof    Int?           @map("cod_balance_xof")
+  codCollectedXof  Int?           @map("cod_collected_xof")
+  status           DeliveryStatus @default(to_assign)
+  scheduledFor     DateTime       @map("scheduled_for")
+  failReason       String?        @map("fail_reason")
+  failNote         String?        @map("fail_note")
+  startedAt        DateTime?      @map("started_at")
+  completedAt      DateTime?      @map("completed_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  zone             DeliveryZone   @relation(fields: [zoneId], references: [id])
+  courier          Courier?       @relation(fields: [courierId], references: [id])
+
+  @@index([courierId, scheduledFor])
+  @@index([scheduledFor, status])
+  @@map("deliveries")
+}
+
+model Store {
+  id                  String       @id @db.Uuid
+  name                String
+  address             String
+  lat                 Float
+  lng                 Float
+  openingHours        Json         @map("opening_hours")
+  defaultSlotCapacity Int          @default(4) @map("default_slot_capacity")
+  active              Boolean      @default(true)
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+  slots               PickupSlot[]
+
+  @@map("stores")
+}
+
+model PickupSlot {
+  id       String   @id @db.Uuid
+  storeId  String   @map("store_id") @db.Uuid
+  startsAt DateTime @map("starts_at")
+  endsAt   DateTime @map("ends_at")
+  capacity Int
+  booked   Int      @default(0)
+  store    Store    @relation(fields: [storeId], references: [id])
+  pickups  Pickup[]
+
+  @@unique([storeId, startsAt])
+  @@index([storeId, startsAt])
+  @@map("pickup_slots")
+}
+
+model Pickup {
+  id             String     @id @db.Uuid
+  orderId        String     @unique @map("order_id") @db.Uuid
+  slotId         String     @map("slot_id") @db.Uuid
+  pickupCodeHash String     @map("pickup_code_hash")
+  collectedAt    DateTime?  @map("collected_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  slot           PickupSlot @relation(fields: [slotId], references: [id])
+
+  @@map("pickups")
+}
