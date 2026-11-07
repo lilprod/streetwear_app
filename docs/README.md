@@ -4,6 +4,7 @@ Lisez les documents dans cet ordre. Les quatre premiers sont obligatoires pour t
 
 | # | Document | Contenu | Qui le maintient |
 |---|---|---|---|
+| 0 | [`reprise-lead.md`](reprise-lead.md) | Note de reprise de la session principale (état, procédure de délégation, décisions) | Lead technique |
 | 1 | [`../CLAUDE.md`](../CLAUDE.md) | Règles non négociables, organisation du dépôt, commandes | Lead technique |
 | 2 | [`cahier-des-charges.md`](cahier-des-charges.md) | Périmètre fonctionnel MVP, contexte Togo, hors périmètre | Chef de projet |
 | 3 | [`conventions.md`](conventions.md) | Conventions de code, tests, Git, définition de terminé | Lead technique |
