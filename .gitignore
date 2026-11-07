@@ -16,3 +16,4 @@ expo-env.d.ts
 .claude/worktrees/
 .storage/
 .asset-cache/
+dump.rdb
