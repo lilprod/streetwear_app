@@ -125,7 +125,7 @@ export class AdminOrdersController {
     @Param('id', UuidParam) id: string,
     @Body(new ZodPipe(TransitionInputSchema)) body: typeof TransitionInputSchema._output,
   ) {
-    await this.orders.transition(id, body.to, adminActor(admin), body.note);
+    await this.orders.adminTransition(id, body.to, adminActor(admin), body.note, body.code);
     return this.orders.adminGet(id, adminActor(admin));
   }
 }

@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, type OrderActorType } from '@prisma/client';
@@ -38,6 +38,7 @@ import { PricingRulesService } from '../../catalog/pricing-rules.service';
 import { DesignsService } from '../../designs/designs.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CartService, emptyCart } from '../cart/cart.service';
+import { MAX_HANDOVER_ATTEMPTS } from '../delivery/courier.service';
 import { DeliveryService, type Reservation } from '../delivery/delivery.service';
 import { ZonesService } from '../delivery/zones.service';
 import { SettingsService } from '../settings/settings.service';
@@ -227,7 +228,7 @@ export class OrdersService {
     if (to === 'pending_payment') {
       const minutes = await this.settings.get('order_expiry_minutes');
       data.expiresAt = new Date(Date.now() + minutes * 60_000);
-    } else if (from === 'pending_payment' && to !== 'expired') {
+    } else if (from === 'pending_payment' && to !== 'expired' && to !== 'payment_failed') {
       data.expiresAt = null;
     }
     await tx.order.update({ where: { id: orderId }, data });
@@ -303,7 +304,7 @@ export class OrdersService {
   /** Expire les commandes non payées échues à `now` ; renvoie le nombre expiré. */
   async expireDue(now: Date = new Date(), limit = 200): Promise<number> {
     const due = await this.prisma.order.findMany({
-      where: { status: 'pending_payment', expiresAt: { lte: now } },
+      where: { status: { in: ['pending_payment', 'payment_failed'] }, expiresAt: { lte: now } },
       select: { id: true },
       orderBy: { expiresAt: 'asc' },
       take: limit,
@@ -668,6 +669,70 @@ export class OrdersService {
   }
 
   // ---- Back-office ----
+
+  /**
+   * Transition demandée par l'équipe. Retrait en boutique (`ready_for_pickup → delivered`) :
+   * code de retrait obligatoire, vérifié contre son empreinte, 5 essais maximum.
+   */
+  async adminTransition(
+    id: string,
+    to: OrderStatus,
+    actor: TransitionActor,
+    note?: string,
+    code?: string,
+  ): Promise<void> {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      select: { receptionType: true },
+    });
+    if (!order) throw notFound('Commande');
+    if (to !== 'delivered' || order.receptionType !== 'pickup') {
+      await this.transition(id, to, actor, note);
+      return;
+    }
+    if (!code) {
+      throw new ApiException(400, 'VALIDATION_FAILED', 'Le code de retrait est obligatoire.', {
+        fieldErrors: { code: ['Code de retrait à 6 chiffres obligatoire.'] },
+      });
+    }
+    type Outcome = { kind: 'ok' } | { kind: 'wrong'; remaining: number } | { kind: 'locked' };
+    const outcome = await this.runInTransaction(async (tx): Promise<Outcome> => {
+      const [row] = await tx.$queryRaw<{ status: OrderStatus }[]>`
+        SELECT status::text AS status FROM orders WHERE id = ${id}::uuid FOR UPDATE`;
+      const from = row?.status as OrderStatus;
+      if (!canTransition(from, to, actor, { receptionType: 'pickup' })) {
+        throw invalidTransition(from, to);
+      }
+      const [pickup] = await tx.$queryRaw<
+        { id: string; pickup_code_hash: string; code_attempts: number }[]
+      >`SELECT id::text, pickup_code_hash, code_attempts FROM pickups
+        WHERE order_id = ${id}::uuid FOR UPDATE`;
+      if (!pickup) throw invalidTransition(from, to, ['requiresHandoverCode']);
+      if (pickup.code_attempts >= MAX_HANDOVER_ATTEMPTS) return { kind: 'locked' };
+      const expected = Buffer.from(pickup.pickup_code_hash);
+      const given = Buffer.from(this.delivery.codeHash('pickup', pickup.id, code));
+      if (expected.length !== given.length || !timingSafeEqual(expected, given)) {
+        const attempts = pickup.code_attempts + 1;
+        await tx.pickup.update({ where: { id: pickup.id }, data: { codeAttempts: attempts } });
+        return { kind: 'wrong', remaining: MAX_HANDOVER_ATTEMPTS - attempts };
+      }
+      await this.transition(id, to, actor, note, tx, { facts: { requiresHandoverCode: true } });
+      await tx.pickup.update({ where: { id: pickup.id }, data: { collectedAt: new Date() } });
+      return { kind: 'ok' };
+    });
+    if (outcome.kind === 'locked') {
+      throw new ApiException(
+        403,
+        'HANDOVER_CODE_LOCKED',
+        'Trop de codes erronés : le retrait est bloqué, contactez un super admin.',
+      );
+    }
+    if (outcome.kind === 'wrong') {
+      throw new ApiException(400, 'HANDOVER_CODE_INVALID', 'Code de retrait incorrect.', {
+        remainingAttempts: outcome.remaining,
+      });
+    }
+  }
 
   async adminList(query: {
     status?: OrderStatus;

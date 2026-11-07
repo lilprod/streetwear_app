@@ -529,6 +529,37 @@ describe('SP04 cart and customer orders', () => {
         orders.applyPaymentResult(order.id, { succeeded: true, kind: 'full' }, t.prisma),
       ).rejects.toMatchObject({ status: 409 });
     });
+
+    it('also expires failed-payment orders past their deadline, releasing stock and slot', async () => {
+      await t.setStock('col-blanc', 'S', 2);
+      const s = await t.shopper({ colorId: 'col-blanc', size: 'S', quantity: 2 });
+      const slot = await t.slot(1);
+      const created = new Date(Date.now() - 2 * 60 * 60_000);
+      const order = await orders.create(
+        s.id,
+        {
+          reception: { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: slot.id },
+          paymentMethod: 'flooz',
+        },
+        uuidv7(),
+        created,
+      );
+      await orders.runInTransaction((tx) =>
+        orders.applyPaymentResult(order.id, { succeeded: false }, tx),
+      );
+      expect(await t.stockOf('col-blanc', 'S')).toMatchObject({ onHand: 2, reserved: 2 });
+      expect(await orders.expireDue(new Date(created.getTime() + 29 * 60_000))).toBe(0);
+      expect(await orders.expireDue(new Date(created.getTime() + 30 * 60_000))).toBe(1);
+      const row = await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+      expect(row.status).toBe('expired');
+      expect(await t.stockOf('col-blanc', 'S')).toMatchObject({ onHand: 2, reserved: 0 });
+      expect((await t.prisma.pickupSlot.findUniqueOrThrow({ where: { id: slot.id } })).booked).toBe(
+        0,
+      );
+      await expect(
+        orders.transition(order.id, 'pending_payment', { type: 'customer', id: s.id }),
+      ).rejects.toMatchObject({ status: 409 });
+    });
   });
 
   describe('payment result, tracking and receipt (US-18, US-20, US-23)', () => {
@@ -613,7 +644,7 @@ describe('SP04 cart and customer orders', () => {
             .get(`/v1/orders/${order.id}`)
             .set(...s.auth)
         ).body,
-      ).toMatchObject({ status: 'payment_failed', expiresAt: null });
+      ).toMatchObject({ status: 'payment_failed', expiresAt: order.expiresAt });
       await orders.transition(order.id, 'pending_payment', { type: 'customer', id: s.id });
       const retried = (
         await t

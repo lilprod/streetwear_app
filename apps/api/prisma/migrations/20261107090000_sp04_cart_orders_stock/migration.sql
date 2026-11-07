@@ -205,6 +205,9 @@ ALTER TABLE "stock_movements" ADD CONSTRAINT "stock_movements_stock_item_id_fkey
 -- AddForeignKey
 ALTER TABLE "stock_movements" ADD CONSTRAINT "stock_movements_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+-- Essais du code de retrait (5 maximum)
+ALTER TABLE "pickups" ADD COLUMN "code_attempts" INTEGER NOT NULL DEFAULT 0;
+
 -- Numéro de commande lisible (TG-000001)
 CREATE SEQUENCE "order_number_seq" START 1;
 

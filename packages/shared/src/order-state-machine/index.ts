@@ -77,6 +77,7 @@ export const ORDER_TRANSITIONS: readonly TransitionRule[] = [
   rule('pending_payment', 'expired', { actors: ['system'] }),
   rule('pending_payment', 'cancelled', { roles: CANCEL_ROLES }),
   rule('payment_failed', 'pending_payment', { actors: ['customer'] }),
+  rule('payment_failed', 'expired', { actors: ['system'] }),
   rule('paid', 'in_production', { roles: ['production'], preconditions: ['requiresOperator'] }),
   rule('paid', 'cancelled', { roles: CANCEL_ROLES }),
   rule('deposit_paid', 'in_production', {

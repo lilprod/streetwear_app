@@ -50,6 +50,7 @@ describe('SP04 back-office orders and stock (US-25, US-30)', () => {
       number: res.body.number as string,
       customer: s,
       code: created?.payload.handoverCode as string,
+      pickupCode: created?.payload.pickupCode as string,
     };
   }
 
@@ -327,7 +328,7 @@ describe('SP04 back-office orders and stock (US-25, US-30)', () => {
       await move(o.id, t.adminAuth('super_admin'), 'refunded').expect(200);
     });
 
-    it('handles pickup orders (ready_for_pickup; delivered needs the pickup code)', async () => {
+    async function readyForPickup() {
       orders.registerPreconditionCheck('requiresOperator', async () => true);
       const o = await order({ pay: true, pickup: true });
       await t.prisma.orderItem.updateMany({
@@ -338,8 +339,54 @@ describe('SP04 back-office orders and stock (US-25, US-30)', () => {
       await move(o.id, t.adminAuth('production'), 'ready').expect(200);
       await move(o.id, t.adminAuth('logistics'), 'shipped').expect(409);
       await move(o.id, t.adminAuth('logistics'), 'ready_for_pickup').expect(200);
-      const r = await move(o.id, t.adminAuth('logistics'), 'delivered').expect(409);
-      expect(r.body.error.details.unmet).toEqual(['requiresHandoverCode']);
+      return o;
+    }
+    const collect = (id: string, auth: AuthHeader, code?: string) =>
+      post(`/v1/admin/orders/${id}/transitions`, auth, {
+        to: 'delivered',
+        ...(code ? { code } : {}),
+      });
+    const wrongCode = (code: string) => (code === '000000' ? '111111' : '000000');
+
+    it('delivers a pickup order with the right pickup code (logistics, super_admin)', async () => {
+      const o = await readyForPickup();
+      expect(o.pickupCode).toMatch(/^\d{6}$/);
+      const missing = await collect(o.id, t.adminAuth('logistics')).expect(400);
+      expect(missing.body.error.code).toBe('VALIDATION_FAILED');
+      await collect(o.id, t.adminAuth('logistics'), '12ab').expect(400);
+      await collect(o.id, t.adminAuth('production'), o.pickupCode).expect(409);
+      await collect(o.id, t.adminAuth('order_manager'), o.pickupCode).expect(409);
+      const bad = await collect(o.id, t.adminAuth('logistics'), wrongCode(o.pickupCode)).expect(
+        400,
+      );
+      expect(bad.body.error).toMatchObject({
+        code: 'HANDOVER_CODE_INVALID',
+        details: { remainingAttempts: 4 },
+      });
+      expect(JSON.stringify(bad.body)).not.toContain(o.pickupCode);
+      const ok = await collect(o.id, t.adminAuth('logistics'), o.pickupCode).expect(200);
+      expect(ok.body.status).toBe('delivered');
+      const pickup = await t.prisma.pickup.findUniqueOrThrow({ where: { orderId: o.id } });
+      expect(pickup.collectedAt).not.toBeNull();
+      expect(JSON.stringify(pickup)).not.toContain(`"${o.pickupCode}"`);
+      await collect(o.id, t.adminAuth('logistics'), o.pickupCode).expect(409);
+
+      const o2 = await readyForPickup();
+      await collect(o2.id, t.adminAuth('super_admin'), o2.pickupCode).expect(200);
+    });
+
+    it('locks the pickup after 5 wrong codes (403 HANDOVER_CODE_LOCKED)', async () => {
+      const o = await readyForPickup();
+      for (let i = 1; i <= 5; i++) {
+        const r = await collect(o.id, t.adminAuth('logistics'), wrongCode(o.pickupCode)).expect(
+          400,
+        );
+        expect(r.body.error.details.remainingAttempts).toBe(5 - i);
+      }
+      const locked = await collect(o.id, t.adminAuth('logistics'), o.pickupCode).expect(403);
+      expect(locked.body.error.code).toBe('HANDOVER_CODE_LOCKED');
+      const row = await t.prisma.order.findUniqueOrThrow({ where: { id: o.id } });
+      expect(row.status).toBe('ready_for_pickup');
     });
 
     it('cancels before production: releases a pending reservation, restocks a paid order', async () => {
