@@ -15,6 +15,11 @@
 Prévenir le client à chaque étape de sa commande, par push et par SMS, en français, en moins de
 60 secondes, et prévenir l'équipe des ruptures de stock.
 
+## Laissé par SP04 et SP06
+
+- Événements disponibles (`apps/api/src/common/events.ts`) : `order.created`, `order.status_changed`, `order.expired`, `design.ordered`, `stock.below_threshold`.
+- `order.created` porte une seule fois le code de remise ou de retrait en clair (renvoyé par `DeliveryService.reserve`) : l'envoyer au client, ne jamais le stocker ni le journaliser.
+
 ## Lire d'abord
 
 `CLAUDE.md`, `docs/architecture.md` (événements, file `notifications`), `docs/modele-donnees.md`

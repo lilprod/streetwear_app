@@ -15,6 +15,12 @@
 Dès qu'une commande est payée, produire pour l'atelier un fichier PNG 300 DPI par zone,
 fidèle à l'aperçu du client, et une fiche de production imprimable.
 
+## Laissé par SP04
+
+- Enregistrer la précondition `requiresOperator` via `registerPreconditionCheck` : tant qu'elle ne l'est pas, `paid → in_production` reste bloqué.
+- `requiresPrintFiles` est vérifiée par SP04 à partir de `order_items.print_file_*_url` : les remplir après rendu.
+- Déclencheur : événement `design.ordered` (ou `order.status_changed` vers `paid` / `deposit_paid`).
+
 ## Lire d'abord
 
 `CLAUDE.md`, `docs/spec-design.md` (en entier, surtout « Rendu des fichiers d'impression »),

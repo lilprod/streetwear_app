@@ -22,6 +22,11 @@ du 13 novembre 2026). Construire l'interface et l'adaptateur `fake` d'abord ; l'
 s'ajoute quand le lead complète cette section avec la documentation et les identifiants de
 bac à sable.
 
+## Laissé par SP04
+
+- Appeler `OrdersService.applyPaymentResult(...)` et `paymentDue(...)` à l'intérieur de `runInTransaction` : avec une transaction externe, les événements partiraient avant la validation.
+- Montant dû : celui calculé par SP04 (`paymentDue`), jamais celui reçu de l'agrégateur.
+
 ## Lire d'abord
 
 `CLAUDE.md`, `docs/decisions.md` (ADR-004), `docs/contrat-api.md` (Paiements),

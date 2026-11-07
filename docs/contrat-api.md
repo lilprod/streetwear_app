@@ -46,6 +46,7 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 400 | `HANDOVER_CODE_INVALID` | Code de remise faux ; `details.remainingAttempts` |
 | 403 | `HANDOVER_CODE_LOCKED` | 5 codes faux : la livraison est bloquée, la logistique doit intervenir |
 | 400 | `COD_AMOUNT_MISMATCH` | Solde encaissé différent du solde dû |
+| 409 | `DESIGN_IN_USE` | Design présent dans un panier ou une commande : suppression refusée |
 | 429 | `RATE_LIMITED` | Trop de requêtes |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
@@ -194,7 +195,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | POST | `/admin/auth/logout` `{ refreshToken }` → `204` | tous | SP02 |
 | GET | `/admin/orders` `?status&receptionType&paymentMethod&from&to&q&cursor` | order_manager, production, logistics, super_admin | SP04 |
 | GET | `/admin/orders/:id` | idem | SP04 |
-| POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note? }` | selon la transition | SP04 |
+| POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note?, code? }` (`code` obligatoire pour `ready_for_pickup → delivered` : code de retrait du client) | selon la transition | SP04 |
 | POST | `/admin/orders/:id/assign-operator` `{ operatorId }` | production, super_admin | SP08 |
 | GET | `/admin/orders/:id/production-sheet.pdf` | production, super_admin | SP08 |
 | GET | `/admin/order-items/:id/print-files` → `{ front?: signedUrl, back?: signedUrl }` | production, super_admin | SP08 |
@@ -229,6 +230,20 @@ type AdminLoginResult =
 
 - Session admin : jeton d'accès 15 min ; jeton de rafraîchissement valable 8 h, sans prolongation au-delà de 8 h après la connexion.
 - Le back-office lit l'utilisateur dans `AdminSession.user`, jamais dans les claims du JWT.
+
+### Formes des réponses admin commandes et stock (SP04)
+
+```ts
+type AdminOrderSummary = OrderSummary & { receptionType: 'home' | 'pickup';
+  customer: { id: string; name: string | null; phone: string | null } };
+type AdminOrder = Order & { customer: AdminOrderSummary['customer']; vatIncludedXof: number;
+  statusHistory: { from: OrderStatus | null; to: OrderStatus; actorType: string; note: string | null; at: string }[];
+  allowedTransitions: OrderStatus[] }; // calculé pour le rôle de l'appelant
+type AdminStockItem = { id: string; colorId: string; colorName: string; size: Size; onHand: number;
+  reserved: number; available: number; alertThreshold: number; belowThreshold: boolean };
+```
+
+Le reçu PDF d'une commande non payée renvoie `404 NOT_FOUND`.
 
 ### Import d'un motif ou d'une police (SP03)
 

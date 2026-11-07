@@ -102,12 +102,16 @@ refunded  : depuis cancelled ou returned (super_admin)
 |---|---|---|
 | `pending_payment → paid / deposit_paid` | Webhook paiement | Stock `reserve → out`, file `render-print-files`, notification |
 | `pending_payment → expired` | Job `orders-expire` | Stock `release` |
+| `payment_failed → expired` | Job `orders-expire` (après `expires_at`) | Stock et créneau libérés |
+| `ready_for_pickup → delivered` | `logistics` | Code de retrait du client vérifié (5 essais) |
 | `paid → in_production` | `production` | Affectation opérateur requise |
 | `in_production → ready` | `production` | Fichiers HD présents requis |
 | `ready → shipped` | `logistics` | Livreur affecté requis |
 | `ready → ready_for_pickup` | `logistics` | Code de retrait envoyé |
 | `shipped → delivered` | `courier` | Code de remise valide ; si paiement à la livraison, solde encaissé saisi |
-| `* → cancelled` | `order_manager`, `super_admin` | Stock `release` ou `adjust` |
+| `* → cancelled` | `order_manager`, `super_admin` | Stock `release` (avant paiement) ou `adjust` de remise en stock (après paiement) |
+
+Une commande garde une copie de sa réception (`reception_snapshot`), lisible même après libération du créneau ou de la livraison. `stock_movements` est en ajout seul (garanti par un trigger).
 
 Toute autre transition renvoie `409 INVALID_TRANSITION`.
 
