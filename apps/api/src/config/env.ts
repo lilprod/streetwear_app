@@ -18,6 +18,15 @@ export const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().default(''),
   CLOUDINARY_API_KEY: z.string().default(''),
   CLOUDINARY_API_SECRET: z.string().default(''),
+  STORAGE_PROVIDER: z.enum(['local', 's3']).default('local'),
+  STORAGE_LOCAL_DIR: z.string().default('.storage'),
+  STORAGE_BASE_URL: z.string().default('http://localhost:3000/storage'),
+  S3_BUCKET: z.string().default(''),
+  S3_REGION: z.string().default('auto'),
+  S3_ENDPOINT: z.string().default(''),
+  S3_ACCESS_KEY_ID: z.string().default(''),
+  S3_SECRET_ACCESS_KEY: z.string().default(''),
+  ASSET_CACHE_DIR: z.string().default('.asset-cache'),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,7 +1,7 @@
 # Note de reprise — session principale (lead)
 
 À lire en premier par une nouvelle session qui reprend la coordination du projet.
-Mise à jour : 07/11/2026, après la fusion de SP04.
+Mise à jour : 07/11/2026, après la fusion de SP08.
 
 ## État
 
@@ -11,13 +11,14 @@ Mise à jour : 07/11/2026, après la fusion de SP04.
 | SP02 Auth/comptes, SP03 Catalogue/designs | Fusionnés (intégrés ensemble) |
 | SP06 Livraison/retrait | Fusionné |
 | SP04 Panier/commandes/stock | Fusionné |
+| SP08 Production/rendu HD | Fusionné |
 | SP09 Studio mobile | Fusionné (mode mock ; jamais testé sur appareil) |
 | SP11 lot A Coquille back-office | Fusionné |
-| **SP05, SP07, SP08, SP11 lot B** | **Prochaine étape, en parallèle** |
+| **SP05 → SP11 lot B → SP07** | **Prochaine étape, un par un** |
 | SP10 Parcours mobile, SP11 lot C | Ensuite, en parallèle |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 245, shared 88, admin 40, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 288, shared 88, admin 40, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -26,7 +27,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 7) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 8) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -60,6 +61,8 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - Retrait : la logistique saisit le code du client pour passer en « Livrée » (5 essais).
 - `payment_failed → expired` par le système, libère stock et créneau.
 - `POST /designs` accepte un `Idempotency-Key` optionnel ; `GET /catalog/banned-words` public.
+- SP08 : déclenché par `order.status_changed` vers `paid`/`deposit_paid` ; émet `production.render_failed` (SP07 doit notifier) ; `print_file_*_url` contient une clé de stockage, l'URL signée est générée à la demande ; prod : `STORAGE_PROVIDER=s3`.
+- SP05 doit émettre `order.status_changed` après le commit (`runInTransaction`).
 - Les fiches SP05, SP07, SP08 contiennent une section « Laissé par SP04 » avec ce qu'il faut brancher.
 
 ## Modèles des agents

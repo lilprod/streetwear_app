@@ -19,6 +19,9 @@
     "schema": "prisma/schema.prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1164.0",
+    "@aws-sdk/s3-request-presigner": "^3.1164.0",
+    "@napi-rs/canvas": "^1.1.0",
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
     "@nestjs/event-emitter": "^3.1.0",
@@ -41,6 +44,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "sanitize-html": "2.13.1",
+    "sharp": "^0.35.5",
     "zod": "^3.25.0"
   },
   "devDependencies": {

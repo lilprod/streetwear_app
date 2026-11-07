@@ -15,6 +15,7 @@ import { AuditInterceptor } from './modules/audit/audit.interceptor';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
+import { ProductionModule } from './modules/production/production.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { StockModule } from './modules/stock/stock.module';
 import { StaffRouteGuard } from './modules/auth/staff-route.guard';
@@ -53,6 +54,7 @@ import { RedisService } from './redis/redis.service';
     StockModule,
     CartModule,
     OrdersModule,
+    ProductionModule,
   ],
   controllers: [HealthController],
   providers: [

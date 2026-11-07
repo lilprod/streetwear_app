@@ -557,3 +557,28 @@ model StockMovement {
   @@index([orderId])
   @@map("stock_movements")
 }
+
+enum ProductionJobStatus {
+  queued
+  rendering
+  ready_to_print
+  printed
+  failed
+
+  @@map("production_job_status")
+}
+
+/// SP08 : un travail de production par commande (rendu HD des lignes, opérateur affecté).
+/// Pas de relations Prisma vers orders / admin_users (modèles d'autres sous-projets) : FK posées en SQL.
+model ProductionJob {
+  id         String              @id @db.Uuid
+  orderId    String              @unique @map("order_id") @db.Uuid
+  operatorId String?             @map("operator_id") @db.Uuid
+  status     ProductionJobStatus @default(queued)
+  error      String?
+  createdAt  DateTime            @default(now()) @map("created_at")
+  updatedAt  DateTime            @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("production_jobs")
+}

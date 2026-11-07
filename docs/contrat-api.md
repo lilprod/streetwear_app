@@ -47,6 +47,8 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 403 | `HANDOVER_CODE_LOCKED` | 5 codes faux : la livraison est bloquée, la logistique doit intervenir |
 | 400 | `COD_AMOUNT_MISMATCH` | Solde encaissé différent du solde dû |
 | 409 | `DESIGN_IN_USE` | Design présent dans un panier ou une commande : suppression refusée |
+| 409 | `ORDER_NOT_PRODUCIBLE` | Régénération demandée pour une commande ni payée, ni en acompte, ni en production |
+| 422 | `OPERATOR_INVALID` | Opérateur inconnu, inactif ou sans rôle production / super_admin |
 | 429 | `RATE_LIMITED` | Trop de requêtes |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
@@ -196,10 +198,10 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET | `/admin/orders` `?status&receptionType&paymentMethod&from&to&q&cursor` | order_manager, production, logistics, super_admin | SP04 |
 | GET | `/admin/orders/:id` | idem | SP04 |
 | POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note?, code? }` (`code` obligatoire pour `ready_for_pickup → delivered` : code de retrait du client) | selon la transition | SP04 |
-| POST | `/admin/orders/:id/assign-operator` `{ operatorId }` | production, super_admin | SP08 |
+| POST | `/admin/orders/:id/assign-operator` `{ operatorId }` → `200 AdminOrder` (passe en `in_production`) | production, super_admin | SP08 |
 | GET | `/admin/orders/:id/production-sheet.pdf` | production, super_admin | SP08 |
 | GET | `/admin/order-items/:id/print-files` → `{ front?: signedUrl, back?: signedUrl }` | production, super_admin | SP08 |
-| POST | `/admin/order-items/:id/print-files/regenerate` | production, super_admin | SP08 |
+| POST | `/admin/order-items/:id/print-files/regenerate` → `202 { status: 'queued' }` | production, super_admin | SP08 |
 | GET / POST / PATCH | `/admin/delivery-zones` | logistics, super_admin | SP06 |
 | GET | `/admin/deliveries` `?status&date` | logistics, super_admin | SP06 |
 | POST | `/admin/deliveries/:id/assign` `{ courierId }` | logistics, super_admin | SP06 |

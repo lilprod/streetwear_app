@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { EnvValidationError, parseEnv } from './config/env';
 import { initSentry } from './config/sentry';
 import { startSlotGeneration } from './modules/delivery/slot-generation.queue';
+import { startRenderWorker } from './modules/production/render/render.queue';
 import { startOrdersExpiry } from './modules/orders/orders-expire.queue';
 
 async function bootstrap(): Promise<void> {
@@ -15,7 +16,10 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
   startSlotGeneration(app, env.REDIS_URL);
   startOrdersExpiry(app, env.REDIS_URL);
-  app.get(Logger).log('Worker démarré (files : slot-generation, orders-expire)');
+  startRenderWorker(app, env.REDIS_URL);
+  app
+    .get(Logger)
+    .log('Worker démarré (files : slot-generation, orders-expire, render-print-files)');
 }
 
 bootstrap().catch((err: unknown) => {
