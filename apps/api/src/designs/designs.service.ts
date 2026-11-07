@@ -132,6 +132,19 @@ export class DesignsService {
 
   async remove(userId: string, id: string): Promise<void> {
     await this.owned(userId, id);
+    const [inCart, inOrder] = await Promise.all([
+      this.prisma.cartItem.count({ where: { designId: id } }),
+      this.prisma.orderItem.count({ where: { designId: id } }),
+    ]);
+    if (inCart + inOrder > 0) {
+      throw new ApiException(
+        409,
+        'DESIGN_IN_USE',
+        inOrder > 0
+          ? 'Ce design a déjà été commandé : il ne peut pas être supprimé.'
+          : 'Ce design est dans ton panier : retire-le du panier avant de le supprimer.',
+      );
+    }
     await this.prisma.design.delete({ where: { id } });
   }
 
@@ -182,7 +195,8 @@ export class DesignsService {
     return row;
   }
 
-  private async checkSpec(input: DesignSpec): Promise<DesignSpec> {
+  /** Valide un design (schéma, éléments actifs, modération) ; réutilisé à la commande (SP04). */
+  async checkSpec(input: DesignSpec): Promise<DesignSpec> {
     const result = validateDesignSpec(input);
     if (!result.ok) {
       throw new ApiException(400, 'VALIDATION_FAILED', 'Le design est invalide.', {
@@ -229,7 +243,7 @@ export class DesignsService {
     return spec;
   }
 
-  private async toDtos(rows: DesignRow[]): Promise<Design[]> {
+  async toDtos(rows: DesignRow[]): Promise<Design[]> {
     if (rows.length === 0) return [];
     const specs = rows.map((r) => r.spec as unknown as DesignSpec);
     const ids = [

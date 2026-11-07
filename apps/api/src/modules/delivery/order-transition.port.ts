@@ -13,7 +13,7 @@ export interface CourierOrderView {
 /**
  * Port vers `OrdersService` (SP04). Toute transition de commande passe par
  * `OrdersService.transition` ; SP06 ne touche jamais au statut d'une commande directement.
- * SP04 remplacera `FakeOrderTransitionPort` en fournissant ORDER_TRANSITION_PORT.
+ * Implémentation réelle : `OrdersTransitionAdapter` (SP04), fournie par OrdersModule.
  */
 export interface OrderTransitionPort {
   transition(
@@ -33,7 +33,7 @@ export interface OrderTransitionPort {
 
 export const ORDER_TRANSITION_PORT = Symbol('ORDER_TRANSITION_PORT');
 
-/** Adaptateur factice (aucune commande n'existe tant que SP04 n'est pas fusionné) : enregistre les appels. */
+/** Adaptateur factice pour les tests du module livraison : enregistre les appels. */
 @Injectable()
 export class FakeOrderTransitionPort implements OrderTransitionPort {
   readonly calls: { orderId: string; to: CourierOrderStatus; codCollectedXof?: number | null }[] =

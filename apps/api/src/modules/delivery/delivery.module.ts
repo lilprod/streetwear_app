@@ -9,7 +9,6 @@ import {
   DeliveryPublicController,
 } from './delivery.controllers';
 import { DeliveryService } from './delivery.service';
-import { FakeOrderTransitionPort, ORDER_TRANSITION_PORT } from './order-transition.port';
 import { SlotsService } from './slots.service';
 import { ZonesModule } from './zones.module';
 
@@ -21,11 +20,9 @@ import { ZonesModule } from './zones.module';
     DeliveryAdminService,
     CourierService,
     SlotsService,
-    FakeOrderTransitionPort,
-    // SP04 remplace cet adaptateur factice par l'implémentation adossée à OrdersService.transition.
-    { provide: ORDER_TRANSITION_PORT, useExisting: FakeOrderTransitionPort },
+    // ORDER_TRANSITION_PORT est fourni par OrdersModule (global, SP04).
   ],
-  exports: [DeliveryService, SlotsService, ORDER_TRANSITION_PORT],
+  exports: [DeliveryService, SlotsService],
 })
 export class DeliveryModule implements OnModuleInit {
   constructor(

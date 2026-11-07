@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { EnvValidationError, parseEnv } from './config/env';
 import { initSentry } from './config/sentry';
 import { startSlotGeneration } from './modules/delivery/slot-generation.queue';
+import { startOrdersExpiry } from './modules/orders/orders-expire.queue';
 
 async function bootstrap(): Promise<void> {
   const env = parseEnv(process.env);
@@ -13,7 +14,8 @@ async function bootstrap(): Promise<void> {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
   startSlotGeneration(app, env.REDIS_URL);
-  app.get(Logger).log('Worker démarré (file : slot-generation)');
+  startOrdersExpiry(app, env.REDIS_URL);
+  app.get(Logger).log('Worker démarré (files : slot-generation, orders-expire)');
 }
 
 bootstrap().catch((err: unknown) => {

@@ -46,6 +46,8 @@ model User {
   pushTokens    PushToken[]
   refreshTokens RefreshToken[]
   designs       Design[]
+  cart          Cart?
+  orders        Order[]
 
   @@map("users")
 }
@@ -192,14 +194,16 @@ model Pattern {
 }
 
 model TshirtColor {
-  id        String   @id @default(uuid(7))
-  name      String
-  hex       String
-  isDark    Boolean  @map("is_dark")
-  active    Boolean  @default(true)
-  position  Int      @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id         String      @id @default(uuid(7))
+  name       String
+  hex        String
+  isDark     Boolean     @map("is_dark")
+  active     Boolean     @default(true)
+  position   Int         @default(0)
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  stockItems StockItem[]
+  orderItems OrderItem[]
 
   @@map("tshirt_colors")
 }
@@ -237,19 +241,21 @@ model BannedWord {
 }
 
 model Design {
-  id              String   @id @default(uuid(7)) @db.Uuid
-  userId          String   @map("user_id") @db.Uuid
+  id              String      @id @default(uuid(7)) @db.Uuid
+  userId          String      @map("user_id") @db.Uuid
   spec            Json
-  specVersion     Int      @default(1) @map("spec_version")
-  previewFrontUrl String?  @map("preview_front_url")
-  previewBackUrl  String?  @map("preview_back_url")
-  isDraft         Boolean  @default(true) @map("is_draft")
+  specVersion     Int         @default(1) @map("spec_version")
+  previewFrontUrl String?     @map("preview_front_url")
+  previewBackUrl  String?     @map("preview_back_url")
+  isDraft         Boolean     @default(true) @map("is_draft")
   name            String?
-  idempotencyKey  String?  @map("idempotency_key") @db.Uuid
-  idempotencyHash String?  @map("idempotency_hash")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  idempotencyKey  String?     @map("idempotency_key") @db.Uuid
+  idempotencyHash String?     @map("idempotency_hash")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
 
   @@unique([userId, idempotencyKey])
   @@index([userId, updatedAt(sort: Desc), id(sort: Desc)])
@@ -312,6 +318,7 @@ model Delivery {
   updatedAt        DateTime       @updatedAt @map("updated_at")
   zone             DeliveryZone   @relation(fields: [zoneId], references: [id])
   courier          Courier?       @relation(fields: [courierId], references: [id])
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@index([courierId, scheduledFor])
   @@index([scheduledFor, status])
@@ -357,6 +364,195 @@ model Pickup {
   collectedAt    DateTime?  @map("collected_at")
   createdAt      DateTime   @default(now()) @map("created_at")
   slot           PickupSlot @relation(fields: [slotId], references: [id])
+  order          Order      @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@map("pickups")
+}
+
+// ---- SP04 : panier, commandes, stock ----
+
+enum OrderStatus {
+  pending_payment
+  payment_failed
+  expired
+  paid
+  deposit_paid
+  in_production
+  ready
+  shipped
+  ready_for_pickup
+  delivered
+  delivery_failed
+  returned
+  cancelled
+  refunded
+
+  @@map("order_status")
+}
+
+enum ReceptionType {
+  home
+  pickup
+
+  @@map("reception_type")
+}
+
+enum OrderPaymentMethod {
+  tmoney
+  flooz
+  card
+  cod
+
+  @@map("order_payment_method")
+}
+
+enum OrderActorType {
+  system
+  admin
+  customer
+  provider
+
+  @@map("order_actor_type")
+}
+
+enum StockMovementType {
+  in
+  reserve
+  release
+  out
+  adjust
+
+  @@map("stock_movement_type")
+}
+
+model Cart {
+  id        String     @id @db.Uuid
+  userId    String     @unique @map("user_id") @db.Uuid
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @db.Uuid
+  cartId    String   @map("cart_id") @db.Uuid
+  designId  String   @map("design_id") @db.Uuid
+  size      String
+  quantity  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  design    Design   @relation(fields: [designId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, designId, size])
+  @@index([designId])
+  @@map("cart_items")
+}
+
+model Order {
+  id                String               @id @db.Uuid
+  number            String               @unique
+  userId            String               @map("user_id") @db.Uuid
+  status            OrderStatus          @default(pending_payment)
+  subtotalXof       Int                  @map("subtotal_xof")
+  deliveryFeeXof    Int                  @map("delivery_fee_xof")
+  totalXof          Int                  @map("total_xof")
+  vatIncludedXof    Int                  @map("vat_included_xof")
+  paymentMethod     OrderPaymentMethod   @map("payment_method")
+  depositXof        Int?                 @map("deposit_xof")
+  receptionType     ReceptionType        @map("reception_type")
+  /// Copie de la réception à la commande (adresse ou boutique + créneau), conservée après libération.
+  receptionSnapshot Json                 @map("reception_snapshot")
+  expiresAt         DateTime?            @map("expires_at")
+  idempotencyKey    String               @unique @map("idempotency_key") @db.Uuid
+  idempotencyHash   String               @map("idempotency_hash")
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items             OrderItem[]
+  history           OrderStatusHistory[]
+  stockMovements    StockMovement[]
+  delivery          Delivery?
+  pickup            Pickup?
+
+  @@index([status, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([status, expiresAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                String      @id @db.Uuid
+  orderId           String      @map("order_id") @db.Uuid
+  designId          String?     @map("design_id") @db.Uuid
+  designSnapshot    Json        @map("design_snapshot")
+  previewFrontUrl   String?     @map("preview_front_url")
+  previewBackUrl    String?     @map("preview_back_url")
+  colorId           String      @map("color_id")
+  size              String
+  quantity          Int
+  unitPriceXof      Int         @map("unit_price_xof")
+  printFileFrontUrl String?     @map("print_file_front_url")
+  printFileBackUrl  String?     @map("print_file_back_url")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+  order             Order       @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  design            Design?     @relation(fields: [designId], references: [id], onDelete: Restrict)
+  color             TshirtColor @relation(fields: [colorId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([designId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id         String         @id @db.Uuid
+  orderId    String         @map("order_id") @db.Uuid
+  fromStatus OrderStatus?   @map("from_status")
+  toStatus   OrderStatus    @map("to_status")
+  actorType  OrderActorType @map("actor_type")
+  actorId    String?        @map("actor_id") @db.Uuid
+  note       String?
+  createdAt  DateTime       @default(now()) @map("created_at")
+  order      Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
+  @@map("order_status_history")
+}
+
+model StockItem {
+  id             String          @id @db.Uuid
+  colorId        String          @map("color_id")
+  size           String
+  onHand         Int             @default(0) @map("on_hand")
+  reserved       Int             @default(0)
+  alertThreshold Int             @default(5) @map("alert_threshold")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  color          TshirtColor     @relation(fields: [colorId], references: [id], onDelete: Restrict)
+  movements      StockMovement[]
+
+  @@unique([colorId, size])
+  @@map("stock_items")
+}
+
+model StockMovement {
+  id          String            @id @db.Uuid
+  stockItemId String            @map("stock_item_id") @db.Uuid
+  type        StockMovementType
+  quantity    Int
+  orderId     String?           @map("order_id") @db.Uuid
+  adminUserId String?           @map("admin_user_id") @db.Uuid
+  note        String?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  stockItem   StockItem         @relation(fields: [stockItemId], references: [id], onDelete: Restrict)
+  order       Order?            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([stockItemId, createdAt])
+  @@index([orderId])
+  @@map("stock_movements")
 }

@@ -1,5 +1,6 @@
 import type { INestApplication } from '@nestjs/common';
 import type { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { FIXTURE_PATTERNS, FIXTURE_PRICE_RULES } from '@streetwear/shared';
 import { buildApp } from './helpers';
@@ -116,11 +117,22 @@ describe('catalog (public)', () => {
     expect(pricing.body).toEqual(FIXTURE_PRICE_RULES);
   });
 
-  it('reports availability by size', async () => {
+  it('reports availability by size from the real stock (on_hand - reserved > 0)', async () => {
+    const set = (size: string, onHand: number, reserved: number) =>
+      prisma.stockItem.upsert({
+        where: { colorId_size: { colorId: 'col-noir', size } },
+        create: { id: randomUUID(), colorId: 'col-noir', size, onHand, reserved },
+        update: { onHand, reserved },
+      });
+    await set('XS', 3, 0);
+    await set('S', 2, 2);
+    await set('3XL', 0, 0);
     const res = await http().get('/v1/catalog/availability?colorId=col-noir');
     expect(res.status).toBe(200);
     expect(res.body.sizes).toHaveLength(7);
     expect(res.body.sizes[0]).toEqual({ size: 'XS', available: true });
+    expect(res.body.sizes[1]).toEqual({ size: 'S', available: false });
+    expect(res.body.sizes[6]).toEqual({ size: '3XL', available: false });
   });
 
   it('refuses availability without colorId or for unknown colors', async () => {
