@@ -1,4 +1,4 @@
-import { Test } from '@nestjs/testing';
+import { Test, type TestingModuleBuilder } from '@nestjs/testing';
 import type { AdminRole } from '@prisma/client';
 import { authenticator } from 'otplib';
 import request from 'supertest';
@@ -43,6 +43,8 @@ export interface TestCtx {
 export interface AppOptions {
   /** Remplace le port de transition réel (SP04) par l'adaptateur factice de SP06. */
   fakeOrderPort?: boolean;
+  /** Remplace des fournisseurs (file, stockage…) avant la compilation. */
+  configure?: (builder: TestingModuleBuilder) => TestingModuleBuilder;
 }
 
 export async function createApp(opts: AppOptions = {}): Promise<TestCtx> {
@@ -56,6 +58,7 @@ export async function createApp(opts: AppOptions = {}): Promise<TestCtx> {
   if (opts.fakeOrderPort) {
     builder = builder.overrideProvider(ORDER_TRANSITION_PORT).useValue(fake);
   }
+  if (opts.configure) builder = opts.configure(builder);
   const mod = await builder.compile();
   const app = mod.createNestApplication({ bufferLogs: true });
   setupApp(app);
@@ -70,7 +73,7 @@ export async function createApp(opts: AppOptions = {}): Promise<TestCtx> {
 
 export async function resetDb(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe(
-    'TRUNCATE stock_movements, stock_items, order_status_history, order_items, deliveries, pickups, orders, cart_items, carts, delivery_zones, audit_logs, refresh_tokens, push_tokens, addresses, otp_codes, users, admin_users, settings CASCADE',
+    'TRUNCATE production_jobs, stock_movements, stock_items, order_status_history, order_items, deliveries, pickups, orders, cart_items, carts, delivery_zones, audit_logs, refresh_tokens, push_tokens, addresses, otp_codes, users, admin_users, settings CASCADE',
   );
 }
 

@@ -14,3 +14,5 @@ expo-env.d.ts
 
 # Copies de travail des sous-agents
 .claude/worktrees/
+.storage/
+.asset-cache/

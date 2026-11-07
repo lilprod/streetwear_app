@@ -12,5 +12,5 @@
     "isolatedModules": false,
     "types": ["node", "jest"]
   },
-  "include": ["src", "test", "*.ts"]
+  "include": ["src", "test", "scripts", "*.ts"]
 }

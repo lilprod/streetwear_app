@@ -5,7 +5,7 @@ import { EVENTS } from '../src/common/events';
 import { uuidv7 } from '../src/common/uuid';
 import { seedDelivery } from '../src/modules/delivery/seed';
 import { SettingsService } from '../src/modules/settings/settings.service';
-import { type AuthHeader, buildApp } from './helpers';
+import { type AppOptions, type AuthHeader, buildApp } from './helpers';
 
 export const TOKOIN = { lat: 6.145, lng: 1.215 };
 export const SEA = { lat: 6.0, lng: 1.22 };
@@ -13,11 +13,11 @@ export const SEA = { lat: 6.0, lng: 1.22 };
 export type Built = Awaited<ReturnType<typeof buildApp>>;
 
 /** Contexte de test commandes : app, événements capturés, fabriques de données. */
-export async function ordersCtx() {
-  const built = await buildApp();
+export async function ordersCtx(opts: AppOptions = {}) {
+  const built = await buildApp(opts);
   const { app, prisma } = built;
   await prisma.$executeRawUnsafe(
-    'TRUNCATE stock_movements, stock_items, order_status_history, order_items, deliveries, pickups, orders, cart_items, carts, pickup_slots, stores, couriers, delivery_zones CASCADE',
+    'TRUNCATE production_jobs, stock_movements, stock_items, order_status_history, order_items, deliveries, pickups, orders, cart_items, carts, pickup_slots, stores, couriers, delivery_zones CASCADE',
   );
   await seedDelivery(prisma);
   const settings = app.get(SettingsService);
