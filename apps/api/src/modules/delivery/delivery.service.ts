@@ -7,10 +7,9 @@ import { hmac } from '../../common/crypto';
 import { uuidv7 } from '../../common/uuid';
 import { ENV, type Env } from '../../config/env';
 import { PrismaService } from '../../prisma/prisma.service';
+import { SettingsService } from '../settings/settings.service';
 import { ZonesService } from './zones.service';
 
-/** Délai de fabrication supposé avant expédition (heures) ; SP04 pourra le rendre configurable. */
-export const PRODUCTION_HOURS = 48;
 const HOUR = 3_600_000;
 
 export interface ReceptionQuote {
@@ -41,6 +40,7 @@ export class DeliveryService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly zones: ZonesService,
+    private readonly settings: SettingsService,
     @Inject(ENV) private readonly env: Env,
   ) {}
 
@@ -73,7 +73,8 @@ export class DeliveryService {
   ): Promise<ReceptionQuote> {
     if (reception.type === 'home') {
       const { zone } = await this.homeTarget(this.prisma, reception.addressId, userId);
-      const ready = new Date(now.getTime() + PRODUCTION_HOURS * HOUR);
+      const productionHours = await this.settings.get('production_hours');
+      const ready = new Date(now.getTime() + productionHours * HOUR);
       return {
         deliveryFeeXof: zone.feeXof,
         estimatedReadyAt: ready.toISOString(),
@@ -103,7 +104,8 @@ export class DeliveryService {
       const { address, zone } = await this.homeTarget(tx, reception.addressId, ctx.userId);
       const id = uuidv7();
       const handoverCode = randomCode();
-      const scheduledFor = new Date(now.getTime() + (PRODUCTION_HOURS + zone.delayHours) * HOUR);
+      const productionHours = await this.settings.get('production_hours');
+      const scheduledFor = new Date(now.getTime() + (productionHours + zone.delayHours) * HOUR);
       await tx.delivery.create({
         data: {
           id,

@@ -1,5 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AdminCatalogModule } from './admin-catalog/admin-catalog.module';
@@ -13,6 +14,9 @@ import { AdminUsersModule } from './modules/admin-users/admin-users.module';
 import { AuditInterceptor } from './modules/audit/audit.interceptor';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { StockModule } from './modules/stock/stock.module';
 import { StaffRouteGuard } from './modules/auth/staff-route.guard';
 import { SettingsModule } from './modules/settings/settings.module';
 import { SmsModule } from './modules/sms/sms.module';
@@ -34,6 +38,7 @@ import { RedisService } from './redis/redis.service';
     ThrottlerModule.forRootAsync({
       useFactory: () => [{ ttl: 60_000, limit: parseEnv(process.env).RATE_LIMIT_PER_MINUTE }],
     }),
+    EventEmitterModule.forRoot(),
     SmsModule,
     AuthModule,
     AuditModule,
@@ -45,6 +50,9 @@ import { RedisService } from './redis/redis.service';
     DesignsModule,
     AdminCatalogModule,
     DeliveryModule,
+    StockModule,
+    CartModule,
+    OrdersModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -15,6 +15,10 @@ import {
   type OAuthVerifier,
 } from '../src/modules/auth/oauth.verifier';
 import { TokensService } from '../src/modules/auth/tokens.service';
+import {
+  FakeOrderTransitionPort,
+  ORDER_TRANSITION_PORT,
+} from '../src/modules/delivery/order-transition.port';
 import { ConsoleSmsProvider, SMS_PROVIDER } from '../src/modules/sms/sms.provider';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { setupApp } from '../src/setup-app';
@@ -36,11 +40,23 @@ export interface TestCtx {
   tokens: TokensService;
 }
 
-export async function createApp(): Promise<TestCtx> {
-  const mod = await Test.createTestingModule({ imports: [AppModule] })
+export interface AppOptions {
+  /** Remplace le port de transition réel (SP04) par l'adaptateur factice de SP06. */
+  fakeOrderPort?: boolean;
+}
+
+export async function createApp(opts: AppOptions = {}): Promise<TestCtx> {
+  const fake = new FakeOrderTransitionPort();
+  let builder = Test.createTestingModule({
+    imports: [AppModule],
+    providers: opts.fakeOrderPort ? [{ provide: FakeOrderTransitionPort, useValue: fake }] : [],
+  })
     .overrideProvider(OAUTH_VERIFIER)
-    .useClass(FakeOAuthVerifier)
-    .compile();
+    .useClass(FakeOAuthVerifier);
+  if (opts.fakeOrderPort) {
+    builder = builder.overrideProvider(ORDER_TRANSITION_PORT).useValue(fake);
+  }
+  const mod = await builder.compile();
   const app = mod.createNestApplication({ bufferLogs: true });
   setupApp(app);
   await app.init();
@@ -54,7 +70,7 @@ export async function createApp(): Promise<TestCtx> {
 
 export async function resetDb(prisma: PrismaService): Promise<void> {
   await prisma.$executeRawUnsafe(
-    'TRUNCATE delivery_zones, audit_logs, refresh_tokens, push_tokens, addresses, otp_codes, users, admin_users, settings CASCADE',
+    'TRUNCATE stock_movements, stock_items, order_status_history, order_items, deliveries, pickups, orders, cart_items, carts, delivery_zones, audit_logs, refresh_tokens, push_tokens, addresses, otp_codes, users, admin_users, settings CASCADE',
   );
 }
 
@@ -105,8 +121,8 @@ export function call(app: INestApplication, method: Method, url: string): reques
 }
 
 /** App complète + catalogue amorcé + un admin par rôle (vrais jetons signés). */
-export async function buildApp() {
-  const ctx = await createApp();
+export async function buildApp(opts: AppOptions = {}) {
+  const ctx = await createApp(opts);
   await seedCatalog(ctx.prisma);
   const admins = {} as Record<AdminRole, AuthHeader>;
   for (const role of ADMIN_ROLES_FOR_TESTS) {
@@ -120,4 +136,29 @@ export async function buildApp() {
     return { id: user.id, auth: ['Authorization', `Bearer ${token}`] };
   };
   return { app: ctx.app, prisma: ctx.prisma, ctx, adminAuth, newCustomer };
+}
+
+/** Commande minimale (en attente de paiement) pour les tests qui n'ont besoin que de la ligne. */
+export async function insertOrder(
+  prisma: PrismaService,
+  userId: string,
+  overrides: Partial<{ id: string; receptionType: 'home' | 'pickup' }> = {},
+) {
+  const id = overrides.id ?? uuidv7();
+  return prisma.order.create({
+    data: {
+      id,
+      number: `TG-T${id.slice(-8)}`,
+      userId,
+      subtotalXof: 10000,
+      deliveryFeeXof: 0,
+      totalXof: 10000,
+      vatIncludedXof: 1525,
+      paymentMethod: 'tmoney',
+      receptionType: overrides.receptionType ?? 'home',
+      receptionSnapshot: {},
+      idempotencyKey: uuidv7(),
+      idempotencyHash: 'test',
+    },
+  });
 }

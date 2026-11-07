@@ -126,7 +126,7 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 | SP01 | Terminé — règles du super admin et du type de réception corrigées à la relecture | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP02 | Terminé — fusionné avec SP03 (170 tests API) | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP03 | Terminé — fusionné avec SP02 | `ccr-beb850b2-5rmap5` | 20/10/2026 |
-| SP04 | À faire | | |
+| SP04 | Terminé — concurrence stock testée (20 → 5) | `ccr-beb850b2-5rmap5` | 07/11/2026 |
 | SP05 | À faire | | |
 | SP06 | Terminé — zones approximatives à remplacer par celles de la marque | `ccr-beb850b2-5rmap5` | 28/10/2026 |
 | SP07 | À faire | | |

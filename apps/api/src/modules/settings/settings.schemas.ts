@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const SETTING_SCHEMAS = {
   cod_deposit_percent: z.number().int().min(0).max(100),
   order_expiry_minutes: z.number().int().min(5).max(1440),
+  production_hours: z.number().int().min(1).max(720),
   payment_methods_enabled: z
     .array(z.enum(['tmoney', 'flooz', 'card', 'cod']))
     .min(1)
@@ -16,6 +17,7 @@ export type SettingKey = keyof typeof SETTING_SCHEMAS;
 export interface SettingValues {
   cod_deposit_percent: number;
   order_expiry_minutes: number;
+  production_hours: number;
   payment_methods_enabled: ('tmoney' | 'flooz' | 'card' | 'cod')[];
   print_zones: z.infer<typeof PrintZonesSchema>;
 }
@@ -23,6 +25,7 @@ export interface SettingValues {
 export const SETTING_DEFAULTS: SettingValues = {
   cod_deposit_percent: 50,
   order_expiry_minutes: 30,
+  production_hours: 48,
   payment_methods_enabled: ['tmoney', 'flooz', 'card', 'cod'],
   print_zones: DEFAULT_PRINT_ZONES,
 };

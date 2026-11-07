@@ -55,6 +55,7 @@ describe('transition table', () => {
         'pending_payment>expired',
         'pending_payment>cancelled',
         'payment_failed>pending_payment',
+        'payment_failed>expired',
         'paid>in_production',
         'paid>cancelled',
         'deposit_paid>in_production',
@@ -87,6 +88,9 @@ describe('transition table', () => {
     expect(canTransition('pending_payment', 'paid', sa)).toBe(false);
     expect(canTransition('pending_payment', 'expired', sa)).toBe(false);
     expect(canTransition('payment_failed', 'pending_payment', sa)).toBe(false);
+    expect(canTransition('payment_failed', 'expired', sa)).toBe(false);
+    expect(canTransition('payment_failed', 'expired', { type: 'system' })).toBe(true);
+    expect(canTransition('payment_failed', 'expired', { type: 'customer' })).toBe(false);
   });
 
   it('requires the matching reception type when the transition depends on it', () => {

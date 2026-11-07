@@ -58,7 +58,15 @@ export const AdminOrdersQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 export const TransitionInputSchema = z
-  .object({ to: OrderStatusSchema, note: z.string().max(500).optional() })
+  .object({
+    to: OrderStatusSchema,
+    note: z.string().max(500).optional(),
+    /** Code de retrait (6 chiffres), obligatoire pour `ready_for_pickup → delivered`. */
+    code: z
+      .string()
+      .regex(/^\d{6}$/, 'Le code doit contenir 6 chiffres.')
+      .optional(),
+  })
   .strict();
 export const AssignOperatorInputSchema = z.object({ operatorId: uuid }).strict();
 export const AssignCourierInputSchema = z.object({ courierId: uuid }).strict();

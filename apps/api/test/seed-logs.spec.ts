@@ -21,7 +21,7 @@ describe('seed and log hygiene', () => {
     await seed(ctx.prisma, opts);
     await ctx.prisma.setting.update({ where: { key: 'cod_deposit_percent' }, data: { value: 30 } });
     await seed(ctx.prisma, opts);
-    expect(await ctx.prisma.setting.count()).toBe(4);
+    expect(await ctx.prisma.setting.count()).toBe(5);
     expect(
       (await ctx.prisma.setting.findUniqueOrThrow({ where: { key: 'cod_deposit_percent' } })).value,
     ).toBe(30);

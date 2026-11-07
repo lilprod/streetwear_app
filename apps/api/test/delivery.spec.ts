@@ -8,7 +8,7 @@ import { SlotsService, hoursFor } from '../src/modules/delivery/slots.service';
 import { SEED_ZONES, seedDelivery } from '../src/modules/delivery/seed';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { FIXTURE_STORE } from '@streetwear/shared';
-import { type AuthHeader, buildApp, createAdmin, type TestCtx } from './helpers';
+import { type AuthHeader, buildApp, createAdmin, insertOrder, type TestCtx } from './helpers';
 
 const TOKOIN = { lat: 6.145, lng: 1.215 };
 const SEA = { lat: 6.0, lng: 1.22 };
@@ -21,6 +21,8 @@ describe('SP06 delivery and pickup', () => {
   let newCustomer: () => Promise<{ id: string; auth: AuthHeader }>;
   let svc: DeliveryService;
   let port: FakeOrderTransitionPort;
+  let owner: string;
+  const newOrderId = async () => (await insertOrder(prisma, owner)).id;
   const http = () => request(app.getHttpServer());
   const FUTURE = Date.now() + 3 * 86_400_000;
 
@@ -62,7 +64,7 @@ describe('SP06 delivery and pickup', () => {
   async function homeDelivery(codBalanceXof: number | null = null) {
     const customer = await newCustomer();
     const addr = await address(customer.id, TOKOIN);
-    const orderId = uuidv7();
+    const orderId = (await insertOrder(prisma, customer.id)).id;
     const reception: ReceptionInput = { type: 'home', addressId: addr.id };
     const r = await prisma.$transaction((tx) =>
       svc.reserve(reception, { orderId, userId: customer.id, codBalanceXof }, tx),
@@ -72,7 +74,7 @@ describe('SP06 delivery and pickup', () => {
   }
 
   beforeAll(async () => {
-    const built = await buildApp();
+    const built = await buildApp({ fakeOrderPort: true });
     ({ app, prisma, ctx, newCustomer } = built);
     adminAuth = built.adminAuth;
     svc = app.get(DeliveryService);
@@ -80,6 +82,7 @@ describe('SP06 delivery and pickup', () => {
     await prisma.$executeRawUnsafe(
       'TRUNCATE deliveries, pickups, pickup_slots, stores, couriers, delivery_zones CASCADE',
     );
+    owner = (await newCustomer()).id;
     await seedDelivery(prisma);
     await seedDelivery(prisma);
   });
@@ -351,11 +354,10 @@ describe('SP06 delivery and pickup', () => {
     it('lets exactly 4 of 10 simultaneous reservations succeed on a capacity-4 slot', async () => {
       const s = await slot(4);
       const reception: ReceptionInput = { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: s.id };
+      const ids = await Promise.all(Array.from({ length: 10 }, newOrderId));
       const results = await Promise.allSettled(
-        Array.from({ length: 10 }, () =>
-          prisma.$transaction((tx) =>
-            svc.reserve(reception, { orderId: uuidv7(), userId: uuidv7() }, tx),
-          ),
+        ids.map((orderId) =>
+          prisma.$transaction((tx) => svc.reserve(reception, { orderId, userId: owner }, tx)),
         ),
       );
       const ok = results.filter((r) => r.status === 'fulfilled');
@@ -374,11 +376,11 @@ describe('SP06 delivery and pickup', () => {
 
     it('releases a pickup and a delivery idempotently, without storing codes in clear', async () => {
       const s = await slot(2);
-      const orderId = uuidv7();
+      const orderId = await newOrderId();
       const r = await prisma.$transaction((tx) =>
         svc.reserve(
           { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: s.id },
-          { orderId, userId: uuidv7() },
+          { orderId, userId: owner },
           tx,
         ),
       );
@@ -399,11 +401,12 @@ describe('SP06 delivery and pickup', () => {
 
     it('rolls back the slot booking when the surrounding transaction fails', async () => {
       const s = await slot(1);
+      const orderId = await newOrderId();
       await expect(
         prisma.$transaction(async (tx) => {
           await svc.reserve(
             { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: s.id },
-            { orderId: uuidv7(), userId: uuidv7() },
+            { orderId, userId: owner },
             tx,
           );
           throw new Error('boom');
