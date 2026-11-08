@@ -35,6 +35,7 @@ export const AdminOrderSchema = OrderSchema.extend({
       from: OrderStatusSchema.nullable(),
       to: OrderStatusSchema,
       actorType: z.string(),
+      actorId: z.string().nullable(),
       note: z.string().nullable(),
       at: isoDate,
     }),

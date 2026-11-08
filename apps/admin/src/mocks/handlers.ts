@@ -7,6 +7,7 @@ import {
   type AdminRole,
   type ApiError,
   type StatsSummary,
+  uid,
 } from '@streetwear/shared';
 
 export const DEMO_PASSWORD = 'demo-password-12';
@@ -40,12 +41,14 @@ export function fakeJwt(account: DemoAccount, nowSec = Math.floor(Date.now() / 1
   return `${header}.${payload}.demo`;
 }
 
+export const demoUserId = (role: AdminRole): string => uid(960 + ADMIN_ROLES.indexOf(role));
+
 export const demoSession = (a: DemoAccount) => ({
   accessToken: fakeJwt(a),
   refreshToken: `demo-refresh-${a.role}-${a.email}`,
   expiresAt: new Date(Date.now() + 8 * 3600_000).toISOString(),
   user: {
-    id: `demo-${a.role}`,
+    id: demoUserId(a.role),
     email: a.email,
     name: a.email.split('@')[0] ?? a.email,
     role: a.role,
