@@ -8,6 +8,10 @@ import { BullRenderQueue, startRenderWorker } from '../src/modules/production/re
 import { type AuthHeader, createAdmin } from './helpers';
 import { type ProductionCtx, productionCtx, waitFor } from './production-fixtures';
 
+// Real A3 renders (sharp + canvas) take 1-2 s each and are CPU-bound: under a parallel
+// Turborepo run, a test that renders several zones exceeds Jest's 5 s default.
+jest.setTimeout(30_000);
+
 describe('SP08 production (US-12, US-26)', () => {
   let t: ProductionCtx;
   const get = (url: string, auth?: AuthHeader) => {
