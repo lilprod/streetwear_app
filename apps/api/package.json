@@ -5,6 +5,9 @@
   "scripts": {
     "postinstall": "prisma generate",
     "build": "prisma generate && nest build",
+    "prebuild": "pnpm --filter @streetwear/shared build",
+    "predev": "pnpm --filter @streetwear/shared build",
+    "predev:worker": "pnpm --filter @streetwear/shared build",
     "dev": "nest start --watch --exec \"node --env-file-if-exists=.env\"",
     "dev:worker": "nest start --watch --entryFile worker --exec \"node --env-file-if-exists=.env\"",
     "start": "node --env-file-if-exists=.env dist/main.js",

@@ -53,3 +53,13 @@ jobs:
       - run: pnpm --filter api exec prisma migrate deploy
       - name: Lint, typecheck, test, build (affected packages only)
         run: pnpm exec turbo run lint typecheck test build --affected
+      - name: Smoke test of the compiled API
+        run: |
+          pnpm exec turbo run build --filter=api
+          node apps/api/dist/main.js > api-smoke.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS localhost:3000/v1/health && exit 0
+            sleep 1
+          done
+          cat api-smoke.log
+          exit 1

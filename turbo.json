@@ -3,9 +3,9 @@
   "globalDependencies": ["tsconfig.base.json", ".nvmrc"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
-    "dev": { "cache": false, "persistent": true },
+    "dev": { "dependsOn": ["^build"], "cache": false, "persistent": true },
     "lint": {},
-    "typecheck": {},
+    "typecheck": { "dependsOn": ["^build"] },
     "test": { "env": ["DATABASE_URL", "REDIS_URL", "JWT_SECRET"] }
   }
 }
