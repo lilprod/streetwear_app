@@ -1,7 +1,7 @@
 # Note de reprise — session principale (lead)
 
 À lire en premier par une nouvelle session qui reprend la coordination du projet.
-Mise à jour : 07/11/2026, après la fusion de SP08.
+Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 
 ## État
 
@@ -13,12 +13,13 @@ Mise à jour : 07/11/2026, après la fusion de SP08.
 | SP04 Panier/commandes/stock | Fusionné |
 | SP08 Production/rendu HD | Fusionné |
 | SP09 Studio mobile | Fusionné (mode mock ; jamais testé sur appareil) |
-| SP11 lot A Coquille back-office | Fusionné |
-| **SP05 → SP11 lot B → SP07** | **Prochaine étape, un par un** |
+| SP11 lots A et B (coquille, commandes, production) | Fusionnés |
+| **Correctif démarrage API (devops)** | **Bloquant : l'API compilée ne démarre pas hors Jest (voir plus bas)** |
+| **SP05 → SP07** | **Prochaine étape, un par un** |
 | SP10 Parcours mobile, SP11 lot C | Ensuite, en parallèle |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 288, shared 88, admin 40, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 288, shared 88, admin 72, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -27,7 +28,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 8) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 9 ; SP05 prend 10) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -64,6 +65,14 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - SP08 : déclenché par `order.status_changed` vers `paid`/`deposit_paid` ; émet `production.render_failed` (SP07 doit notifier) ; `print_file_*_url` contient une clé de stockage, l'URL signée est générée à la demande ; prod : `STORAGE_PROVIDER=s3`.
 - SP05 doit émettre `order.status_changed` après le commit (`runInTransaction`).
 - Les fiches SP05, SP07, SP08 contiennent une section « Laissé par SP04 » avec ce qu'il faut brancher.
+
+## Points ouverts après SP11 lot B
+
+- **API non démarrable hors tests** : `node dist/main.js` échoue (`ERR_UNSUPPORTED_DIR_IMPORT` sur `packages/shared/src/design-spec`) car `packages/shared` expose ses sources TypeScript. Jest masque le problème. À confier à `devops` : compiler `shared` en JS (exports vers `dist`) et vérifier `pnpm dev`, `start` et `start:worker`. Bloque la recette (SP12) et la mise en ligne.
+- Routes manquantes demandées par le back-office (lot backend à faire, puis contrat) : `GET /admin/operators` (aujourd'hui l'opérateur est l'utilisateur connecté), `GET /admin/production/queue`, compteurs par statut (`/admin/stats/summary` n'existe pas encore).
+- Contrat à aligner sur l'API réelle : champs `receptionType`, `customer`, `statusHistory`, `allowedTransitions`, `vatIncludedXof` des réponses `/admin/orders*` ; erreur du mauvais code de retrait.
+- `ORDER_NOT_PRODUCIBLE` et `OPERATOR_INVALID` à ajouter à `ERROR_CODES` de `packages/shared` avec leurs textes français.
+- Détail commande admin sans opérateur, état des fichiers HD, livreur ni paiements : préconditions vérifiées seulement par l'API.
 
 ## Modèles des agents
 
