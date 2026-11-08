@@ -3,22 +3,92 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./design-spec": "./src/design-spec/index.ts",
-    "./pricing": "./src/pricing/index.ts",
-    "./order-state-machine": "./src/order-state-machine/index.ts",
-    "./contracts": "./src/contracts/index.ts",
-    "./money": "./src/money/index.ts",
-    "./phone": "./src/phone/index.ts",
-    "./dates": "./src/dates/index.ts",
-    "./text": "./src/text/index.ts",
-    "./fixtures": "./src/fixtures/index.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "node": {
+        "require": "./dist/index.js",
+        "default": "./src/index.ts"
+      },
+      "default": "./src/index.ts"
+    },
+    "./design-spec": {
+      "types": "./src/design-spec/index.ts",
+      "node": {
+        "require": "./dist/design-spec/index.js",
+        "default": "./src/design-spec/index.ts"
+      },
+      "default": "./src/design-spec/index.ts"
+    },
+    "./pricing": {
+      "types": "./src/pricing/index.ts",
+      "node": {
+        "require": "./dist/pricing/index.js",
+        "default": "./src/pricing/index.ts"
+      },
+      "default": "./src/pricing/index.ts"
+    },
+    "./order-state-machine": {
+      "types": "./src/order-state-machine/index.ts",
+      "node": {
+        "require": "./dist/order-state-machine/index.js",
+        "default": "./src/order-state-machine/index.ts"
+      },
+      "default": "./src/order-state-machine/index.ts"
+    },
+    "./contracts": {
+      "types": "./src/contracts/index.ts",
+      "node": {
+        "require": "./dist/contracts/index.js",
+        "default": "./src/contracts/index.ts"
+      },
+      "default": "./src/contracts/index.ts"
+    },
+    "./money": {
+      "types": "./src/money/index.ts",
+      "node": {
+        "require": "./dist/money/index.js",
+        "default": "./src/money/index.ts"
+      },
+      "default": "./src/money/index.ts"
+    },
+    "./phone": {
+      "types": "./src/phone/index.ts",
+      "node": {
+        "require": "./dist/phone/index.js",
+        "default": "./src/phone/index.ts"
+      },
+      "default": "./src/phone/index.ts"
+    },
+    "./dates": {
+      "types": "./src/dates/index.ts",
+      "node": {
+        "require": "./dist/dates/index.js",
+        "default": "./src/dates/index.ts"
+      },
+      "default": "./src/dates/index.ts"
+    },
+    "./text": {
+      "types": "./src/text/index.ts",
+      "node": {
+        "require": "./dist/text/index.js",
+        "default": "./src/text/index.ts"
+      },
+      "default": "./src/text/index.ts"
+    },
+    "./fixtures": {
+      "types": "./src/fixtures/index.ts",
+      "node": {
+        "require": "./dist/fixtures/index.js",
+        "default": "./src/fixtures/index.ts"
+      },
+      "default": "./src/fixtures/index.ts"
+    }
   },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && node -e \"require('fs').writeFileSync('dist/package.json','{\\\"type\\\":\\\"commonjs\\\"}')\"",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.universal.json",
     "test": "vitest run --reporter=dot"
