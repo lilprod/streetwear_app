@@ -1,7 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import sharp from 'sharp';
-import { formatLome, type DesignSpec } from '@streetwear/shared';
+import {
+  formatLome,
+  type AdminOperator,
+  type DesignSpec,
+  type OrderStatus,
+  type Page,
+  type ProductionJobStatus,
+  type ProductionQueueItem,
+  type ProductionQueueQuery,
+} from '@streetwear/shared';
+import { decodeCursor, encodeCursor } from '../orders/order-mapper';
 import { ApiException, notFound } from '../../common/api-exception';
 import { uuidv7 } from '../../common/uuid';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -86,6 +96,90 @@ export class ProductionService {
       }
     });
     return this.orders.adminGet(orderId, actor);
+  }
+
+  async operators(): Promise<{ items: AdminOperator[] }> {
+    const rows = await this.prisma.adminUser.findMany({
+      where: { active: true, role: { in: [...OPERATOR_ROLES] } },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    const items = rows
+      .map((r) => ({
+        id: r.id,
+        name: r.name ?? r.email,
+        email: r.email,
+        role: r.role as AdminOperator['role'],
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr') || a.id.localeCompare(b.id));
+    return { items };
+  }
+
+  async productionQueue(query: ProductionQueueQuery): Promise<Page<ProductionQueueItem>> {
+    const statuses =
+      query.status === 'to_assign'
+        ? Prisma.sql`o.status IN ('paid', 'deposit_paid')`
+        : Prisma.sql`o.status = 'in_production'`;
+    let after = Prisma.empty;
+    if (query.cursor) {
+      const c = decodeCursor(query.cursor);
+      if (!c) throw new ApiException(400, 'VALIDATION_FAILED', 'Curseur de pagination invalide.');
+      after = Prisma.sql`AND (p.paid_at > ${c[0]} OR (p.paid_at = ${c[0]} AND o.id > ${c[1]}::uuid))`;
+    }
+    const rows = await this.prisma.$queryRaw<
+      {
+        id: string;
+        number: string;
+        status: OrderStatus;
+        reception_type: 'home' | 'pickup';
+        paid_at: Date;
+        items_count: number;
+        job_status: ProductionJobStatus | null;
+        operator_id: string | null;
+      }[]
+    >`
+      SELECT o.id::text AS id, o.number, o.status::text AS status,
+             o.reception_type::text AS reception_type, p.paid_at,
+             (SELECT COALESCE(SUM(i.quantity), 0)::int FROM order_items i WHERE i.order_id = o.id) AS items_count,
+             j.status::text AS job_status, j.operator_id::text AS operator_id
+      FROM orders o
+      JOIN LATERAL (
+        SELECT min(h.created_at) AS paid_at FROM order_status_history h
+        WHERE h.order_id = o.id AND h.to_status IN ('paid', 'deposit_paid')
+      ) p ON p.paid_at IS NOT NULL
+      LEFT JOIN production_jobs j ON j.order_id = o.id
+      WHERE ${statuses} ${after}
+      ORDER BY p.paid_at ASC, o.id ASC
+      LIMIT ${query.limit + 1}`;
+    const hasMore = rows.length > query.limit;
+    const pageRows = hasMore ? rows.slice(0, query.limit) : rows;
+    const opIds = [...new Set(pageRows.flatMap((r) => (r.operator_id ? [r.operator_id] : [])))];
+    const ops = opIds.length
+      ? await this.prisma.adminUser.findMany({
+          where: { id: { in: opIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : [];
+    const opName = new Map(ops.map((o) => [o.id, o.name ?? o.email]));
+    const last = pageRows[pageRows.length - 1];
+    return {
+      items: pageRows.map((r) => ({
+        orderId: r.id,
+        orderNumber: r.number,
+        status: r.status,
+        receptionType: r.reception_type,
+        paidAt: r.paid_at.toISOString(),
+        itemsCount: r.items_count,
+        production: r.job_status
+          ? {
+              status: r.job_status,
+              operator: r.operator_id
+                ? { id: r.operator_id, name: opName.get(r.operator_id) ?? '' }
+                : null,
+            }
+          : null,
+      })),
+      nextCursor: hasMore && last ? encodeCursor(last.paid_at, last.id) : null,
+    };
   }
 
   private async itemOrThrow(itemId: string) {

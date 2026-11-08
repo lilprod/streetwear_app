@@ -9,6 +9,7 @@ import {
   computeDepositXof,
   computeUnitPriceXof,
   getTransition,
+  ORDER_STATUSES,
   unmetPreconditions,
   type Cart,
   type CreateOrderInput,
@@ -53,6 +54,15 @@ import {
 } from './order-mapper';
 
 type Tx = Prisma.TransactionClient;
+
+export interface AdminFilters {
+  status?: OrderStatus;
+  receptionType?: ReceptionType;
+  paymentMethod?: CreateOrderInput['paymentMethod'];
+  from?: string;
+  to?: string;
+  q?: string;
+}
 
 /** Acteur d'une transition ; `id` = admin ou client à l'origine, tracé dans l'historique. */
 export type TransitionActor = OrderActor & { id?: string };
@@ -734,16 +744,32 @@ export class OrdersService {
     }
   }
 
-  async adminList(query: {
-    status?: OrderStatus;
-    receptionType?: ReceptionType;
-    paymentMethod?: CreateOrderInput['paymentMethod'];
-    from?: string;
-    to?: string;
-    q?: string;
-    cursor?: string;
-    limit: number;
-  }) {
+  async adminCounts(query: AdminFilters): Promise<Record<OrderStatus, number>> {
+    const groups = await this.prisma.order.groupBy({
+      by: ['status'],
+      where: this.adminWhere(query),
+      _count: { _all: true },
+    });
+    const out = Object.fromEntries(ORDER_STATUSES.map((st) => [st, 0])) as Record<
+      OrderStatus,
+      number
+    >;
+    for (const g of groups) out[g.status] = g._count._all;
+    return out;
+  }
+
+  async adminList(query: AdminFilters & { cursor?: string; limit: number }) {
+    const where = this.adminWhere(query);
+    return this.page(where, query, (rows) =>
+      rows.map((o) => ({
+        ...toSummary(o),
+        receptionType: o.receptionType,
+        customer: { id: o.user.id, name: o.user.name, phone: o.user.phone },
+      })),
+    );
+  }
+
+  private adminWhere(query: AdminFilters): Prisma.OrderWhereInput {
     const where: Prisma.OrderWhereInput = {};
     if (query.status) where.status = query.status;
     if (query.receptionType) where.receptionType = query.receptionType;
@@ -763,13 +789,55 @@ export class OrdersService {
         ...(digits.length >= 4 ? [{ user: { phone: { contains: digits } } }] : []),
       ];
     }
-    return this.page(where, query, (rows) =>
-      rows.map((o) => ({
-        ...toSummary(o),
-        receptionType: o.receptionType,
-        customer: { id: o.user.id, name: o.user.name, phone: o.user.phone },
+    return where;
+  }
+
+  private async productionView(
+    orderId: string,
+    items: { id: string; printFileFrontUrl: string | null; printFileBackUrl: string | null }[],
+  ) {
+    const job = await this.prisma.productionJob.findUnique({ where: { orderId } });
+    if (!job) return null;
+    const operator = job.operatorId
+      ? await this.prisma.adminUser.findUnique({
+          where: { id: job.operatorId },
+          select: { id: true, name: true, email: true },
+        })
+      : null;
+    return {
+      status: job.status,
+      operator: operator ? { id: operator.id, name: operator.name ?? operator.email } : null,
+      error: job.error,
+      items: items.map((i) => ({
+        itemId: i.id,
+        front: !!i.printFileFrontUrl,
+        back: !!i.printFileBackUrl,
       })),
-    );
+    };
+  }
+
+  private async deliveryView(orderId: string) {
+    const d = await this.prisma.delivery.findUnique({
+      where: { orderId },
+      select: { status: true, courier: { select: { id: true, phone: true, adminUserId: true } } },
+    });
+    if (!d) return null;
+    const user = d.courier
+      ? await this.prisma.adminUser.findUnique({
+          where: { id: d.courier.adminUserId },
+          select: { name: true, email: true },
+        })
+      : null;
+    return {
+      status: d.status,
+      courier: d.courier
+        ? {
+            id: d.courier.id,
+            name: user ? (user.name ?? user.email) : '',
+            phone: d.courier.phone,
+          }
+        : null,
+    };
   }
 
   async adminGet(id: string, actor: TransitionActor) {
@@ -778,6 +846,10 @@ export class OrdersService {
       include: { ...ORDER_INCLUDE, user: { select: { id: true, name: true, phone: true } } },
     });
     if (!row) throw notFound('Commande');
+    const [production, delivery] = await Promise.all([
+      this.productionView(row.id, row.items),
+      this.deliveryView(row.id),
+    ]);
     return {
       ...toOrder(row),
       receptionType: row.receptionType,
@@ -794,6 +866,16 @@ export class OrdersService {
       allowedTransitions: allowedTransitions(row.status, actor, {
         receptionType: row.receptionType,
       }),
+      production,
+      delivery,
+      // Pas de table de paiements tant que SP05 n'est pas livré.
+      payments: [] as {
+        id: string;
+        method: string;
+        status: string;
+        amountXof: number;
+        createdAt: string;
+      }[],
     };
   }
 
