@@ -18,9 +18,10 @@ import { StatusBadge } from '../../components/status-badge';
 import { fr, type FrKey } from '../../i18n/fr';
 import { errorMessage } from '../../lib/errors';
 import {
-  getStatusCounts,
+  getOrderCounts,
   listOrders,
   type AdminOrderSummary,
+  type OrderCountsFilters,
   type OrdersFilters,
 } from '../../lib/orders-api';
 
@@ -63,12 +64,19 @@ export function OrdersListPage() {
   });
   const nextCursor = list.data?.nextCursor;
 
-  const countsAllowed = role === 'order_manager' || role === 'super_admin';
+  const countFilters: OrderCountsFilters = {
+    receptionType: filters.receptionType,
+    paymentMethod: filters.paymentMethod,
+    from: filters.from,
+    to: filters.to,
+    q: filters.q,
+  };
   const counts = useQuery({
-    queryKey: ['stats', 'summary'],
-    queryFn: getStatusCounts,
-    enabled: countsAllowed,
+    queryKey: ['orders', 'counts', JSON.stringify(countFilters)],
+    queryFn: ({ signal }) => getOrderCounts(countFilters, signal),
+    enabled: role !== null && role !== 'courier',
   });
+  const total = counts.data ? Object.values(counts.data).reduce((n, v) => n + v, 0) : undefined;
 
   const resetPage = () => setStack([]);
   const change =
@@ -158,13 +166,9 @@ export function OrdersListPage() {
       <h1 className="text-[32px] font-semibold leading-10">{fr['orders.title']}</h1>
       <nav aria-label={fr['orders.statusTabs']} className="mt-4 overflow-x-auto pb-2">
         <ul className="flex gap-2">
-          {tab('', fr['orders.allStatuses'], counts.data?.ordersCount)}
+          {tab('', fr['orders.allStatuses'], total)}
           {ORDER_STATUSES.map((s) =>
-            tab(
-              s,
-              ORDER_STATUS_LABELS_FR[s],
-              counts.data ? (counts.data.byStatus[s] ?? 0) : undefined,
-            ),
+            tab(s, ORDER_STATUS_LABELS_FR[s], counts.data ? (counts.data[s] ?? 0) : undefined),
           )}
         </ul>
       </nav>

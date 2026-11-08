@@ -1,15 +1,21 @@
 import { useId, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { allowedTransitions, unmetPreconditions, type OrderStatus } from '@streetwear/shared';
+import {
+  allowedTransitions,
+  unmetPreconditions,
+  type OrderStatus,
+  type Precondition,
+} from '@streetwear/shared';
 import { useAuth } from '../../auth/auth-context';
 import { Button } from '../../components/button';
 import { ConfirmDialog } from '../../components/confirm-dialog';
+import { OperatorSelect, useOperatorChoice } from '../../components/operator-select';
 import { useToast } from '../../components/toast';
 import { fr, type FrKey } from '../../i18n/fr';
-import { errorMessage } from '../../lib/errors';
+import { ApiRequestError, errorMessage } from '../../lib/errors';
 import { assignOperator, transitionOrder, type AdminOrder } from '../../lib/orders-api';
 
-type Pending = { to: OrderStatus; kind: 'assign' | 'cancel' | 'code' | 'direct' };
+type Pending = { to: OrderStatus; kind: 'assign' | 'reassign' | 'cancel' | 'code' | 'direct' };
 
 export const useOrderCacheUpdate = () => {
   const qc = useQueryClient();
@@ -17,7 +23,6 @@ export const useOrderCacheUpdate = () => {
     qc.setQueryData(['order', order.id], order);
     void qc.invalidateQueries({ queryKey: ['orders'] });
     void qc.invalidateQueries({ queryKey: ['production-queue'] });
-    void qc.invalidateQueries({ queryKey: ['stats'] });
   };
 };
 
@@ -29,14 +34,35 @@ const kindOf = (from: OrderStatus, to: OrderStatus): Exclude<Pending['kind'], 'd
   return null;
 };
 
+const CLIENT_CHECKED: Precondition[] = ['requiresPrintFiles', 'requiresCourier'];
+
+export function clientUnmet(order: AdminOrder, to: OrderStatus): Precondition[] {
+  const facts = {
+    requiresPrintFiles:
+      !!order.production &&
+      order.items.length > 0 &&
+      order.items.every((it) => {
+        const f = order.production?.items.find((p) => p.itemId === it.id);
+        const needFront = (it.design.spec.zones.front?.layers.length ?? 0) > 0;
+        const needBack = (it.design.spec.zones.back?.layers.length ?? 0) > 0;
+        return (!needFront || !!f?.front) && (!needBack || !!f?.back);
+      }),
+    requiresCourier: !!order.delivery?.courier,
+  };
+  return unmetPreconditions(order.status, to, facts).filter((p) => CLIENT_CHECKED.includes(p));
+}
+
 export function TransitionPanel({ order }: { order: AdminOrder }) {
-  const { role, session } = useAuth();
+  const { role } = useAuth();
   const toast = useToast();
   const update = useOrderCacheUpdate();
   const [pending, setPending] = useState<Pending | null>(null);
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const canAssign = role === 'production' || role === 'super_admin';
+  const choice = useOperatorChoice(canAssign && order.status !== 'cancelled');
   const fieldId = useId();
 
   const targets = role
@@ -52,11 +78,13 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
     setNote('');
     setCode('');
     setCodeError(false);
+    setRemaining(null);
   };
 
   const mutation = useMutation({
     mutationFn: (p: Pending) => {
-      if (p.kind === 'assign') return assignOperator(order.id, session?.userId ?? '');
+      if (p.kind === 'assign' || p.kind === 'reassign')
+        return assignOperator(order.id, choice.value);
       return transitionOrder(order.id, {
         to: p.to,
         ...(p.kind === 'cancel' && note.trim() ? { note: note.trim() } : {}),
@@ -65,10 +93,20 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
     },
     onSuccess: (updated) => {
       update(updated);
-      toast.show(fr['order.transitioned'], 'success');
+      toast.show(
+        fr[pending?.kind === 'reassign' ? 'production.reassigned' : 'order.transitioned'],
+        'success',
+      );
       close();
     },
     onError: (e) => {
+      if (e instanceof ApiRequestError && e.code === 'HANDOVER_CODE_INVALID') {
+        const n = (e.details as { remainingAttempts?: unknown } | undefined)?.remainingAttempts;
+        setRemaining(typeof n === 'number' ? n : null);
+        setCodeError(true);
+        setCode('');
+        return;
+      }
       toast.show(errorMessage(e), 'error');
       close();
     },
@@ -85,10 +123,12 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
     if (pending.kind === 'code') {
       const facts = { requiresHandoverCode: /^\d{6}$/.test(code) };
       if (unmetPreconditions(order.status, pending.to, facts).includes('requiresHandoverCode')) {
+        setRemaining(null);
         setCodeError(true);
         return;
       }
     }
+    if ((pending.kind === 'assign' || pending.kind === 'reassign') && !choice.value) return;
     mutation.mutate(pending);
   };
 
@@ -97,7 +137,9 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
       ? fr['order.cancel.title']
       : pending?.kind === 'assign'
         ? fr['order.assign.title']
-        : fr['order.code.title'];
+        : pending?.kind === 'reassign'
+          ? fr['order.reassign.title']
+          : fr['order.code.title'];
 
   return (
     <section
@@ -111,18 +153,42 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
         <p className="mt-2 text-sm text-inkSecondary">{fr['order.actions.none']}</p>
       ) : (
         <ul className="mt-3 flex flex-wrap gap-2">
-          {targets.map((to) => (
-            <li key={to}>
-              <Button
-                variant={to === 'cancelled' ? 'danger' : 'primary'}
-                disabled={mutation.isPending}
-                onClick={() => start(to)}
-              >
-                {fr[`order.action.${to}` as FrKey]}
-              </Button>
-            </li>
-          ))}
+          {targets.map((to) => {
+            const unmet = clientUnmet(order, to);
+            return (
+              <li key={to}>
+                <Button
+                  variant={to === 'cancelled' ? 'danger' : 'primary'}
+                  disabled={mutation.isPending || unmet.length > 0}
+                  aria-describedby={unmet.length > 0 ? `${fieldId}-u-${to}` : undefined}
+                  onClick={() => start(to)}
+                >
+                  {fr[`order.action.${to}` as FrKey]}
+                </Button>
+                {unmet.map((p) => (
+                  <p
+                    key={p}
+                    id={`${fieldId}-u-${to}`}
+                    className="mt-1 max-w-64 text-xs text-inkSecondary"
+                  >
+                    {fr[`order.precondition.${p}` as FrKey]}
+                  </p>
+                ))}
+              </li>
+            );
+          })}
         </ul>
+      )}
+      {canAssign && order.status === 'in_production' && (
+        <div className="mt-3">
+          <Button
+            variant="secondary"
+            disabled={mutation.isPending}
+            onClick={() => setPending({ to: 'in_production', kind: 'reassign' })}
+          >
+            {fr['order.reassign.action']}
+          </Button>
+        </div>
       )}
       <ConfirmDialog
         open={!!pending}
@@ -133,7 +199,9 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
             ? fr['order.cancel.confirm']
             : pending?.kind === 'assign'
               ? fr['order.assign.confirm']
-              : fr['order.code.confirm']
+              : pending?.kind === 'reassign'
+                ? fr['order.reassign.confirm']
+                : fr['order.code.confirm']
         }
         cancelLabel={pending?.kind === 'cancel' ? fr['order.cancel.keep'] : undefined}
         onConfirm={confirm}
@@ -154,7 +222,14 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
             />
           </>
         )}
-        {pending?.kind === 'assign' && <p>{fr['order.assign.body']}</p>}
+        {(pending?.kind === 'assign' || pending?.kind === 'reassign') && (
+          <>
+            <p className="mb-3">
+              {fr[pending.kind === 'assign' ? 'order.assign.body' : 'order.reassign.body']}
+            </p>
+            <OperatorSelect choice={choice} />
+          </>
+        )}
         {pending?.kind === 'code' && (
           <>
             <p>{fr['order.code.body']}</p>
@@ -174,7 +249,9 @@ export function TransitionPanel({ order }: { order: AdminOrder }) {
             />
             {codeError && (
               <p id={`${fieldId}-e`} role="alert" className="mt-1 text-xs text-danger">
-                {fr['order.code.invalid']}
+                {remaining !== null
+                  ? `${fr['error.HANDOVER_CODE_INVALID']} ${fr['order.code.remaining']} ${remaining}`
+                  : fr['order.code.invalid']}
               </p>
             )}
           </>

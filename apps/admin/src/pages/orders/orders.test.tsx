@@ -34,7 +34,14 @@ const ID = (n: number) => uid(500 + n);
 const action = (to: string) => fr[`order.action.${to}` as FrKey];
 
 function fakeOrder(status: (typeof ORDER_STATUSES)[number], receptionType: ReceptionType) {
-  return { ...FIXTURE_ORDERS[0], status, receptionType } as unknown as AdminOrder;
+  return {
+    ...FIXTURE_ORDERS[0],
+    status,
+    receptionType,
+    production: null,
+    delivery: null,
+    payments: [],
+  } as unknown as AdminOrder;
 }
 
 describe('liste des commandes', () => {
@@ -142,11 +149,33 @@ describe('liste des commandes', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Service indisponible.');
   });
 
-  it('la production voit la liste sans compteurs', async () => {
-    loginAs('production');
+  it.each(['production', 'logistics'] as const)(
+    'les compteurs d’onglets viennent de /admin/orders/counts pour %s',
+    async (role) => {
+      loginAs(role);
+      const seen: string[] = [];
+      server.events.on('request:start', ({ request }) => {
+        seen.push(new URL(request.url).pathname + new URL(request.url).search);
+      });
+      renderApp('/commandes');
+      expect(await screen.findByText('TG-000001')).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: /^Payée\s*1$/ })).toBeInTheDocument();
+      expect(seen.some((u) => u.includes('/admin/orders/counts'))).toBe(true);
+      expect(seen.some((u) => u.includes('/admin/stats/summary'))).toBe(false);
+      server.events.removeAllListeners();
+    },
+  );
+
+  it('les compteurs suivent les mêmes filtres que la liste (hors statut)', async () => {
+    loginAs('order_manager');
     renderApp('/commandes');
-    expect(await screen.findByText('TG-000001')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Payée$/ })).toBeInTheDocument();
+    const user = userEvent.setup();
+    const nav = screen.getByRole('navigation', { name: fr['orders.statusTabs'] });
+    expect(await within(nav).findByRole('button', { name: /^Toutes\s*8$/ })).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText(fr['orders.reception']), 'pickup');
+    expect(await within(nav).findByRole('button', { name: /^Toutes\s*1$/ })).toBeInTheDocument();
+    expect(within(nav).getByRole('button', { name: /^Prête au retrait\s*1$/ })).toBeInTheDocument();
+    expect(within(nav).getByRole('button', { name: /^Payée\s*0$/ })).toBeInTheDocument();
   });
 });
 
@@ -216,7 +245,8 @@ describe('boutons de transition', () => {
           const expected = allowedTransitions(status, { type: 'admin', role }, { receptionType });
           const shown = within(view.container)
             .queryAllByRole('button')
-            .map((b) => b.textContent);
+            .map((b) => b.textContent)
+            .filter((t) => t !== fr['order.reassign.action']);
           expect(shown, `${role} ${status} ${receptionType}`).toEqual(expected.map(action));
           view.unmount();
         }
@@ -266,12 +296,12 @@ describe('boutons de transition', () => {
     await user.clear(within(dialog).getByLabelText(fr['order.code.label']));
     await user.type(within(dialog).getByLabelText(fr['order.code.label']), '000000');
     await user.click(within(dialog).getByRole('button', { name: fr['order.code.confirm'] }));
-    expect(await screen.findByText('Code de retrait incorrect.')).toBeInTheDocument();
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      `${fr['order.code.remaining']} 4`,
+    );
 
-    await user.click(await screen.findByRole('button', { name: action('delivered') }));
-    const again = await screen.findByRole('dialog');
-    await user.type(within(again).getByLabelText(fr['order.code.label']), DEMO_PICKUP_CODE);
-    await user.click(within(again).getByRole('button', { name: fr['order.code.confirm'] }));
+    await user.type(within(dialog).getByLabelText(fr['order.code.label']), DEMO_PICKUP_CODE);
+    await user.click(within(dialog).getByRole('button', { name: fr['order.code.confirm'] }));
     expect(await screen.findByText(fr['order.transitioned'])).toBeInTheDocument();
     expect(screen.getAllByText(ORDER_STATUS_LABELS_FR.delivered).length).toBeGreaterThan(0);
   });
@@ -288,6 +318,9 @@ describe('boutons de transition', () => {
           customer: { id: uid(1), name: 'Test', phone: null },
           statusHistory: [],
           allowedTransitions: [],
+          production: null,
+          delivery: null,
+          payments: [],
         });
       }),
       http.post('*/v1/admin/orders/:id/transitions', () =>

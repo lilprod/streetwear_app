@@ -10,6 +10,7 @@ import { getOrder, type AdminOrder } from '../../lib/orders-api';
 import { PrintFilesPanel } from '../production/print-files-panel';
 import { SheetButton } from '../production/sheet-button';
 import { ForbiddenPage, NotFoundPage } from '../status-pages';
+import { DeliveryBlock, PaymentsBlock, ProductionBlock } from './order-blocks';
 import { paymentLabel } from './orders-list';
 import { TransitionPanel } from './transition-panel';
 
@@ -113,7 +114,10 @@ export function OrderDetailPage() {
             <div className="flex flex-col gap-4">
               <TransitionPanel order={o} />
               <Items order={o} />
+              <ProductionBlock order={o} />
               {isProd && <PrintFilesPanel order={o} />}
+              <DeliveryBlock order={o} />
+              <PaymentsBlock order={o} />
               <section aria-labelledby="order-history" className={card}>
                 <h2 id="order-history" className="text-lg font-semibold">
                   {fr['order.history']}

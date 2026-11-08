@@ -25,13 +25,13 @@ describe('file de production', () => {
     renderApp('/production');
     const user = userEvent.setup();
     await user.click(
-      await screen.findByRole('button', { name: `${fr['production.assignMe']} TG-000003` }),
+      await screen.findByRole('button', { name: `${fr['production.assign']} TG-000003` }),
     );
     expect(await screen.findByText(fr['production.assigned'])).toBeInTheDocument();
     const inProgress = screen.getByRole('table', { name: fr['production.caption.inProgress'] });
     await waitFor(() => expect(within(inProgress).getByText('TG-000003')).toBeInTheDocument());
     expect(
-      screen.queryByRole('button', { name: `${fr['production.assignMe']} TG-000003` }),
+      screen.queryByRole('button', { name: `${fr['production.assign']} TG-000003` }),
     ).not.toBeInTheDocument();
   });
 
@@ -50,7 +50,7 @@ describe('file de production', () => {
     renderApp('/production');
     const user = userEvent.setup();
     await user.click(
-      await screen.findByRole('button', { name: `${fr['production.assignMe']} TG-000003` }),
+      await screen.findByRole('button', { name: `${fr['production.assign']} TG-000003` }),
     );
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Cet opérateur ne peut pas être affecté.',
