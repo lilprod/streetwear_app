@@ -14,12 +14,12 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | SP08 Production/rendu HD | Fusionné |
 | SP09 Studio mobile | Fusionné (mode mock ; jamais testé sur appareil) |
 | SP11 lots A et B (coquille, commandes, production) | Fusionnés |
-| **Correctif démarrage API (devops)** | **Bloquant : l'API compilée ne démarre pas hors Jest (voir plus bas)** |
-| **SP05 → SP07** | **Prochaine étape, un par un** |
+| Correctif démarrage API, routes admin complémentaires | Fusionnés |
+| **Reprise back-office sur les nouvelles routes, puis SP05 → SP07** | **Prochaine étape** |
 | SP10 Parcours mobile, SP11 lot C | Ensuite, en parallèle |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 288, shared 88, admin 72, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 299, shared 88, admin 72, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -28,7 +28,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 9 ; SP05 prend 10) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 12 ; SP05 prend 13) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -68,11 +68,12 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 
 ## Points ouverts après SP11 lot B
 
-- **API non démarrable hors tests** : `node dist/main.js` échoue (`ERR_UNSUPPORTED_DIR_IMPORT` sur `packages/shared/src/design-spec`) car `packages/shared` expose ses sources TypeScript. Jest masque le problème. À confier à `devops` : compiler `shared` en JS (exports vers `dist`) et vérifier `pnpm dev`, `start` et `start:worker`. Bloque la recette (SP12) et la mise en ligne.
-- Routes manquantes demandées par le back-office (lot backend à faire, puis contrat) : `GET /admin/operators` (aujourd'hui l'opérateur est l'utilisateur connecté), `GET /admin/production/queue`, compteurs par statut (`/admin/stats/summary` n'existe pas encore).
-- Contrat à aligner sur l'API réelle : champs `receptionType`, `customer`, `statusHistory`, `allowedTransitions`, `vatIncludedXof` des réponses `/admin/orders*` ; erreur du mauvais code de retrait.
-- `ORDER_NOT_PRODUCIBLE` et `OPERATOR_INVALID` à ajouter à `ERROR_CODES` de `packages/shared` avec leurs textes français.
-- Détail commande admin sans opérateur, état des fichiers HD, livreur ni paiements : préconditions vérifiées seulement par l'API.
+- Corrigé le 08/11 : l'API et le worker compilés démarrent (`packages/shared` compilé en CommonJS dans `dist`, chargé seulement par `require` Node ; Vite, Jest et Metro gardent les sources). La CI démarre l'API compilée et interroge `/v1/health`. Tout nouveau paquet chargé par l'API à l'exécution suit le même schéma.
+- Ajouté le 08/11 : `GET /admin/operators`, `GET /admin/production/queue`, `GET /admin/orders/counts`, détail admin enrichi (`production`, `delivery`, `payments`), `ERROR_CODES` complet et types admin dans `packages/shared`.
+- **Reste à faire côté back-office** (petite reprise `dev-backoffice`) : utiliser ces routes (choix d'un opérateur, vraie file de production, compteurs des onglets, préconditions fichiers HD et livreur), remplacer les types locaux de `lib/orders-api.ts` par ceux de shared.
+- SP05 : remplir `payments[]` du détail admin et faire reposer `paidAt` de la file de production sur le paiement (aujourd'hui : première entrée `paid`/`deposit_paid` de l'historique).
+- `AdminStockItem.size` est typé `string` dans `stock.service.ts` au lieu de `Size` (à corriger au passage).
+- Tests de rendu HD : délai porté à 30 s (rendus réels gourmands en CPU sous Turborepo). Les tests admin `orders.test.tsx` ont aussi dépassé 5 s chez un agent sous charge : à surveiller.
 
 ## Modèles des agents
 

@@ -201,7 +201,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note?, code? }` (`code` obligatoire pour `ready_for_pickup → delivered` : code de retrait du client) | selon la transition | SP04 |
 | POST | `/admin/orders/:id/assign-operator` `{ operatorId }` → `200 AdminOrder` (passe en `in_production`) | production, super_admin | SP08 |
 | GET | `/admin/orders/:id/production-sheet.pdf` | production, super_admin | SP08 |
-| GET | `/admin/operators` → `{ items: { id, name, email, role }[] }` (comptes actifs `production` et `super_admin`, triés par nom) | production, super_admin | SP08 (complément) |
+| GET | `/admin/operators` → `{ items: { id, name, email, role }[] }` (comptes actifs `production` et `super_admin`, triés par nom ; `name` vaut l'e-mail si le compte n'a pas de nom) | production, super_admin | SP08 (complément) |
 | GET | `/admin/production/queue` `?status=to_assign\|in_production&cursor&limit` → `Page<ProductionQueueItem>` (tri : paiement le plus ancien d'abord) | production, super_admin | SP08 (complément) |
 | GET | `/admin/order-items/:id/print-files` → `{ front?: signedUrl, back?: signedUrl }` | production, super_admin | SP08 |
 | POST | `/admin/order-items/:id/print-files/regenerate` → `202 { status: 'queued' }` | production, super_admin | SP08 |
@@ -241,8 +241,8 @@ type AdminLoginResult =
 ```ts
 type AdminOrderSummary = OrderSummary & { receptionType: 'home' | 'pickup';
   customer: { id: string; name: string | null; phone: string | null } };
-type AdminOrder = Order & { customer: AdminOrderSummary['customer']; vatIncludedXof: number;
-  statusHistory: { from: OrderStatus | null; to: OrderStatus; actorType: string; note: string | null; at: string }[];
+type AdminOrder = Order & { customer: AdminOrderSummary['customer']; receptionType: 'home' | 'pickup'; vatIncludedXof: number;
+  statusHistory: { from: OrderStatus | null; to: OrderStatus; actorType: string; actorId: string | null; note: string | null; at: string }[];
   allowedTransitions: OrderStatus[]; // calculé pour le rôle de l'appelant
   production: { status: ProductionJobStatus; operator: { id: string; name: string } | null;
     error: string | null; items: { itemId: string; front: boolean; back: boolean }[] } | null; // fichiers HD présents
