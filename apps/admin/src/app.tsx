@@ -8,6 +8,9 @@ import { ToastProvider } from './components/toast';
 import { Shell } from './layout/shell';
 import { DashboardPage } from './pages/dashboard';
 import { LoginPage } from './pages/login';
+import { OrderDetailPage } from './pages/orders/order-detail';
+import { OrdersListPage } from './pages/orders/orders-list';
+import { ProductionPage } from './pages/production/production-page';
 import { ModulePage } from './pages/module-page';
 import { ForbiddenPage, NotFoundPage } from './pages/status-pages';
 
@@ -19,7 +22,9 @@ function Home() {
   return <DashboardPage />;
 }
 
-const PLACEHOLDERS: ModuleId[] = MODULES.filter((m) => m.id !== 'dashboard').map((m) => m.id);
+const PLACEHOLDERS: ModuleId[] = MODULES.filter(
+  (m) => m.id !== 'dashboard' && m.id !== 'orders' && m.id !== 'production',
+).map((m) => m.id);
 
 export function App() {
   const [client] = useState(
@@ -34,6 +39,30 @@ export function App() {
             <Route element={<RequireAuth />}>
               <Route element={<Shell />}>
                 <Route index element={<Home />} />
+                <Route
+                  path="/commandes"
+                  element={
+                    <RequireModule id="orders">
+                      <OrdersListPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/commandes/:id"
+                  element={
+                    <RequireModule id="orders">
+                      <OrderDetailPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/production"
+                  element={
+                    <RequireModule id="production">
+                      <ProductionPage />
+                    </RequireModule>
+                  }
+                />
                 {PLACEHOLDERS.map((id) => {
                   const m = MODULES.find((x) => x.id === id);
                   if (!m) return null;

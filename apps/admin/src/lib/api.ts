@@ -62,3 +62,19 @@ export async function api<T>(path: string, opts: RequestOptions = {}, retried = 
   if (json === null) throw new ApiRequestError(res.status, null, fr['error.unknown']);
   return json as T;
 }
+
+export async function apiBlob(path: string, signal?: AbortSignal, retried = false): Promise<Blob> {
+  const token = source.getToken();
+  const res = await fetch(url(path), {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    signal,
+  });
+  if (!res.ok) {
+    if (res.status === 401 && token) {
+      if (!retried && (await refreshOnce())) return apiBlob(path, signal, true);
+      source.onUnauthorized();
+    }
+    throw errorFromBody(res.status, await res.json().catch(() => null));
+  }
+  return res.blob();
+}
