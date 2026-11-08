@@ -44,7 +44,9 @@ export function ConfirmDialog({
       return;
     }
     if (e.key !== 'Tab' || !ref.current) return;
-    const items = ref.current.querySelectorAll<HTMLElement>('button:not([disabled])');
+    const items = ref.current.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), input:not([disabled]), textarea:not([disabled])',
+    );
     const first = items[0];
     const last = items[items.length - 1];
     if (!first || !last) return;

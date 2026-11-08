@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 import type { AdminRole } from '@streetwear/shared';
 import { configureApi } from '../lib/api';
@@ -41,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return s;
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const expire = () => {
       clearSession();
       setSession(null);

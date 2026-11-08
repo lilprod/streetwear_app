@@ -44,6 +44,7 @@ export function FilterBar({
         />
       </div>
       {children}
+      {onSubmit && <Button type="submit">{fr['filter.apply']}</Button>}
       {onReset && (
         <Button variant="secondary" onClick={onReset}>
           {fr['filter.reset']}
