@@ -1,5 +1,16 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ProductionQueueQuerySchema, type ProductionQueueQuery } from '@streetwear/shared';
 import type { Response } from 'express';
 import { z } from 'zod';
 import { UuidParam } from '../../common/uuid-param';
@@ -19,6 +30,16 @@ const AssignOperatorSchema = z.object({ operatorId: z.string().uuid() }).strict(
 @Roles('production', 'super_admin')
 export class ProductionController {
   constructor(private readonly production: ProductionService) {}
+
+  @Get('operators')
+  operators() {
+    return this.production.operators();
+  }
+
+  @Get('production/queue')
+  queue(@Query(new ZodPipe(ProductionQueueQuerySchema)) query: ProductionQueueQuery) {
+    return this.production.productionQueue(query);
+  }
 
   @Post('orders/:id/assign-operator')
   @HttpCode(200)

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
+  AdminOrderCountsQuerySchema,
   AdminOrdersQuerySchema,
   CreateOrderInputSchema,
   IdempotencyKeySchema,
@@ -111,6 +112,14 @@ export class AdminOrdersController {
   @Get()
   list(@Query(new ZodPipe(AdminOrdersQuerySchema)) query: typeof AdminOrdersQuerySchema._output) {
     return this.orders.adminList(query);
+  }
+
+  @Get('counts')
+  counts(
+    @Query(new ZodPipe(AdminOrderCountsQuerySchema))
+    query: typeof AdminOrderCountsQuerySchema._output,
+  ) {
+    return this.orders.adminCounts(query);
   }
 
   @Get(':id')
