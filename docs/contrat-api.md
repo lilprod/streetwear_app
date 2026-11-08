@@ -197,9 +197,12 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | POST | `/admin/auth/logout` `{ refreshToken }` → `204` | tous | SP02 |
 | GET | `/admin/orders` `?status&receptionType&paymentMethod&from&to&q&cursor` | order_manager, production, logistics, super_admin | SP04 |
 | GET | `/admin/orders/:id` | idem | SP04 |
+| GET | `/admin/orders/counts` `?receptionType&paymentMethod&from&to&q` → `Record<OrderStatus, number>` (mêmes filtres que la liste, hors `status`) | idem | SP04 (complément) |
 | POST | `/admin/orders/:id/transitions` `{ to: OrderStatus, note?, code? }` (`code` obligatoire pour `ready_for_pickup → delivered` : code de retrait du client) | selon la transition | SP04 |
 | POST | `/admin/orders/:id/assign-operator` `{ operatorId }` → `200 AdminOrder` (passe en `in_production`) | production, super_admin | SP08 |
 | GET | `/admin/orders/:id/production-sheet.pdf` | production, super_admin | SP08 |
+| GET | `/admin/operators` → `{ items: { id, name, email, role }[] }` (comptes actifs `production` et `super_admin`, triés par nom) | production, super_admin | SP08 (complément) |
+| GET | `/admin/production/queue` `?status=to_assign\|in_production&cursor&limit` → `Page<ProductionQueueItem>` (tri : paiement le plus ancien d'abord) | production, super_admin | SP08 (complément) |
 | GET | `/admin/order-items/:id/print-files` → `{ front?: signedUrl, back?: signedUrl }` | production, super_admin | SP08 |
 | POST | `/admin/order-items/:id/print-files/regenerate` → `202 { status: 'queued' }` | production, super_admin | SP08 |
 | GET / POST / PATCH | `/admin/delivery-zones` | logistics, super_admin | SP06 |
@@ -240,12 +243,24 @@ type AdminOrderSummary = OrderSummary & { receptionType: 'home' | 'pickup';
   customer: { id: string; name: string | null; phone: string | null } };
 type AdminOrder = Order & { customer: AdminOrderSummary['customer']; vatIncludedXof: number;
   statusHistory: { from: OrderStatus | null; to: OrderStatus; actorType: string; note: string | null; at: string }[];
-  allowedTransitions: OrderStatus[] }; // calculé pour le rôle de l'appelant
+  allowedTransitions: OrderStatus[]; // calculé pour le rôle de l'appelant
+  production: { status: ProductionJobStatus; operator: { id: string; name: string } | null;
+    error: string | null; items: { itemId: string; front: boolean; back: boolean }[] } | null; // fichiers HD présents
+  delivery: { status: string; courier: { id: string; name: string; phone: string } | null } | null;
+  payments: { id: string; method: string; status: string; amountXof: number; createdAt: string }[] };
+type ProductionJobStatus = 'queued' | 'rendering' | 'ready_to_print' | 'printed' | 'failed';
+type ProductionQueueItem = { orderId: string; orderNumber: string; status: OrderStatus;
+  receptionType: 'home' | 'pickup'; paidAt: string; itemsCount: number;
+  production: { status: ProductionJobStatus; operator: { id: string; name: string } | null } | null };
 type AdminStockItem = { id: string; colorId: string; colorName: string; size: Size; onHand: number;
   reserved: number; available: number; alertThreshold: number; belowThreshold: boolean };
 ```
 
 Le reçu PDF d'une commande non payée renvoie `404 NOT_FOUND`.
+
+Code de retrait faux (`ready_for_pickup → delivered`) : `400 HANDOVER_CODE_INVALID` avec `details.remainingAttempts`, puis `403 HANDOVER_CODE_LOCKED` après 5 essais, comme pour la remise livreur.
+
+Ces types (`AdminOrderSummary`, `AdminOrder`, `ProductionQueueItem`, `AdminStockItem`) sont exportés par `packages/shared/contracts`, et `ERROR_CODES` y reprend tous les codes du tableau « Codes d'erreur communs ».
 
 ### Import d'un motif ou d'une police (SP03)
 
