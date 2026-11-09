@@ -16,11 +16,12 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | SP11 lots A et B (coquille, commandes, production) | Fusionnés |
 | Correctif démarrage API, routes admin complémentaires | Fusionnés |
 | Reprise back-office sur les nouvelles routes | Fusionnée |
-| **SP05 → SP07** | **Prochaine étape, un par un** |
+| SP05 Paiement (adaptateur `fake`) | Fusionné ; agrégateur réel après le comité du 13/11 |
+| **SP07 Notifications** | **Prochaine étape** |
 | SP10 Parcours mobile, SP11 lot C | Ensuite, en parallèle |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 299, shared 88, admin 97, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 339, shared 91, admin 97, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -29,7 +30,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 13 ; SP05 prend 14) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 14 ; SP07 prend 15) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -64,7 +65,9 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - `payment_failed → expired` par le système, libère stock et créneau.
 - `POST /designs` accepte un `Idempotency-Key` optionnel ; `GET /catalog/banned-words` public.
 - SP08 : déclenché par `order.status_changed` vers `paid`/`deposit_paid` ; émet `production.render_failed` (SP07 doit notifier) ; `print_file_*_url` contient une clé de stockage, l'URL signée est générée à la demande ; prod : `STORAGE_PROVIDER=s3`.
-- SP05 doit émettre `order.status_changed` après le commit (`runInTransaction`).
+- SP05 : `order.status_changed` émis après le commit (prouvé par test : webhook → job de production). Confirmation possible par webhook signé ou par `getStatus` de l'agrégateur (filet du webhook perdu, après 60 s), jamais par l'application.
+- SP05 : `FAKE_PAYMENT_WEBHOOK_SECRET` (≥ 32 caractères) obligatoire hors production, sinon l'API refuse de démarrer ; le `fake` est refusé en production, qui ne démarrera qu'avec l'adaptateur réel. Un adaptateur réel = une classe dans `payments/providers/` + `providers.factory.ts` + `.env.example`.
+- SP07 doit consommer `payment.amount_mismatch`, `payment.unexpected_success`, `reconciliation.mismatch` en plus des événements déjà listés.
 - Les fiches SP05, SP07, SP08 contiennent une section « Laissé par SP04 » avec ce qu'il faut brancher.
 
 ## Points ouverts après SP11 lot B

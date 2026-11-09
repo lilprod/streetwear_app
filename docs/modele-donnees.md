@@ -47,9 +47,9 @@ en est la spécification. Clés primaires `id` en UUID v7 (`uuid` généré côt
 
 | Table | Colonnes clés | Règles |
 |---|---|---|
-| `payments` | `order_id`, `provider`, `method` (`tmoney`, `flooz`, `card`), `kind` (`full`, `deposit`, `balance`), `amount_xof`, `status` (`pending`, `succeeded`, `failed`, `expired`, `refunded`), `provider_ref?`, `idempotency_key` (unique), `payer_phone?` | Montant toujours recalculé côté serveur |
-| `payment_events` | `payment_id?`, `provider`, `raw` (jsonb), `signature_valid`, `received_at`, `processed_at?` | Chaque webhook stocké brut, même invalide |
-| `reconciliations` | `date`, `provider`, `matched`, `mismatches` (jsonb) | Rapport quotidien |
+| `payments` | `order_id` (FK), `provider`, `method` (`tmoney`, `flooz`, `card`), `kind` (`full`, `deposit`, `balance`), `amount_xof` (> 0), `status` (`pending`, `succeeded`, `failed`, `expired`, `refunded`), `provider_ref?`, `idempotency_key` (unique), `idempotency_hash`, `payer_phone?`, `next_action?`, `failure_reason?`, `confirmed_at?`, `last_checked_at?` | Montant toujours recalculé côté serveur (`paymentDue` de SP04) ; unique (`provider`, `provider_ref`) |
+| `payment_events` | `payment_id?`, `provider`, `provider_ref?`, `raw` (jsonb), `raw_body`, `signature_valid`, `outcome`, `received_at`, `processed_at?` | Chaque webhook stocké brut, même invalide |
+| `reconciliations` | `date`, `provider`, `matched`, `mismatches` (jsonb) | Rapport quotidien, unique (`date`, `provider`) ; relance du même jour = mise à jour |
 
 ### Livraison et retrait (SP06)
 

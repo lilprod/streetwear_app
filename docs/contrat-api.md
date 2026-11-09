@@ -178,7 +178,7 @@ type OrderItem = { id: string; design: { spec: DesignSpec; previewFrontUrl: stri
 |---|---|---|---|
 | POST | `/orders/:id/payments` | `{ method: 'tmoney' \| 'flooz' \| 'card', payerPhone? }` + `Idempotency-Key` | `{ paymentId, status: 'pending', amountXof, kind, nextAction }` |
 | GET | `/payments/:id` | — | `{ paymentId, status, orderStatus }` (interrogé toutes les 3 s par le mobile, 2 min max) |
-| POST | `/webhooks/payments/:provider` | Corps de l'agrégateur | `200` toujours si la signature est valide (idempotent) |
+| POST | `/webhooks/payments/:provider` | Corps brut de l'agrégateur (conservé tel quel) | `200 { received: true }` si la signature est valide, même rejoué (idempotent) ; `401 UNAUTHENTICATED` si invalide (événement enregistré, aucune transition) ; `404` agrégateur inconnu |
 
 ```ts
 type NextAction = { type: 'approve_on_phone'; message: string } | { type: 'redirect'; url: string };
@@ -186,6 +186,15 @@ type NextAction = { type: 'approve_on_phone'; message: string } | { type: 'redir
 
 Pour `paymentMethod = 'cod'`, le mobile appelle `/orders/:id/payments` avec `tmoney` ou `flooz` :
 l'API facture l'acompte (`kind = 'deposit'`).
+La carte est refusée pour `cod` (`400 VALIDATION_FAILED`) ; pour les autres commandes, `method`
+doit être le moyen choisi à la commande. `ORDER_NOT_PAYABLE` porte `details.reason` ∈ `not_payable`
+(expirée, annulée, déjà payée), `payment_pending` (un paiement est en cours depuis moins de 2 min),
+`nothing_due`. Un paiement `pending` depuis plus de 60 s est vérifié auprès de l'agrégateur lors de
+`GET /payments/:id` (au plus toutes les 15 s) : c'est une confirmation de l'agrégateur, comme le webhook.
+
+Événements internes émis (consommés par SP07) : `payment.amount_mismatch`,
+`payment.unexpected_success` (succès sur commande expirée, annulée ou déjà payée : remboursement
+manuel), `reconciliation.mismatch`.
 
 ## Routes back-office — `/v1/admin/*`
 
@@ -215,7 +224,7 @@ l'API facture l'acompte (`kind = 'deposit'`).
 | GET / POST / PATCH | `/admin/patterns`, `/admin/pattern-categories`, `/admin/colors`, `/admin/fonts`, `/admin/price-rules` (pas de suppression : désactivation par `PATCH`) | super_admin | SP03 |
 | GET / POST / DELETE | `/admin/banned-words` | super_admin | SP03 |
 | POST | `/admin/media/upload-signature` `{ kind: 'pattern' \| 'font' }` | super_admin | SP03 |
-| GET | `/admin/payments` `?status&from&to` · `/admin/reconciliations` | order_manager, super_admin | SP05 |
+| GET | `/admin/payments` `?status&from&to&cursor&limit` → `Page<AdminPayment>` · `/admin/reconciliations` `?cursor&limit` → `Page<Reconciliation>` | order_manager, super_admin | SP05 |
 | GET / POST / PATCH | `/admin/users` (comptes équipe ; PATCH `{ name?, role?, active?, password?, resetTotp?: true, phone? }` ; `phone` obligatoire pour le rôle `courier`, dont le profil livreur est créé automatiquement) | super_admin | SP02, SP06 |
 | GET | `/admin/audit-logs` `?entity&entityId` | super_admin | SP02 |
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
@@ -255,6 +264,23 @@ type ProductionQueueItem = { orderId: string; orderNumber: string; status: Order
 type AdminStockItem = { id: string; colorId: string; colorName: string; size: Size; onHand: number;
   reserved: number; available: number; alertThreshold: number; belowThreshold: boolean };
 ```
+
+### Formes des réponses admin paiements (SP05)
+
+```ts
+type AdminPayment = { id: string; orderId: string; orderNumber: string; provider: string;
+  method: 'tmoney' | 'flooz' | 'card'; kind: 'full' | 'deposit' | 'balance'; amountXof: number;
+  status: 'pending' | 'succeeded' | 'failed' | 'expired' | 'refunded'; providerRef: string | null;
+  payerPhone: string | null; // masqué : +228 90 •• •• 56
+  failureReason: string | null; confirmedAt: string | null; createdAt: string };
+type ReconciliationMismatch = { type: 'missing_payment' | 'missing_at_provider' | 'status_mismatch' | 'amount_mismatch';
+  providerRef: string; paymentId: string | null; orderNumber: string | null; providerStatus: string | null;
+  paymentStatus: AdminPayment['status'] | null; providerAmountXof: number | null; paymentAmountXof: number | null };
+type Reconciliation = { id: string; date: string /* YYYY-MM-DD, Africa/Lome */; provider: string;
+  matched: number; mismatchCount: number; mismatches: ReconciliationMismatch[]; createdAt: string };
+```
+
+Schémas Zod : `packages/shared/src/contracts/admin-payments.ts`.
 
 Le reçu PDF d'une commande non payée renvoie `404 NOT_FOUND`.
 
