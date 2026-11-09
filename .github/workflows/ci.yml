@@ -34,6 +34,7 @@ jobs:
       DATABASE_URL: postgresql://streetwear:streetwear@localhost:5432/streetwear_test
       REDIS_URL: redis://localhost:6379/1
       JWT_SECRET: ci-only-secret-ci-only-secret-0000
+      FAKE_PAYMENT_WEBHOOK_SECRET: ci-only-fake-payment-secret-0000000000
       TURBO_CACHE_DIR: .turbo-cache
     steps:
       - uses: actions/checkout@v4.2.2
