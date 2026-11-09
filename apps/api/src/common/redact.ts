@@ -17,3 +17,10 @@ export function redact(value: unknown): unknown {
 export function maskPhone(phone: string): string {
   return `***${phone.slice(-2)}`;
 }
+
+/** `+22890123456` → `+228 90 •• •• 56` (journaux, back-office). */
+export function maskTgPhone(phone: string | null | undefined): string | null {
+  if (!phone) return null;
+  const m = /^\+228(\d{2})\d{4}(\d{2})$/.exec(phone);
+  return m ? `+228 ${m[1]} •• •• ${m[2]}` : '••••';
+}

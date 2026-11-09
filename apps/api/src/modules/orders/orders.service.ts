@@ -846,9 +846,14 @@ export class OrdersService {
       include: { ...ORDER_INCLUDE, user: { select: { id: true, name: true, phone: true } } },
     });
     if (!row) throw notFound('Commande');
-    const [production, delivery] = await Promise.all([
+    const [production, delivery, payments] = await Promise.all([
       this.productionView(row.id, row.items),
       this.deliveryView(row.id),
+      this.prisma.payment.findMany({
+        where: { orderId: row.id },
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+        select: { id: true, method: true, status: true, amountXof: true, createdAt: true },
+      }),
     ]);
     return {
       ...toOrder(row),
@@ -868,14 +873,7 @@ export class OrdersService {
       }),
       production,
       delivery,
-      // Pas de table de paiements tant que SP05 n'est pas livré.
-      payments: [] as {
-        id: string;
-        method: string;
-        status: string;
-        amountXof: number;
-        createdAt: string;
-      }[],
+      payments: payments.map((p) => ({ ...p, createdAt: p.createdAt.toISOString() })),
     };
   }
 

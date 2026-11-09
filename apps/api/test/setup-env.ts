@@ -10,3 +10,6 @@ process.env.DATABASE_URL =
 process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/1';
 process.env.RATE_LIMIT_PER_MINUTE = '1000';
 process.env.JWT_SECRET ??= 'test-only-secret-not-for-production-use';
+process.env.PAYMENT_PROVIDER ??= 'fake';
+process.env.FAKE_PAYMENT_WEBHOOK_SECRET ??= 'test-only-fake-payment-webhook-secret-0000';
+delete process.env.FAKE_PAYMENT_WEBHOOK_URL;

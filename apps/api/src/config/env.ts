@@ -27,6 +27,7 @@ export const envSchema = z.object({
   S3_ACCESS_KEY_ID: z.string().default(''),
   S3_SECRET_ACCESS_KEY: z.string().default(''),
   ASSET_CACHE_DIR: z.string().default('.asset-cache'),
+  PAYMENT_RETURN_URL: z.string().url().default('streetwear://paiement/retour'),
 });
 
 export type Env = z.infer<typeof envSchema>;

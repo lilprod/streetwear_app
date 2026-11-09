@@ -143,8 +143,12 @@ export class ProductionService {
              j.status::text AS job_status, j.operator_id::text AS operator_id
       FROM orders o
       JOIN LATERAL (
-        SELECT min(h.created_at) AS paid_at FROM order_status_history h
-        WHERE h.order_id = o.id AND h.to_status IN ('paid', 'deposit_paid')
+        SELECT COALESCE(
+          (SELECT min(pm.confirmed_at) FROM payments pm
+           WHERE pm.order_id = o.id AND pm.status = 'succeeded'),
+          (SELECT min(h.created_at) FROM order_status_history h
+           WHERE h.order_id = o.id AND h.to_status IN ('paid', 'deposit_paid'))
+        ) AS paid_at
       ) p ON p.paid_at IS NOT NULL
       LEFT JOIN production_jobs j ON j.order_id = o.id
       WHERE ${statuses} ${after}

@@ -7,6 +7,7 @@ import { initSentry } from './config/sentry';
 import { startSlotGeneration } from './modules/delivery/slot-generation.queue';
 import { startRenderWorker } from './modules/production/render/render.queue';
 import { startOrdersExpiry } from './modules/orders/orders-expire.queue';
+import { startPaymentsReconcile } from './modules/payments/payments-reconcile.queue';
 
 async function bootstrap(): Promise<void> {
   const env = parseEnv(process.env);
@@ -17,9 +18,12 @@ async function bootstrap(): Promise<void> {
   startSlotGeneration(app, env.REDIS_URL);
   startOrdersExpiry(app, env.REDIS_URL);
   startRenderWorker(app, env.REDIS_URL);
+  startPaymentsReconcile(app, env.REDIS_URL);
   app
     .get(Logger)
-    .log('Worker démarré (files : slot-generation, orders-expire, render-print-files)');
+    .log(
+      'Worker démarré (files : slot-generation, orders-expire, render-print-files, payments-reconcile)',
+    );
 }
 
 bootstrap().catch((err: unknown) => {

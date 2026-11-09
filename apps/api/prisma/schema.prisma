@@ -582,3 +582,95 @@ model ProductionJob {
   @@index([status])
   @@map("production_jobs")
 }
+
+enum PaymentMethod {
+  tmoney
+  flooz
+  card
+
+  @@map("payment_method")
+}
+
+enum PaymentKind {
+  full
+  deposit
+  balance
+
+  @@map("payment_kind")
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  expired
+  refunded
+
+  @@map("payment_status")
+}
+
+/// SP05 : une tentative d'encaissement auprès de l'agrégateur. Montant toujours recalculé côté serveur.
+/// Pas de relation Prisma vers orders (modèle SP04) : FK posée en SQL.
+model Payment {
+  id              String         @id @db.Uuid
+  orderId         String         @map("order_id") @db.Uuid
+  provider        String
+  method          PaymentMethod
+  kind            PaymentKind
+  amountXof       Int            @map("amount_xof")
+  status          PaymentStatus  @default(pending)
+  providerRef     String?        @map("provider_ref")
+  idempotencyKey  String         @unique @map("idempotency_key") @db.Uuid
+  idempotencyHash String         @map("idempotency_hash")
+  payerPhone      String?        @map("payer_phone")
+  /// Action renvoyée au client (rejouée à l'identique pour la même clé d'idempotence).
+  nextAction      Json?          @map("next_action")
+  failureReason   String?        @map("failure_reason")
+  confirmedAt     DateTime?      @map("confirmed_at")
+  lastCheckedAt   DateTime?      @map("last_checked_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  events          PaymentEvent[]
+
+  @@unique([provider, providerRef])
+  @@index([orderId, status])
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
+  @@index([provider, createdAt])
+  @@map("payments")
+}
+
+/// Chaque webhook reçu, stocké brut même si la signature est invalide.
+model PaymentEvent {
+  id             String    @id @db.Uuid
+  paymentId      String?   @map("payment_id") @db.Uuid
+  provider       String
+  providerRef    String?   @map("provider_ref")
+  /// Corps exact reçu ; `raw` = sa forme JSON si analysable.
+  rawBody        String    @map("raw_body")
+  raw            Json?
+  signatureValid Boolean   @map("signature_valid")
+  /// processed | duplicate | amount_mismatch | unexpected_success | unknown_payment | malformed | ignored | rejected
+  outcome        String?
+  receivedAt     DateTime  @default(now()) @map("received_at")
+  processedAt    DateTime? @map("processed_at")
+  payment        Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([provider, providerRef])
+  @@index([paymentId])
+  @@map("payment_events")
+}
+
+/// Rapport quotidien de rapprochement (jour civil Africa/Lome = UTC) par agrégateur.
+model Reconciliation {
+  id         String   @id @db.Uuid
+  date       DateTime @db.Date
+  provider   String
+  matched    Int
+  mismatches Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([date, provider])
+  @@index([date(sort: Desc), id(sort: Desc)])
+  @@map("reconciliations")
+}

@@ -50,4 +50,40 @@ export interface StockBelowThresholdEvent {
   alertThreshold: number;
 }
 
+/** SP05 → SP07 : alertes paiement (aucune donnée personnelle ni de carte). */
+export const PAYMENT_EVENTS = {
+  /** Montant reçu ≠ montant dû : paiement `failed`, commande non payée. */
+  amountMismatch: 'payment.amount_mismatch',
+  /** Succès reçu pour une commande qui n'est plus payable (expirée, annulée, déjà payée) : remboursement manuel. */
+  unexpectedSuccess: 'payment.unexpected_success',
+  /** Rapport quotidien avec au moins un écart. */
+  reconciliationMismatch: 'reconciliation.mismatch',
+} as const;
+
+export interface PaymentAmountMismatchEvent {
+  paymentId: string;
+  orderId: string;
+  orderNumber: string;
+  provider: string;
+  expectedXof: number;
+  receivedXof: number;
+}
+
+export interface PaymentUnexpectedSuccessEvent {
+  paymentId: string;
+  orderId: string;
+  orderNumber: string;
+  provider: string;
+  amountXof: number;
+  orderStatus: OrderStatus;
+}
+
+export interface ReconciliationMismatchEvent {
+  reconciliationId: string;
+  date: string;
+  provider: string;
+  matched: number;
+  mismatchCount: number;
+}
+
 export type PendingEvent = { name: string; payload: object };

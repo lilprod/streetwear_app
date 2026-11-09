@@ -17,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { ProductionModule } from './modules/production/production.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { StockModule } from './modules/stock/stock.module';
 import { StaffRouteGuard } from './modules/auth/staff-route.guard';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -55,6 +56,7 @@ import { RedisService } from './redis/redis.service';
     CartModule,
     OrdersModule,
     ProductionModule,
+    PaymentsModule,
   ],
   controllers: [HealthController],
   providers: [
