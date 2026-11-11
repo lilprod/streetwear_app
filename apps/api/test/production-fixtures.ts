@@ -12,6 +12,7 @@ import { RenderError } from '../src/modules/production/render/render-zone';
 import { LocalStorageAdapter } from '../src/modules/production/storage/local-storage.adapter';
 import { STORAGE_PROVIDER } from '../src/modules/production/storage/storage-provider';
 import { OrdersService } from '../src/modules/orders/orders.service';
+import type { AppOptions } from './helpers';
 import { ordersCtx } from './orders-fixtures';
 import { TEST_FONT, patternPng } from './render-fixtures';
 
@@ -51,20 +52,22 @@ export async function waitFor<T>(fn: () => Promise<T | undefined | false>, ms = 
 }
 
 /** App complète avec file, stockage et motifs factices (aucun réseau). */
-export async function productionCtx() {
+export async function productionCtx(extra?: AppOptions['configure']) {
   const queue = new RecordingQueue();
   const assets = new FakeAssetLoader();
   const dir = mkdtempSync(join(tmpdir(), 'sw-print-'));
   const storage = new LocalStorageAdapter(dir, 'http://storage.test', 'test-secret');
   const t = await ordersCtx({
-    configure: (b) =>
-      b
+    configure: (b) => {
+      const base = b
         .overrideProvider(RENDER_QUEUE)
         .useValue(queue)
         .overrideProvider(ASSET_LOADER)
         .useValue(assets)
         .overrideProvider(STORAGE_PROVIDER)
-        .useValue(storage),
+        .useValue(storage);
+      return extra ? extra(base) : base;
+    },
   });
   const orders = t.app.get(OrdersService);
   const printFiles = t.app.get(PrintFilesService);

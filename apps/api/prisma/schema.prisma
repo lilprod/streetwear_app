@@ -674,3 +674,63 @@ model Reconciliation {
   @@index([date(sort: Desc), id(sort: Desc)])
   @@map("reconciliations")
 }
+
+// ---- SP07 : notifications ----
+
+enum NotificationChannel {
+  push
+  sms
+  email
+
+  @@map("notification_channel")
+}
+
+enum NotificationStatus {
+  queued
+  sent
+  failed
+  skipped
+
+  @@map("notification_status")
+}
+
+model NotificationTemplate {
+  id        String              @id @db.Uuid
+  key       String
+  channel   NotificationChannel
+  title     String?
+  body      String
+  active    Boolean             @default(true)
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  @@unique([key, channel])
+  @@map("notification_templates")
+}
+
+/// Journal d'envoi. `payload` ne contient jamais de code, de numéro complet ni de jeton.
+/// Idempotence client : au plus une ligne par (commande, statut, canal) ; alertes : (alertId, adminUserId).
+model Notification {
+  id          String              @id @db.Uuid
+  userId      String?             @map("user_id") @db.Uuid
+  adminUserId String?             @map("admin_user_id") @db.Uuid
+  orderId     String?             @map("order_id") @db.Uuid
+  orderStatus String?             @map("order_status")
+  alertId     String?             @map("alert_id") @db.Uuid
+  templateKey String              @map("template_key")
+  channel     NotificationChannel
+  payload     Json                @default("{}")
+  status      NotificationStatus  @default(queued)
+  providerRef String?             @map("provider_ref")
+  error       String?
+  attempts    Int                 @default(0)
+  claimedAt   DateTime?           @map("claimed_at")
+  sentAt      DateTime?           @map("sent_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  @@unique([orderId, orderStatus, channel])
+  @@unique([alertId, adminUserId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}

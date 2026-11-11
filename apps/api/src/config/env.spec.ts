@@ -21,4 +21,20 @@ describe('parseEnv', () => {
   it('rejects a short JWT secret', () => {
     expect(() => parseEnv({ ...valid, JWT_SECRET: 'short' })).toThrow(/JWT_SECRET/);
   });
+
+  it('applies notification defaults and validates their settings', () => {
+    const env = parseEnv(valid);
+    expect([env.BRAND_NAME, env.PUSH_PROVIDER, env.EMAIL_PROVIDER]).toEqual([
+      'Streetwear',
+      'fake',
+      'fake',
+    ]);
+    expect(() => parseEnv({ ...valid, BRAND_NAME: 'x'.repeat(21) })).toThrow(/BRAND_NAME/);
+    expect(() => parseEnv({ ...valid, NOTIFICATION_CODE_KEY: 'court' })).toThrow(
+      /NOTIFICATION_CODE_KEY/,
+    );
+    expect(() => parseEnv({ ...valid, EMAIL_PROVIDER: 'smtp' })).toThrow(
+      /SMTP_URL[\s\S]*EMAIL_FROM/,
+    );
+  });
 });
