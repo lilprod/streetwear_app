@@ -12,7 +12,7 @@ import {
   type PaymentProviders,
 } from '../src/modules/payments/providers/payment-provider';
 import { ReconciliationService } from '../src/modules/payments/reconciliation.service';
-import type { AuthHeader } from './helpers';
+import type { AppOptions, AuthHeader } from './helpers';
 import { productionCtx } from './production-fixtures';
 
 export const PHONES = {
@@ -24,8 +24,8 @@ export const PHONES = {
 } as const;
 
 /** App complète (file de rendu factice) + agrégateur simulé + aides paiement. */
-export async function paymentsCtx() {
-  const t = await productionCtx();
+export async function paymentsCtx(extra?: AppOptions['configure']) {
+  const t = await productionCtx(extra);
   const fake = t.app.get<PaymentProviders>(PAYMENT_PROVIDERS).active as FakePaymentProvider;
   const payments = t.app.get(PaymentsService);
   const reconciliation = t.app.get(ReconciliationService);

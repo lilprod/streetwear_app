@@ -16,6 +16,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CartModule } from './modules/cart/cart.module';
 import { ProductionModule } from './modules/production/production.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { StockModule } from './modules/stock/stock.module';
@@ -57,6 +58,7 @@ import { RedisService } from './redis/redis.service';
     OrdersModule,
     ProductionModule,
     PaymentsModule,
+    NotificationsModule,
   ],
   controllers: [HealthController],
   providers: [
