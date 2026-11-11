@@ -228,7 +228,7 @@ manuel), `reconciliation.mismatch`.
 | GET / POST / PATCH | `/admin/users` (comptes équipe ; PATCH `{ name?, role?, active?, password?, resetTotp?: true, phone? }` ; `phone` obligatoire pour le rôle `courier`, dont le profil livreur est créé automatiquement) | super_admin | SP02, SP06 |
 | GET | `/admin/audit-logs` `?entity&entityId` | super_admin | SP02 |
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
-| GET / PATCH | `/admin/notification-templates` | super_admin | SP07 |
+| GET / PATCH | `/admin/notification-templates` : GET → `{ items: NotificationTemplate[] }` ; PATCH sur la collection `{ key, channel, title?, body?, active? }` (corps strict) → `NotificationTemplate` ; refus `400 VALIDATION_FAILED` avec `details.reasons` ∈ `UNKNOWN_VARIABLE`, `MALFORMED_PLACEHOLDER`, `CODE_IN_TITLE`, `SMS_NOT_GSM7`, `SMS_TOO_LONG`, `SMS_HAS_NO_TITLE`, `TITLE_REQUIRED` ; `404` couple inconnu | super_admin | SP07 |
 | GET | `/admin/stats/summary` `?from&to` → `{ ordersCount, revenueXof, averageOrderXof, byStatus, byReception, topPatterns, topColors }` | order_manager, super_admin | SP11 |
 
 ```ts
@@ -264,6 +264,19 @@ type ProductionQueueItem = { orderId: string; orderNumber: string; status: Order
 type AdminStockItem = { id: string; colorId: string; colorName: string; size: Size; onHand: number;
   reserved: number; available: number; alertThreshold: number; belowThreshold: boolean };
 ```
+
+### Modèles de notifications (SP07)
+
+```ts
+type NotificationTemplate = { key: string; channel: 'push' | 'sms' | 'email'; title: string | null; body: string;
+  active: boolean; variables: string[]; preview: { title: string | null; body: string };
+  smsMaxLength: number | null; updatedAt: string };
+```
+
+Variables : `brand`, `orderNumber`, `status` ; `pickupCode` seulement pour `order.ready_for_pickup`,
+`handoverCode` seulement pour `order.shipped` (jamais dans un titre) ; variables propres à chaque alerte
+équipe (`stock.below_threshold`, `production.render_failed`, `payment.amount_mismatch`,
+`payment.unexpected_success`, `reconciliation.mismatch`, envoyées par e-mail). SMS ramenés en GSM-7, 160 caractères max.
 
 ### Formes des réponses admin paiements (SP05)
 

@@ -17,11 +17,11 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | Correctif démarrage API, routes admin complémentaires | Fusionnés |
 | Reprise back-office sur les nouvelles routes | Fusionnée |
 | SP05 Paiement (adaptateur `fake`) | Fusionné ; agrégateur réel après le comité du 13/11 |
-| **SP07 Notifications** | **Prochaine étape** |
-| SP10 Parcours mobile, SP11 lot C | Ensuite, en parallèle |
+| SP07 Notifications | Fusionné (SMS `console`, push `fake`/Expo, e-mail `fake`/SMTP) |
+| **SP10 Parcours mobile, SP11 lot C** | **Prochaine étape, en parallèle** |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 339, shared 91, admin 97, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 392, shared 91, admin 97, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -30,7 +30,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 14 ; SP07 prend 15) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 15 ; prochains : 16, 17) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -67,7 +67,9 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - SP08 : déclenché par `order.status_changed` vers `paid`/`deposit_paid` ; émet `production.render_failed` (SP07 doit notifier) ; `print_file_*_url` contient une clé de stockage, l'URL signée est générée à la demande ; prod : `STORAGE_PROVIDER=s3`.
 - SP05 : `order.status_changed` émis après le commit (prouvé par test : webhook → job de production). Confirmation possible par webhook signé ou par `getStatus` de l'agrégateur (filet du webhook perdu, après 60 s), jamais par l'application.
 - SP05 : `FAKE_PAYMENT_WEBHOOK_SECRET` (≥ 32 caractères) obligatoire hors production, sinon l'API refuse de démarrer ; le `fake` est refusé en production, qui ne démarrera qu'avec l'adaptateur réel. Un adaptateur réel = une classe dans `payments/providers/` + `providers.factory.ts` + `.env.example`.
-- SP07 doit consommer `payment.amount_mismatch`, `payment.unexpected_success`, `reconciliation.mismatch` en plus des événements déjà listés.
+- SP07 : les codes de retrait et de remise sont réémis par le worker `notifications` au passage en `ready_for_pickup` / `shipped` (nouveau hachage, tentatives remises à 0), chiffrés AES-256-GCM dans la charge du job (`NOTIFICATION_CODE_KEY`, obligatoire en production), jamais en clair en base, dans Redis ni dans les journaux. Le code affiché à la création est donc remplacé : le mobile (SP10) doit afficher le dernier code reçu par push/SMS, pas celui de la création.
+- SP07 : `order.created` n'envoie rien ; au plus un push et un SMS par (commande, statut) ; alertes équipe par e-mail selon le rôle.
+- Variables d'environnement SP07 : `BRAND_NAME`, `NOTIFICATION_CODE_KEY`, `PUSH_PROVIDER`, `EXPO_ACCESS_TOKEN`, `EMAIL_PROVIDER`, `SMTP_URL`, `EMAIL_FROM`. Relation Prisma `Payment → Order` déclarée (plus de dérive de schéma).
 - Les fiches SP05, SP07, SP08 contiennent une section « Laissé par SP04 » avec ce qu'il faut brancher.
 
 ## Points ouverts après SP11 lot B

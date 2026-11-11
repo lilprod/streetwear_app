@@ -67,8 +67,8 @@ en est la spécification. Clés primaires `id` en UUID v7 (`uuid` généré côt
 | Table | Colonnes clés | Règles |
 |---|---|---|
 | `production_jobs` | `order_id`, `operator_id?`, `status` (`queued`, `rendering`, `ready_to_print`, `printed`, `failed`), `error?` | |
-| `notification_templates` | `key` (`order.paid`, …), `channel` (`push`, `sms`), `title?`, `body` | Variables `{{orderNumber}}`, `{{status}}` |
-| `notifications` | `user_id?`, `admin_user_id?`, `template_key`, `channel`, `payload` (jsonb), `status` (`queued`, `sent`, `failed`), `provider_ref?`, `error?` | |
+| `notification_templates` | `key` (`order.paid`, …, alertes équipe), `channel` (`push`, `sms`, `email`), `title?`, `body`, `active` | Unique (`key`, `channel`) ; variables `{{brand}}`, `{{orderNumber}}`, `{{status}}`, codes selon la clé |
+| `notifications` | `user_id?`, `admin_user_id?`, `order_id?`, `order_status?`, `alert_id?`, `template_key`, `channel`, `payload` (jsonb, jamais de code ni de numéro complet), `status` (`queued`, `sent`, `failed`, `skipped`), `attempts`, `claimed_at?`, `sent_at?`, `provider_ref?`, `error?` | Idempotence : unique (`order_id`, `order_status`, `channel`) et (`alert_id`, `admin_user_id`) |
 
 ## Machine à états d'une commande
 
