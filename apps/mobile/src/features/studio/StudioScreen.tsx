@@ -7,7 +7,16 @@ import type { CanvasRef } from '@shopify/react-native-skia';
 import { computeUnitPriceXof, containsBannedWord } from '@streetwear/shared';
 import { t } from '../../i18n/fr';
 import { colors, fonts } from '../../theme';
-import { Amount, Banner, IconButton, Label, Segmented, StateView, Tabs } from '../../ui/controls';
+import {
+  Amount,
+  Banner,
+  IconButton,
+  Label,
+  PrimaryButton,
+  Segmented,
+  StateView,
+  Tabs,
+} from '../../ui/controls';
 import { patternsById as indexPatterns, type Catalog } from './catalog';
 import { useCatalog, useDraftSync, useDraftsRepo, useOnline, type SyncStatus } from './hooks';
 import {
@@ -29,7 +38,14 @@ type PanelTab = 'patterns' | 'color' | 'text';
 const SAVE_DELAY_MS = 400;
 const PREVIEW_DELAY_MS = 1200;
 
-export function StudioScreen({ draftId }: { draftId?: string }) {
+export type StudioScreenProps = {
+  draftId?: string;
+  /** Étape suivante du parcours d'achat ; reçoit l'identifiant local du brouillon enregistré. */
+  onContinue?: (localId: string) => void;
+  hideBack?: boolean;
+};
+
+export function StudioScreen({ draftId, onContinue, hideBack }: StudioScreenProps) {
   const { state, reload } = useCatalog();
   if (state.status === 'loading') return <StateView kind="loading" />;
   if (state.status === 'error') {
@@ -41,7 +57,15 @@ export function StudioScreen({ draftId }: { draftId?: string }) {
       />
     );
   }
-  return <StudioReady catalog={state.catalog} stale={state.stale} draftId={draftId} />;
+  return (
+    <StudioReady
+      catalog={state.catalog}
+      stale={state.stale}
+      draftId={draftId}
+      onContinue={onContinue}
+      hideBack={hideBack}
+    />
+  );
 }
 
 const syncLabel: Record<SyncStatus, string> = {
@@ -56,10 +80,14 @@ function StudioReady({
   catalog,
   stale,
   draftId,
+  onContinue,
+  hideBack,
 }: {
   catalog: Catalog;
   stale: boolean;
   draftId?: string;
+  onContinue?: (localId: string) => void;
+  hideBack?: boolean;
 }) {
   const repo = useDraftsRepo();
   const online = useOnline();
@@ -168,8 +196,10 @@ function StudioReady({
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <IconButton glyph="‹" label={t('common.back')} onPress={() => router.back()} />
-        <Label style={styles.title}>{t('studio.title')}</Label>
+        {hideBack ? null : (
+          <IconButton glyph="‹" label={t('common.back')} onPress={() => router.back()} />
+        )}
+        <Label style={[styles.title, hideBack && styles.titleFlush]}>{t('studio.title')}</Label>
         <IconButton glyph="↶" label={t('studio.undo')} disabled={!canUndo} onPress={actions.undo} />
         <IconButton glyph="↷" label={t('studio.redo')} disabled={!canRedo} onPress={actions.redo} />
         <IconButton
@@ -262,9 +292,20 @@ function StudioReady({
             <Amount xof={price} style={styles.price} />
           )}
         </View>
-        <Label style={styles.sync}>
-          {banned ? t('studio.text.banned') : syncLabel[sync.status]}
-        </Label>
+        {onContinue ? (
+          <PrimaryButton
+            label={t('studio.continue')}
+            disabled={!spec || banned}
+            onPress={() => {
+              if (!saveNow()) return;
+              onContinue(studioStore.getState().localId);
+            }}
+          />
+        ) : (
+          <Label style={styles.sync}>
+            {banned ? t('studio.text.banned') : syncLabel[sync.status]}
+          </Label>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -274,6 +315,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.surface },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 },
   title: { flex: 1, fontFamily: fonts.semibold, fontSize: 20, lineHeight: 26 },
+  titleFlush: { paddingLeft: 12 },
   body: { paddingBottom: 16 },
   segmentedWrap: { paddingHorizontal: 20, paddingVertical: 8 },
   canvasWrap: {

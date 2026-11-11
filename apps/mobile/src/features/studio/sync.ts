@@ -61,7 +61,7 @@ export function syncDrafts(api: ApiClient, repo: DraftsRepo): Promise<SyncResult
         await syncOne(api, repo, rec);
         result.synced += 1;
       } catch (e) {
-        if (e instanceof ApiError && e.isNetwork) {
+        if (e instanceof ApiError && (e.isNetwork || e.code === 'UNAUTHENTICATED')) {
           result.offline = true;
           break;
         }
