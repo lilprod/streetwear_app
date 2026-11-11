@@ -1,17 +1,11 @@
+import { colors as tokenColors, radii, spacing, statusTones } from '@streetwear/ui-tokens';
+
 export const colors = {
-  ink: '#0A0A0A',
-  inkSecondary: '#6E6E73',
-  inkDisabled: '#8A8A8E',
-  surface: '#FFFFFF',
-  surfaceMuted: '#F5F5F7',
-  segmented: '#F2F2F4',
-  border: '#EAEAEA',
-  borderStrong: '#D4D4D8',
-  link: '#0066CC',
-  focus: '#0066CC',
-  danger: '#A11A1A',
-  dangerBg: '#FCE8E8',
+  ...tokenColors,
+  dangerBg: statusTones.danger.bg,
 } as const;
+
+export { statusTones };
 
 export const fonts = {
   regular: 'Geist_400Regular',
@@ -20,6 +14,13 @@ export const fonts = {
   mono: 'GeistMono_500Medium',
 } as const;
 
-export const radius = { pill: 999, card: 16, preview: 24, field: 12, segmented: 10 } as const;
-export const MIN_TARGET = 44;
+export const radius = {
+  pill: radii.pill,
+  card: radii.card,
+  preview: radii.previewCard,
+  field: radii.field,
+  segmented: radii.segmented,
+} as const;
+export const MIN_TARGET = spacing.touchTarget;
+export const SCREEN_MARGIN = spacing.mobileMargin;
 export const MAX_FONT_SCALE = 1.3;

@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // pnpm may hoist the admin's @types/react 18 where native libraries (e.g.
+    // react-native-safe-area-context) look up React types; pin them to the mobile's own.
+    // Kept out of tsconfig.json because jest-expo turns `paths` into moduleNameMapper.
+    "paths": {
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"]
+    }
+  }
+}
