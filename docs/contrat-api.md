@@ -49,7 +49,7 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 409 | `DESIGN_IN_USE` | Design présent dans un panier ou une commande : suppression refusée |
 | 409 | `ORDER_NOT_PRODUCIBLE` | Régénération demandée pour une commande ni payée, ni en acompte, ni en production |
 | 422 | `OPERATOR_INVALID` | Opérateur inconnu, inactif ou sans rôle production / super_admin |
-| 429 | `RATE_LIMITED` | Trop de requêtes |
+| 429 | `RATE_LIMITED` | Trop de requêtes ; envoi d'OTP ou connexion admin : `details.retryAfterMinutes` |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
 

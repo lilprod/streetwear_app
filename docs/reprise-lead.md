@@ -18,10 +18,11 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | Reprise back-office sur les nouvelles routes | Fusionnée |
 | SP05 Paiement (adaptateur `fake`) | Fusionné ; agrégateur réel après le comité du 13/11 |
 | SP07 Notifications | Fusionné (SMS `console`, push `fake`/Expo, e-mail `fake`/SMTP) |
-| **SP10 Parcours mobile, SP11 lot C** | **Prochaine étape, en parallèle** |
+| SP10 lot A (navigation, connexion, taille, panier) | Fusionné |
+| **SP10 lot B (réception, paiement, suivi, notifications, compte), SP11 lot C** | **Prochaine étape, en parallèle** |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 392, shared 91, admin 97, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 392, shared 91, admin 97, mobile 108, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -30,7 +31,7 @@ Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 2. Dans le prompt, toujours préciser :
    - commits Conventional Commits en anglais, jamais de préfixe `merge:` (commitlint le refuse), avec les deux lignes `Co-Authored-By` / `Claude-Session` de la session ;
    - pas de push ; ne pas modifier `docs/` (le lead met le contrat à jour) ;
-   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (numéros déjà pris : 1 à 15 ; prochains : 16, 17) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
+   - bases PostgreSQL dédiées `streetwear_spXX` et `streetwear_spXX_test` + une base Redis dédiée (Redis n'a que les bases 0 à 15, toutes prises : chaque nouvel agent lance son propre Redis sur un port dédié, ex. `redis-server --port 6391 --daemonize yes` hors du dépôt, et utilise sa base 0) via `apps/api/.env` non commité (`TEST_DATABASE_URL`, `TEST_REDIS_URL`) ;
    - pas de Docker : `service postgresql start` et `redis-server --daemonize yes` si arrêtés ;
    - jamais `prisma migrate reset` (refusé sans consentement de l'utilisateur) : `DROP SCHEMA public CASCADE; CREATE SCHEMA public;` puis `migrate deploy` sur sa propre base ;
    - vérification finale `pnpm turbo run lint typecheck test build --force`.
@@ -83,6 +84,15 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - SP05 : remplir `payments[]` du détail admin et faire reposer `paidAt` de la file de production sur le paiement (aujourd'hui : première entrée `paid`/`deposit_paid` de l'historique).
 - `AdminStockItem.size` est typé `string` dans `stock.service.ts` au lieu de `Size` (à corriger au passage).
 - Tests de rendu HD : délai porté à 30 s (rendus réels gourmands en CPU sous Turborepo). Les tests admin `orders.test.tsx` ont aussi dépassé 5 s chez un agent sous charge : à surveiller.
+
+## Points ouverts après SP10 lot A
+
+- Mobile : un visiteur garde un panier local (MMKV), synchronisé à la connexion (`syncGuestCartToAccount`) car `/designs` et `/cart` exigent un compte.
+- Mobile : typecheck avec `apps/mobile/tsconfig.typecheck.json`, qui force les types React 19 du mobile (pnpm peut remonter ceux de l'admin, React 18). Pas de `paths` dans `tsconfig.json` : jest-expo les transforme en moduleNameMapper.
+- Lot B : réception (carte, zones, créneaux ; aucun créneau de retrait dans le seed), paiement (`Idempotency-Key`, attente 3 s / 2 min), suivi (afficher le dernier code reçu par push/SMS), `POST /me/push-tokens`, compte (adresses, designs, suppression), Google Sign-In (`setSocialProvider`). Points d'accroche : `ApiClient` dans `src/api/{types,http,mock}.ts`, `src/auth/session.ts`, `src/features/cart/store.ts`, `app/purchase/*.tsx`.
+- Le nom d'un brouillon n'est pas envoyé par la synchronisation SP09 (`sync.ts`) : « Design sans nom » côté serveur (à corriger au lot B).
+- Script de vérification réelle : `apps/api/node_modules/.bin/tsx apps/mobile/scripts/verify-real-api.ts` (15 vérifications) ; bundle Android Hermes 6,9 Mo.
+- Jamais vérifié : appareil Android 2 Go, iPhone, lecteurs d'écran, remplissage SMS natif.
 
 ## Modèles des agents
 
