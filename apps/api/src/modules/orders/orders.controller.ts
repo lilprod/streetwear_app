@@ -17,6 +17,7 @@ import {
   CreateOrderInputSchema,
   IdempotencyKeySchema,
   PageQuerySchema,
+  StatsQuerySchema,
   TransitionInputSchema,
 } from '@streetwear/shared';
 import type { Response } from 'express';
@@ -29,6 +30,7 @@ import { AdminAuthGuard, CustomerAuthGuard } from '../auth/guards';
 import { Roles } from '../auth/roles.decorator';
 import { OrdersService, type TransitionActor } from './orders.service';
 import { renderReceipt } from './receipt';
+import { StatsService } from './stats.service';
 
 @ApiTags('orders')
 @ApiBearerAuth()
@@ -136,5 +138,19 @@ export class AdminOrdersController {
   ) {
     await this.orders.adminTransition(id, body.to, adminActor(admin), body.note, body.code);
     return this.orders.adminGet(id, adminActor(admin));
+  }
+}
+
+@ApiTags('admin-stats')
+@ApiBearerAuth()
+@Controller('admin/stats')
+@UseGuards(AdminAuthGuard)
+@Roles('order_manager', 'super_admin')
+export class AdminStatsController {
+  constructor(private readonly stats: StatsService) {}
+
+  @Get('summary')
+  summary(@Query(new ZodPipe(StatsQuerySchema)) query: typeof StatsQuerySchema._output) {
+    return this.stats.summary(query);
   }
 }

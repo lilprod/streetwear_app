@@ -436,7 +436,7 @@ describe('SP06 delivery and pickup', () => {
         .query({ date })
         .set(...h)
         .expect(200);
-      expect(list.body.map((x: { id: string }) => x.id)).toContain(d.id);
+      expect(list.body.items.map((x: { id: string }) => x.id)).toContain(d.id);
       expect(JSON.stringify(list.body)).not.toMatch(/hash/i);
       await http()
         .post(`/v1/admin/deliveries/${d.id}/assign`)

@@ -19,12 +19,6 @@ export type ReceivedCode = {
 
 export const CODE_STATUSES: readonly OrderStatus[] = ['ready_for_pickup', 'shipped'];
 
-/** Le gabarit SP07 écrit « Code de retrait : 123456 » / « Code de remise : 123456 » dans le corps du push. */
-export function extractCode(body: string | null | undefined): string | null {
-  const match = /code de (?:retrait|remise)\s*:?\s*(\d{4,8})/i.exec(body ?? '');
-  return match?.[1] ?? null;
-}
-
 function readAll(storage: Store): Record<string, ReceivedCode> {
   try {
     return JSON.parse(storage.getString(KEY) ?? '{}') as Record<string, ReceivedCode>;
@@ -55,7 +49,7 @@ export type PushContent = {
   data?: Record<string, unknown> | null;
 };
 
-/** Enregistre le code contenu dans une notification (`data.code` si l'API l'ajoute un jour, sinon le corps). */
+/** Enregistre le code contenu dans une notification (`data.code`, toujours présent pour `ready_for_pickup` et `shipped`). */
 export function recordFromNotification(
   storage: Store,
   content: PushContent,
@@ -65,7 +59,7 @@ export function recordFromNotification(
   const orderId = typeof data.orderId === 'string' ? data.orderId : null;
   const status = typeof data.status === 'string' ? data.status : null;
   if (!orderId || !status) return null;
-  const code = typeof data.code === 'string' ? data.code : extractCode(content.body);
+  const code = typeof data.code === 'string' ? data.code : null;
   if (code && CODE_STATUSES.includes(status as OrderStatus)) {
     recordCode(storage, {
       orderId,

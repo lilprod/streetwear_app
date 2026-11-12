@@ -18,6 +18,7 @@ export const envSchema = z
     SEED_ADMIN_PASSWORD: z.string().default(''),
     MEDIA_PROVIDER: z.enum(['local', 'cloudinary']).default('local'),
     MEDIA_BASE_URL: z.string().default('http://localhost:3000/media'),
+    MEDIA_UPLOAD_URL: z.string().default('/v1/admin/media/upload'),
     CLOUDINARY_CLOUD_NAME: z.string().default(''),
     CLOUDINARY_API_KEY: z.string().default(''),
     CLOUDINARY_API_SECRET: z.string().default(''),

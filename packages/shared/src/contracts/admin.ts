@@ -94,19 +94,15 @@ export const PrintFilesSchema = z.object({
   front: z.string().url().optional(),
   back: z.string().url().optional(),
 });
-export const StatsSummarySchema = z.object({
-  ordersCount: z.number().int().nonnegative(),
-  revenueXof: xof,
-  averageOrderXof: xof,
-  byStatus: z.record(z.number().int().nonnegative()),
-  byReception: z.record(z.number().int().nonnegative()),
-  topPatterns: z.array(z.object({ id: z.string(), name: z.string(), count: z.number().int() })),
-  topColors: z.array(z.object({ id: z.string(), name: z.string(), count: z.number().int() })),
+const dayOrInstant = z.union([z.string().date(), isoDate], {
+  message: 'Date AAAA-MM-JJ ou ISO 8601 attendue.',
 });
-export const StatsQuerySchema = z.object({ from: isoDate.optional(), to: isoDate.optional() });
+export const StatsQuerySchema = z.object({
+  from: dayOrInstant.optional(),
+  to: dayOrInstant.optional(),
+});
 export type TransitionInput = z.infer<typeof TransitionInputSchema>;
 export type StockMovementInput = z.infer<typeof StockMovementInputSchema>;
-export type StatsSummary = z.infer<typeof StatsSummarySchema>;
 
 // Livreur
 export const CourierDeliverySchema = z.object({

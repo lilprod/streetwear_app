@@ -117,7 +117,7 @@ export function PaymentScreen() {
           subtotalXof: checkout.quote.subtotalXof,
           deliveryFeeXof: checkout.quote.deliveryFeeXof,
           totalXof: checkout.quote.totalXof,
-          depositXof: null,
+          depositXof: checkout.quote.codDepositXof,
           pickup: reception.type === 'pickup',
         }
       : null;
@@ -251,9 +251,7 @@ export function PaymentScreen() {
                     xof={summary.totalXof - summary.depositXof}
                   />
                 </>
-              ) : (
-                <Label style={styles.muted}>{t('payment.summary.depositLater')}</Label>
-              )
+              ) : null
             ) : null}
           </View>
 

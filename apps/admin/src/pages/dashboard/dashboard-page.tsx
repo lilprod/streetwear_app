@@ -92,7 +92,7 @@ export function DashboardPage() {
 }
 
 function Indicators({ data }: { data: StatsSummary }) {
-  const statusRows = Object.entries(data.byStatus);
+  const statusRows = Object.entries(data.byStatus).filter(([, n]) => n > 0);
   const receptionRows = Object.entries(data.byReception);
   return (
     <div className="mt-6 space-y-6">

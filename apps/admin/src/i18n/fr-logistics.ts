@@ -21,7 +21,6 @@ export const frLogistics = {
   'deliveries.col.courier': 'Livreur',
   'deliveries.col.action': 'Actions',
   'deliveries.cod.none': 'Payée',
-  'deliveries.viewOrder': 'Voir la commande',
   'deliveries.unassigned': 'Non affecté',
   'deliveries.assign': 'Affecter',
   'deliveries.reassign': 'Réaffecter',
@@ -29,9 +28,6 @@ export const frLogistics = {
   'deliveries.courier': 'Livreur à affecter',
   'deliveries.courier.loading': 'Chargement des livreurs…',
   'deliveries.courier.none': 'Aucun livreur disponible',
-  'deliveries.courier.id': 'Identifiant du livreur',
-  'deliveries.courier.idHint':
-    'La liste des livreurs n’est pas disponible : saisissez l’identifiant du livreur.',
   'delivery.status.to_assign': 'À affecter',
   'delivery.status.assigned': 'Affectée',
   'delivery.status.in_progress': 'En cours',

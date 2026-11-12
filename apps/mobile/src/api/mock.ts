@@ -16,6 +16,7 @@ import {
   UpdateCartItemInputSchema,
   UpdateDesignInputSchema,
   computeCartTotals,
+  computeCodDepositXof,
   computeUnitPriceXof,
   containsBannedWord,
   normalizeTgPhone,
@@ -32,7 +33,7 @@ import {
 import { t } from '../i18n/fr';
 import { newLayerId } from '../features/studio/model';
 import type { TokenStore } from '../auth/tokens';
-import { createMockOrders, type MockOrdersOptions } from './mock-orders';
+import { MOCK_DEPOSIT_PERCENT, createMockOrders, type MockOrdersOptions } from './mock-orders';
 import { ApiError, type ApiClient } from './types';
 
 export const MOCK_BANNED_WORDS = ['merde', 'putain', 'connard', 'salope'];
@@ -393,6 +394,7 @@ export function createMockApi(options: MockOptions = {}): ApiClient {
           deliveryFeeXof: totals.deliveryFeeXof,
           totalXof: totals.totalXof,
           vatIncludedXof: totals.vatIncludedXof,
+          codDepositXof: computeCodDepositXof(totals.totalXof, MOCK_DEPOSIT_PERCENT),
           estimatedReadyAt: ready,
           estimatedDeliveryAt:
             parsed.data.reception.type === 'home'

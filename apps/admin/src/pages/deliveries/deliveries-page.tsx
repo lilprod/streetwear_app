@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatLome, formatTgPhone, formatXof } from '@streetwear/shared';
 import { Button } from '../../components/button';
@@ -14,11 +14,9 @@ import {
   assignCourier,
   DELIVERY_STATUSES,
   listDeliveries,
-  listZones,
   type AdminDelivery,
   type DeliveryStatus,
 } from '../../lib/logistics-api';
-import { getOrder } from '../../lib/orders-api';
 import { CourierSelect, useCourierChoice } from './courier-select';
 
 const col = createColumnHelper<AdminDelivery>();
@@ -71,16 +69,7 @@ export function DeliveriesPage() {
     queryKey: ['deliveries', date, status],
     queryFn: () => listDeliveries({ date: date || undefined, status: status || undefined }),
   });
-  const zones = useQuery({ queryKey: ['zones'], queryFn: listZones });
-  const rows = list.data ?? [];
-  const orders = useQueries({
-    queries: rows.map((d) => ({
-      queryKey: ['order', d.orderId],
-      queryFn: () => getOrder(d.orderId),
-    })),
-  });
-  const orderOf = (id: string) => orders.find((q) => q.data?.id === id)?.data;
-  const zoneName = (id: string) => zones.data?.find((z) => z.id === id)?.name ?? '—';
+  const rows = list.data?.items ?? [];
 
   const assign = useMutation({
     mutationFn: (d: AdminDelivery) => assignCourier(d.id, choice.value),
@@ -99,13 +88,12 @@ export function DeliveriesPage() {
       header: fr['deliveries.col.order'],
       cell: (c) => {
         const d = c.row.original;
-        const o = orderOf(d.orderId);
         return (
           <Link
             to={`/commandes/${d.orderId}`}
             className="font-mono font-medium underline underline-offset-2"
           >
-            {o?.number ?? fr['deliveries.viewOrder']}
+            {d.orderNumber}
           </Link>
         );
       },
@@ -115,12 +103,11 @@ export function DeliveriesPage() {
       header: fr['deliveries.col.customer'],
       cell: (c) => {
         const d = c.row.original;
-        const name = orderOf(d.orderId)?.customer.name;
         return (
           <div>
-            {name && <div>{name}</div>}
+            {d.customerName && <div>{d.customerName}</div>}
             <div className="font-mono text-xs text-inkSecondary">
-              {formatTgPhone(d.address.recipientPhone)}
+              {formatTgPhone(d.recipientPhone)}
             </div>
           </div>
         );
@@ -131,24 +118,28 @@ export function DeliveriesPage() {
       header: fr['deliveries.col.address'],
       cell: (c) => (
         <div className="min-w-40">
-          <div>{c.row.original.address.district}</div>
-          <div className="text-xs text-inkSecondary">{c.row.original.address.landmark}</div>
+          <div>{c.row.original.addressLabel}</div>
+          <div className="text-xs text-inkSecondary">{c.row.original.landmark}</div>
         </div>
       ),
     }),
-    col.accessor('zoneId', {
+    col.display({
+      id: 'zone',
       header: fr['deliveries.col.zone'],
-      cell: (c) => zoneName(c.getValue()),
+      cell: (c) => c.row.original.zone?.name ?? '—',
     }),
     col.accessor('scheduledFor', {
       header: fr['deliveries.col.scheduled'],
-      cell: (c) => <span className="whitespace-nowrap font-mono">{formatLome(c.getValue())}</span>,
+      cell: (c) => {
+        const v = c.getValue();
+        return v ? <span className="whitespace-nowrap font-mono">{formatLome(v)}</span> : '—';
+      },
     }),
     col.accessor('codBalanceXof', {
       header: fr['deliveries.col.cod'],
       cell: (c) => {
         const v = c.getValue();
-        return v === null ? (
+        return v === 0 ? (
           <span className="text-inkSecondary">{fr['deliveries.cod.none']}</span>
         ) : (
           <span className="whitespace-nowrap font-mono">{formatXof(v)}</span>
@@ -157,15 +148,16 @@ export function DeliveriesPage() {
     }),
     col.accessor('status', {
       header: fr['deliveries.col.status'],
-      cell: (c) => <DeliveryStatusBadge status={c.getValue()} />,
+      cell: (c) => <DeliveryStatusBadge status={c.getValue() as DeliveryStatus} />,
     }),
     col.display({
       id: 'courier',
       header: fr['deliveries.col.courier'],
       cell: (c) => {
-        const id = c.row.original.courierId;
-        if (!id) return <span className="text-inkSecondary">{fr['deliveries.unassigned']}</span>;
-        return choice.nameOf(id) ?? <span className="font-mono text-xs">{id.slice(0, 8)}</span>;
+        const courier = c.row.original.courier;
+        if (!courier)
+          return <span className="text-inkSecondary">{fr['deliveries.unassigned']}</span>;
+        return courier.name;
       },
     }),
     col.display({
@@ -177,7 +169,7 @@ export function DeliveriesPage() {
         if (d.status !== 'to_assign' && d.status !== 'assigned' && d.status !== 'failed')
           return null;
         const label = fr[d.status === 'to_assign' ? 'deliveries.assign' : 'deliveries.reassign'];
-        const number = orderOf(d.orderId)?.number ?? d.orderId.slice(0, 8);
+        const number = d.orderNumber;
         return (
           <Button
             disabled={assign.isPending || !choice.valid}

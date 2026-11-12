@@ -1,55 +1,29 @@
-import type { Page, PriceRules } from '@streetwear/shared';
+import type {
+  AdminTshirtColor as TshirtColor,
+  BannedWord,
+  CatalogFont,
+  CatalogPattern,
+  FontFormat,
+  Page,
+  PatternCategory,
+  PatternFormat,
+  PriceRules,
+  PriceTier,
+  UploadSignature,
+} from '@streetwear/shared';
 import { api } from './api';
 
-export type PatternCategory = { id: string; slug: string; name: string; position: number };
-export type PriceTier = 'standard' | 'premium';
-export type CatalogPattern = {
-  id: string;
-  name: string;
-  origin: string;
-  categoryId: string;
-  tags: string[];
-  priceTier: PriceTier;
-  thumbnailUrl: string;
-  previewUrl: string;
-  widthPx: number;
-  heightPx: number;
-  imagePublicId: string;
-  rightsHolder: string | null;
-  rightsProofUrl: string | null;
-  active: boolean;
-};
-export type TshirtColor = {
-  id: string;
-  name: string;
-  hex: string;
-  isDark: boolean;
-  active: boolean;
-  position: number;
-};
-export type CatalogFont = {
-  id: string;
-  name: string;
-  family: string;
-  filePublicId: string;
-  fileUrl: string;
-  licenseRef: string | null;
-  active: boolean;
-};
-export type BannedWord = { id: string; word: string };
-export type UploadSignature = {
-  uploadUrl: string;
-  apiKey: string;
-  timestamp: number;
-  folder: string;
-  publicId: string;
-  signature: string;
-  resourceType: 'image' | 'raw';
-  allowedFormats: string[];
-  maxBytes: number;
-};
-export type PatternFormat = 'png' | 'jpg' | 'svg';
-export type FontFormat = 'ttf' | 'otf' | 'woff2';
+export type {
+  BannedWord,
+  CatalogFont,
+  CatalogPattern,
+  FontFormat,
+  PatternCategory,
+  PatternFormat,
+  PriceTier,
+  UploadSignature,
+} from '@streetwear/shared';
+export type { AdminTshirtColor as TshirtColor } from '@streetwear/shared';
 
 export type PatternInput = {
   name: string;

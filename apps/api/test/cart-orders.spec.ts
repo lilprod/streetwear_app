@@ -3,6 +3,7 @@ import {
   FIXTURE_PRICE_RULES,
   FIXTURE_STORE,
   computeCartTotals,
+  computeCodDepositXof,
   computeDepositXof,
   computeUnitPriceXof,
   type DesignSpec,
@@ -797,6 +798,104 @@ describe('SP04 cart and customer orders', () => {
         .delete(`/v1/designs/${unused.id}`)
         .set(...s.auth)
         .expect(204);
+    });
+  });
+  describe('codDepositXof and estimated dates (complement)', () => {
+    it('quotes codDepositXof with the shared deposit rule, 0 when the percent is 0', async () => {
+      const s = await t.shopper({ colorId: 'col-sable', size: 'M', quantity: 3 });
+      const admin = t.adminAuth('super_admin');
+      const quote = () =>
+        t
+          .http()
+          .post('/v1/cart/quote')
+          .set(...s.auth)
+          .send({ reception: home(s.addressId) })
+          .expect(200);
+      await t
+        .http()
+        .patch('/v1/admin/settings')
+        .set(...admin)
+        .send({ cod_deposit_percent: 30 })
+        .expect(200);
+      const q = await quote();
+      expect(q.body.codDepositXof).toBe(computeCodDepositXof(q.body.totalXof, 30));
+      expect(q.body.codDepositXof).toBe(computeDepositXof(q.body.totalXof, 30));
+      await t
+        .http()
+        .patch('/v1/admin/settings')
+        .set(...admin)
+        .send({ cod_deposit_percent: 0 })
+        .expect(200);
+      expect((await quote()).body.codDepositXof).toBe(0);
+      await t
+        .http()
+        .patch('/v1/admin/settings')
+        .set(...admin)
+        .send({ cod_deposit_percent: 50 })
+        .expect(200);
+    });
+
+    it('freezes the estimates at order creation and exposes them on the order', async () => {
+      await t.setStock('col-sable', 'M', 50);
+      const s = await t.shopper({ colorId: 'col-sable', size: 'M' });
+      const q = await t
+        .http()
+        .post('/v1/cart/quote')
+        .set(...s.auth)
+        .send({ reception: home(s.addressId) })
+        .expect(200);
+      const res = await t.placeOrder(s.auth, {
+        reception: home(s.addressId),
+        paymentMethod: 'cod',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.depositXof).toBe(q.body.codDepositXof);
+      const ready = new Date(res.body.estimatedReadyAt).getTime();
+      const gap = ready - new Date(q.body.estimatedReadyAt).getTime();
+      expect(Math.abs(gap)).toBeLessThan(5000);
+      expect(new Date(res.body.estimatedDeliveryAt).getTime()).toBe(ready + 24 * 3_600_000);
+      await t
+        .http()
+        .patch('/v1/admin/settings')
+        .set(...t.adminAuth('super_admin'))
+        .send({ production_hours: 72 })
+        .expect(200);
+      const again = await t
+        .http()
+        .get(`/v1/orders/${res.body.id}`)
+        .set(...s.auth)
+        .expect(200);
+      expect(again.body.estimatedReadyAt).toBe(res.body.estimatedReadyAt);
+      expect(again.body.estimatedDeliveryAt).toBe(res.body.estimatedDeliveryAt);
+      await t
+        .http()
+        .patch('/v1/admin/settings')
+        .set(...t.adminAuth('super_admin'))
+        .send({ production_hours: 48 })
+        .expect(200);
+    });
+
+    it('pickup orders have a ready date equal to the slot start and no delivery date; legacy rows give null', async () => {
+      await t.setStock('col-sable', 'M', 50);
+      const s = await t.shopper({ colorId: 'col-sable', size: 'M' });
+      const slot = await t.slot();
+      const res = await t.placeOrder(s.auth, {
+        reception: { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: slot.id },
+        paymentMethod: 'tmoney',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.estimatedReadyAt).toBe(slot.startsAt.toISOString());
+      expect(res.body.estimatedDeliveryAt).toBeNull();
+      await t.prisma.order.update({
+        where: { id: res.body.id },
+        data: { estimatedReadyAt: null, estimatedDeliveryAt: null },
+      });
+      const old = await t
+        .http()
+        .get(`/v1/orders/${res.body.id}`)
+        .set(...s.auth)
+        .expect(200);
+      expect(old.body).toMatchObject({ estimatedReadyAt: null, estimatedDeliveryAt: null });
     });
   });
 });

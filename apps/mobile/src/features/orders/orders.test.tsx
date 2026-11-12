@@ -131,11 +131,27 @@ describe('Order tracking', () => {
     expect(screen.getByLabelText(/^Total : /)).toBeTruthy();
   });
 
+  it('shows the estimated date from the order in tracking, delivery date first', async () => {
+    await show({
+      ...orderOf(4),
+      estimatedReadyAt: '2026-11-18T09:00:00.000Z',
+      estimatedDeliveryAt: '2026-11-20T10:00:00.000Z',
+    });
+    const label = await screen.findByText(/^Date estimée : /);
+    expect(label.props.children).toContain('20');
+  });
+
+  it('hides the estimate for old orders without one and for finished orders', async () => {
+    await show(orderOf(4));
+    await screen.findByText(`Commande ${orderOf(4).number}`);
+    expect(screen.queryByText(/^Date estimée : /)).toBeNull();
+  });
+
   it('shows the pickup code received for the current status only', async () => {
     const order = orderOf(5);
     recordFromNotification(memoryStorage(), {
       body: 'Code de retrait : 123456',
-      data: { orderId: order.id, status: 'ready_for_pickup' },
+      data: { orderId: order.id, status: 'ready_for_pickup', code: '123456' },
     });
     await show(order);
     expect(await screen.findByText('123 456')).toBeTruthy();
@@ -145,7 +161,7 @@ describe('Order tracking', () => {
     const order = orderOf(6);
     recordFromNotification(memoryStorage(), {
       body: 'Code de retrait : 123456',
-      data: { orderId: order.id, status: 'ready_for_pickup' },
+      data: { orderId: order.id, status: 'ready_for_pickup', code: '123456' },
     });
     await show(order);
     await screen.findByText(`Commande ${order.number}`);

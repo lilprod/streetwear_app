@@ -6,7 +6,7 @@ import {
   allowedTransitions,
   canTransition,
   computeCartTotals,
-  computeDepositXof,
+  computeCodDepositXof,
   computeUnitPriceXof,
   getTransition,
   ORDER_STATUSES,
@@ -396,11 +396,7 @@ export class OrdersService {
         feeXof,
       );
       const depositXof =
-        input.paymentMethod === 'cod'
-          ? percent > 0
-            ? computeDepositXof(totals.totalXof, percent)
-            : 0
-          : null;
+        input.paymentMethod === 'cod' ? computeCodDepositXof(totals.totalXof, percent) : null;
       return { totals, depositXof };
     };
     let { totals, depositXof } = amounts(quote.deliveryFeeXof);
@@ -427,6 +423,10 @@ export class OrdersService {
             vatIncludedXof: totals.vatIncludedXof,
             paymentMethod: input.paymentMethod,
             depositXof,
+            estimatedReadyAt: new Date(quote.estimatedReadyAt),
+            estimatedDeliveryAt: quote.estimatedDeliveryAt
+              ? new Date(quote.estimatedDeliveryAt)
+              : null,
             receptionType: input.reception.type,
             receptionSnapshot: receptionSnapshot as Prisma.InputJsonValue,
             expiresAt: new Date(now.getTime() + expiryMinutes * 60_000),

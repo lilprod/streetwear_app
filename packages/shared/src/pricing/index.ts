@@ -68,6 +68,11 @@ export function computeDepositXof(totalXof: number, percent: number): number {
   return Math.min(rounded, totalXof);
 }
 
+/** Acompte du paiement à la livraison : 0 si le pourcentage réglé est 0, sinon `computeDepositXof`. */
+export function computeCodDepositXof(totalXof: number, percent: number): number {
+  return percent > 0 ? computeDepositXof(totalXof, percent) : 0;
+}
+
 export type CartLine = { unitPriceXof: number; quantity: number };
 export type CartTotals = {
   subtotalXof: number;

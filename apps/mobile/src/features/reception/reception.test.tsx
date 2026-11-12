@@ -31,7 +31,13 @@ beforeEach(async () => {
   resetRouter();
   resetCheckout();
   process.env.EXPO_PUBLIC_MAPS_ENABLED = 'false';
-  ({ api } = await signedInApi());
+  // Les créneaux de la maquette vont de 10 h à 17 h UTC : horloge fixée le matin pour ne pas dépendre de l'heure du test.
+  const morning = () => {
+    const d = new Date();
+    d.setUTCHours(8, 0, 0, 0);
+    return d;
+  };
+  ({ api } = await signedInApi({ now: morning }));
 });
 afterAll(() => {
   setApiForTests(null);

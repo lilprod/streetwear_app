@@ -3,3 +3,4 @@ export * from './customer';
 export * from './admin';
 export * from './admin-orders';
 export * from './admin-payments';
+export * from './admin-backoffice';

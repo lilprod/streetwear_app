@@ -1,13 +1,6 @@
 import { createMockApi } from '../../api/mock';
 import { createMemoryStorage } from '../../storage/storage';
-import {
-  CODE_STATUSES,
-  codeFor,
-  extractCode,
-  formatCode,
-  recordCode,
-  recordFromNotification,
-} from './codes';
+import { CODE_STATUSES, codeFor, formatCode, recordCode, recordFromNotification } from './codes';
 import {
   promptAfterFirstOrder,
   refreshPushToken,
@@ -80,18 +73,21 @@ describe('push registration', () => {
 describe('order codes from notifications', () => {
   const orderId = '00000000-0000-4000-8000-000000000007';
 
-  it('extracts the code from the SP07 push body', () => {
-    expect(extractCode('Code de retrait : 123456')).toBe('123456');
-    expect(extractCode('Le livreur arrive. Code de remise : 654321')).toBe('654321');
-    expect(extractCode('Votre commande est prête')).toBeNull();
+  it('formats the code and ignores a push without data.code, whatever its body says', () => {
     expect(formatCode('123456')).toBe('123 456');
+    const storage = createMemoryStorage();
+    recordFromNotification(storage, {
+      body: 'Code de retrait : 123456',
+      data: { orderId, status: 'ready_for_pickup' },
+    });
+    expect(codeFor(storage, orderId, 'ready_for_pickup')).toBeNull();
   });
 
   it('shows only the code received for the current status', () => {
     const storage = createMemoryStorage();
     recordFromNotification(storage, {
       body: 'Code de retrait : 111111',
-      data: { orderId, status: 'ready_for_pickup' },
+      data: { orderId, status: 'ready_for_pickup', code: '111111' },
     });
     expect(codeFor(storage, orderId, 'ready_for_pickup')).toBe('111111');
     expect(codeFor(storage, orderId, 'shipped')).toBeNull();
@@ -103,12 +99,18 @@ describe('order codes from notifications', () => {
     const storage = createMemoryStorage();
     recordFromNotification(
       storage,
-      { body: 'Code de retrait : 111111', data: { orderId, status: 'ready_for_pickup' } },
+      {
+        body: 'Code de retrait : 111111',
+        data: { orderId, status: 'ready_for_pickup', code: '111111' },
+      },
       new Date('2026-11-23T10:00:00Z'),
     );
     recordFromNotification(
       storage,
-      { body: 'Le livreur arrive. Code de remise : 222222', data: { orderId, status: 'shipped' } },
+      {
+        body: 'Le livreur arrive. Code de remise : 222222',
+        data: { orderId, status: 'shipped', code: '222222' },
+      },
       new Date('2026-11-23T12:00:00Z'),
     );
     expect(codeFor(storage, orderId, 'shipped')).toBe('222222');
@@ -155,7 +157,7 @@ describe('order codes from notifications', () => {
           request: {
             content: {
               body: 'Code de retrait : 424242',
-              data: { orderId, status: 'ready_for_pickup' },
+              data: { orderId, status: 'ready_for_pickup', code: '424242' },
             },
           },
         },

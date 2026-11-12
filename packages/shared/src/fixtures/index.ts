@@ -288,6 +288,8 @@ const order = (
     id: uid(500 + n),
     number: `TG-${String(n).padStart(6, '0')}`,
     status,
+    estimatedReadyAt: null,
+    estimatedDeliveryAt: null,
     items: [
       {
         id: uid(550 + n),

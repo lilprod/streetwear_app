@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { computeDepositXof, formatXof } from '@streetwear/shared';
 import { newLayerId } from '../studio/model';
+import { MOCK_DEPOSIT_PERCENT } from '../../api/mock-orders';
 import { ApiError, type ApiClient } from '../../api/types';
 import { sessionStore } from '../../auth/session';
 import { setApiForTests } from '../../api';
@@ -100,7 +102,13 @@ describe('Payment screen', () => {
     await prepareHome();
     await render(<PaymentScreen />);
     await fireEvent.press(screen.getByRole('button', { name: 'Payer à la livraison' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Payer l’acompte' }));
+    const quote = checkoutStore.getState().quote;
+    const deposit = computeDepositXof(quote?.totalXof ?? 0, MOCK_DEPOSIT_PERCENT);
+    expect(quote?.codDepositXof).toBe(deposit);
+    expect(
+      screen.getByLabelText(`Acompte à payer maintenant : ${formatXof(deposit)}`),
+    ).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: `Payer ${formatXof(deposit)}` }));
     await waitFor(() => expect(routerMock.replace).toHaveBeenCalled());
     const orders = await api.listOrders();
     const order = await api.getOrder(orders.items[0]?.id as string);

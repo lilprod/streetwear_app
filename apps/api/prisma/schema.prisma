@@ -468,6 +468,9 @@ model Order {
   /// Copie de la réception à la commande (adresse ou boutique + créneau), conservée après libération.
   receptionSnapshot Json                 @map("reception_snapshot")
   expiresAt         DateTime?            @map("expires_at")
+  /// Estimations figées à la création (null pour les commandes antérieures).
+  estimatedReadyAt    DateTime?          @map("estimated_ready_at")
+  estimatedDeliveryAt DateTime?          @map("estimated_delivery_at")
   idempotencyKey    String               @unique @map("idempotency_key") @db.Uuid
   idempotencyHash   String               @map("idempotency_hash")
   createdAt         DateTime             @default(now()) @map("created_at")
