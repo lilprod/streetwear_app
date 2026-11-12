@@ -1,14 +1,22 @@
 import {
+  AddressSchema,
   ApiErrorSchema,
   AuthResultSchema,
   AvailabilitySchema,
   CartSchema,
   DesignSchema,
+  DeliveryZoneSummarySchema,
   FontSchema,
+  OrderSchema,
+  OrdersPageSchema,
+  PaymentSchema,
+  PaymentStatusResponseSchema,
+  PickupSlotSchema,
   PatternCategorySchema,
   PatternSchema,
   PriceRulesSchema,
   QuoteSchema,
+  StoreSchema,
   TokensSchema,
   TshirtColorSchema,
   UserSchema,
@@ -48,14 +56,21 @@ export function createHttpApi(options: HttpOptions): ApiClient {
     schema: Parser<T> | null,
     body?: unknown,
     query?: Record<string, string | boolean | undefined>,
-    extra: { anonymous?: boolean; idempotencyKey?: string; retried?: boolean } = {},
+    extra: {
+      anonymous?: boolean;
+      idempotencyKey?: string;
+      retried?: boolean;
+      binary?: boolean;
+    } = {},
   ): Promise<T> {
     const qs = Object.entries(query ?? {})
       .filter(([, v]) => v !== undefined && v !== '')
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
       .join('&');
     const url = `${options.baseUrl}${path}${qs ? `?${qs}` : ''}`;
-    const headers: Record<string, string> = { Accept: 'application/json' };
+    const headers: Record<string, string> = {
+      Accept: extra.binary ? 'application/pdf' : 'application/json',
+    };
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (extra.idempotencyKey) headers['Idempotency-Key'] = extra.idempotencyKey;
     if (!extra.anonymous) {
@@ -102,6 +117,7 @@ export function createHttpApi(options: HttpOptions): ApiClient {
       }
       throw new ApiError('SERVICE_UNAVAILABLE', t('api.unavailable'), res.status);
     }
+    if (extra.binary) return new Uint8Array(await res.arrayBuffer()) as T;
     if (!schema || res.status === 204) return undefined as T;
     const parsed = schema.safeParse(await res.json().catch(() => null));
     if (!parsed.success) {
@@ -189,5 +205,54 @@ export function createHttpApi(options: HttpOptions): ApiClient {
     updateCartItem: (id, input) => request('PATCH', `/cart/items/${id}`, CartSchema, input),
     removeCartItem: (id) => request('DELETE', `/cart/items/${id}`, CartSchema),
     quoteCart: (reception) => request('POST', '/cart/quote', QuoteSchema, { reception }),
+
+    deleteMe: async () => {
+      await request('DELETE', '/me', null);
+    },
+    listAddresses: () => request('GET', '/me/addresses', AddressSchema.array()),
+    createAddress: (input) => request('POST', '/me/addresses', AddressSchema, input),
+    updateAddress: (id, input) => request('PATCH', `/me/addresses/${id}`, AddressSchema, input),
+    deleteAddress: async (id) => {
+      await request('DELETE', `/me/addresses/${id}`, null);
+    },
+    registerPushToken: async (input) => {
+      await request('POST', '/me/push-tokens', null, input);
+    },
+
+    resolveZone: async (lat, lng) => {
+      try {
+        return await request(
+          'GET',
+          '/delivery/zones/resolve',
+          DeliveryZoneSummarySchema,
+          undefined,
+          {
+            lat: String(lat),
+            lng: String(lng),
+          },
+        );
+      } catch (e) {
+        if (e instanceof ApiError && (e.code === 'NOT_FOUND' || e.status === 404)) return null;
+        throw e;
+      }
+    },
+    listStores: () => request('GET', '/stores', StoreSchema.array()),
+    listSlots: (storeId, date) =>
+      request('GET', `/stores/${storeId}/slots`, PickupSlotSchema.array(), undefined, { date }),
+
+    createOrder: (input, idempotencyKey) =>
+      request('POST', '/orders', OrderSchema, input, undefined, { idempotencyKey }),
+    listOrders: (cursor) => request('GET', '/orders', OrdersPageSchema, undefined, { cursor }),
+    getOrder: (id) => request('GET', `/orders/${id}`, OrderSchema),
+    getReceiptPdf: (id) =>
+      request<Uint8Array>('GET', `/orders/${id}/receipt.pdf`, null, undefined, undefined, {
+        binary: true,
+      }),
+    reorder: (id) => request('POST', `/orders/${id}/reorder`, CartSchema),
+    createPayment: (orderId, input, idempotencyKey) =>
+      request('POST', `/orders/${orderId}/payments`, PaymentSchema, input, undefined, {
+        idempotencyKey,
+      }),
+    getPayment: (id) => request('GET', `/payments/${id}`, PaymentStatusResponseSchema),
   };
 }

@@ -1,19 +1,31 @@
 import type {
   AddCartItemInput,
+  Address,
+  AddressInput,
   AuthResult,
   Availability,
   Cart,
   CreateDesignInput,
+  CreateOrderInput,
+  CreatePaymentInput,
+  DeliveryZoneSummary,
   Design,
   DesignPreviewsInput,
   ErrorCode,
   Font,
+  Order,
+  OrderSummary,
   Page,
   Pattern,
   PatternCategory,
+  Payment,
+  PaymentStatusResponse,
+  PickupSlot,
   PriceRules,
+  PushTokenInput,
   Quote,
   ReceptionInput,
+  Store,
   TshirtColor,
   UpdateCartItemInput,
   UpdateDesignInput,
@@ -72,4 +84,29 @@ export interface ApiClient {
   updateCartItem(id: string, input: UpdateCartItemInput): Promise<Cart>;
   removeCartItem(id: string): Promise<Cart>;
   quoteCart(reception: ReceptionInput): Promise<Quote>;
+
+  deleteMe(): Promise<void>;
+  listAddresses(): Promise<Address[]>;
+  createAddress(input: AddressInput): Promise<Address>;
+  updateAddress(id: string, input: Partial<AddressInput>): Promise<Address>;
+  deleteAddress(id: string): Promise<void>;
+  registerPushToken(input: PushTokenInput): Promise<void>;
+
+  /** `null` quand le point est hors des zones (404 NOT_FOUND). */
+  resolveZone(lat: number, lng: number): Promise<DeliveryZoneSummary | null>;
+  listStores(): Promise<Store[]>;
+  listSlots(storeId: string, date: string): Promise<PickupSlot[]>;
+
+  /** `idempotencyKey` : UUID généré une fois par tentative, rejoué tel quel à chaque nouvel appui. */
+  createOrder(input: CreateOrderInput, idempotencyKey: string): Promise<Order>;
+  listOrders(cursor?: string): Promise<Page<OrderSummary>>;
+  getOrder(id: string): Promise<Order>;
+  getReceiptPdf(id: string): Promise<Uint8Array>;
+  reorder(id: string): Promise<Cart>;
+  createPayment(
+    orderId: string,
+    input: CreatePaymentInput,
+    idempotencyKey: string,
+  ): Promise<Payment>;
+  getPayment(id: string): Promise<PaymentStatusResponse>;
 }
