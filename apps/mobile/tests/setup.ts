@@ -1,3 +1,8 @@
+import { configure } from '@testing-library/react-native';
+
+// Sous Turborepo les suites tournent en parallèle : les attentes asynchrones (zone, paiement) ont plus de marge.
+configure({ asyncUtilTimeout: 5000 });
+
 jest.mock('../src/storage', () => {
   const mocks = jest.requireActual('./mocks') as typeof import('./mocks');
   const storage = jest.requireActual(

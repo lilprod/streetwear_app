@@ -223,7 +223,6 @@ export const fr = {
   'reception.mode.pickup': 'Retrait en boutique',
   'reception.saved.title': 'Mes adresses',
   'reception.saved.new': 'Nouvelle adresse',
-  'reception.saved.pick': 'Choisir l’adresse {label}',
   'reception.address.title': 'Où livrer ?',
   'reception.address.defaultLabel': 'Livraison',
   'reception.address.district': 'Quartier',
@@ -241,7 +240,6 @@ export const fr = {
   'reception.map.nudge.east': 'Déplacer le point vers l’est',
   'reception.map.nudge.west': 'Déplacer le point vers l’ouest',
   'reception.quartier.title': 'Choisis ton quartier',
-  'reception.quartier.pick': 'Quartier {name}',
   'reception.quartier.degraded':
     'La carte n’est pas disponible. Choisis ton quartier et ajoute un repère.',
   'reception.zone.loading': 'Recherche de ta zone…',
@@ -253,9 +251,7 @@ export const fr = {
   'reception.pickup.title': 'Retrait en boutique',
   'reception.pickup.hours': 'Horaires',
   'reception.pickup.day': 'Jour de retrait',
-  'reception.pickup.dayPick': 'Retrait le {date}',
   'reception.pickup.slots': 'Créneaux',
-  'reception.pickup.slotPick': 'Créneau de {time}, {remaining}',
   'reception.pickup.remaining.one': '1 place restante',
   'reception.pickup.remaining.other': '{n} places restantes',
   'reception.pickup.noSlots': 'Aucun créneau ce jour-là. Essaie un autre jour.',
@@ -321,7 +317,6 @@ export const fr = {
   'confirmation.thanks': 'Merci ! On s’occupe de ton t-shirt.',
   'confirmation.estimated': 'Date estimée : {date}',
   'confirmation.cta.orders': 'Voir mes commandes',
-  'confirmation.cta.home': 'Retour à l’accueil',
 
   'order.title': 'Ma commande',
   'order.placedOn': 'Passée le {date}',
@@ -366,11 +361,6 @@ export const fr = {
   'orders.error': 'Impossible de charger tes commandes.',
   'orders.loginCta': 'Se connecter',
 
-  'push.title': 'Suivre ta commande',
-  'push.message': 'Active les notifications pour être prévenu à chaque étape.',
-  'push.activate': 'Activer les notifications',
-  'push.later': 'Plus tard',
-
   'account.profile': 'Mon profil',
   'account.addresses': 'Mes adresses',
   'account.designs': 'Mes designs',
@@ -391,7 +381,6 @@ export const fr = {
   'profile.invalidEmail': 'Cet e-mail ne semble pas valide.',
   'profile.error': 'Enregistrement impossible. Réessaie.',
   'profile.emailUsed': 'Cet e-mail est déjà utilisé.',
-  'profile.load.error': 'Impossible de charger ton profil.',
 
   'addresses.title': 'Mes adresses',
   'addresses.empty.title': 'Aucune adresse',
