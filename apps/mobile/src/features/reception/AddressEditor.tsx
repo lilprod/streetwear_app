@@ -1,11 +1,12 @@
-import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { formatXof } from '@streetwear/shared';
 import { getApi } from '../../api';
 import { t } from '../../i18n/fr';
 import { colors } from '../../theme';
 import { Banner, Chip, Label, SecondaryButton } from '../../ui/controls';
 import { TextField } from '../../ui/TextField';
+import MapPicker from './MapPicker';
 import { formatPhoneInput } from '../auth/flow';
 import {
   QUARTIERS,
@@ -16,8 +17,6 @@ import {
   type AddressErrors,
   type ZoneState,
 } from './logic';
-
-const MapPicker = lazy(() => import('./MapPicker'));
 
 type Props = {
   draft: AddressDraft;
@@ -57,13 +56,11 @@ export function AddressEditor({ draft, onChange, errors = {}, onZone, onSwitchTo
   return (
     <View style={styles.wrap}>
       {withMap ? (
-        <Suspense fallback={<ActivityIndicator color={colors.ink} />}>
-          <MapPicker
-            lat={draft.lat}
-            lng={draft.lng}
-            onChange={(lat, lng) => onChange({ ...draft, lat, lng, picked: true })}
-          />
-        </Suspense>
+        <MapPicker
+          lat={draft.lat}
+          lng={draft.lng}
+          onChange={(lat, lng) => onChange({ ...draft, lat, lng, picked: true })}
+        />
       ) : (
         <View style={styles.wrap}>
           <Label style={styles.muted}>{t('reception.quartier.degraded')}</Label>

@@ -29,3 +29,7 @@ export const useNetInfoMock = () => ({
   isConnected: network.online,
   isInternetReachable: network.online,
 });
+
+export const mapMarker: { current: { onDragEnd?: (e: unknown) => void } | null } = {
+  current: null,
+};
