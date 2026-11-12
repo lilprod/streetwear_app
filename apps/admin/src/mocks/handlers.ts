@@ -1,12 +1,10 @@
 import { http, HttpResponse } from 'msw';
 import {
-  FIXTURE_ORDERS,
   ADMIN_ROLES,
   AdminLoginInputSchema,
   AdminTotpInputSchema,
   type AdminRole,
   type ApiError,
-  type StatsSummary,
   uid,
 } from '@streetwear/shared';
 
@@ -119,25 +117,4 @@ export const handlers = [
   }),
 
   http.post('*/v1/admin/auth/logout', () => new HttpResponse(null, { status: 204 })),
-
-  http.get('*/v1/admin/stats/summary', ({ request }) => {
-    const role = roleFromAuthHeader(request.headers.get('Authorization'));
-    if (!role) return err(401, 'UNAUTHENTICATED', 'Session expirée.');
-    if (role !== 'order_manager' && role !== 'super_admin') {
-      return err(403, 'FORBIDDEN', 'Votre rôle ne permet pas cette action.');
-    }
-    const revenueXof = FIXTURE_ORDERS.reduce((s, o) => s + o.totalXof, 0);
-    const byStatus: Record<string, number> = {};
-    for (const o of FIXTURE_ORDERS) byStatus[o.status] = (byStatus[o.status] ?? 0) + 1;
-    const body: StatsSummary = {
-      ordersCount: FIXTURE_ORDERS.length,
-      revenueXof,
-      averageOrderXof: Math.round(revenueXof / FIXTURE_ORDERS.length),
-      byStatus,
-      byReception: { home: FIXTURE_ORDERS.length - 1, pickup: 1 },
-      topPatterns: [],
-      topColors: [],
-    };
-    return HttpResponse.json(body);
-  }),
 ];
