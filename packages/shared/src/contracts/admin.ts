@@ -94,7 +94,13 @@ export const PrintFilesSchema = z.object({
   front: z.string().url().optional(),
   back: z.string().url().optional(),
 });
-export const StatsQuerySchema = z.object({ from: isoDate.optional(), to: isoDate.optional() });
+const dayOrInstant = z.union([z.string().date(), isoDate], {
+  message: 'Date AAAA-MM-JJ ou ISO 8601 attendue.',
+});
+export const StatsQuerySchema = z.object({
+  from: dayOrInstant.optional(),
+  to: dayOrInstant.optional(),
+});
 export type TransitionInput = z.infer<typeof TransitionInputSchema>;
 export type StockMovementInput = z.infer<typeof StockMovementInputSchema>;
 

@@ -135,7 +135,7 @@ describe('Order tracking', () => {
     const order = orderOf(5);
     recordFromNotification(memoryStorage(), {
       body: 'Code de retrait : 123456',
-      data: { orderId: order.id, status: 'ready_for_pickup' },
+      data: { orderId: order.id, status: 'ready_for_pickup', code: '123456' },
     });
     await show(order);
     expect(await screen.findByText('123 456')).toBeTruthy();
@@ -145,7 +145,7 @@ describe('Order tracking', () => {
     const order = orderOf(6);
     recordFromNotification(memoryStorage(), {
       body: 'Code de retrait : 123456',
-      data: { orderId: order.id, status: 'ready_for_pickup' },
+      data: { orderId: order.id, status: 'ready_for_pickup', code: '123456' },
     });
     await show(order);
     await screen.findByText(`Commande ${order.number}`);

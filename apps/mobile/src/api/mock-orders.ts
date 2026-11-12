@@ -277,6 +277,11 @@ export function createMockOrders(
           reception: orderReception,
           history: [{ status: 'pending_payment', at }],
           expiresAt: new Date(ctx.now().getTime() + 30 * 60_000).toISOString(),
+          estimatedReadyAt: new Date(ctx.now().getTime() + 48 * 3600_000).toISOString(),
+          estimatedDeliveryAt:
+            orderReception.type === 'home'
+              ? new Date(ctx.now().getTime() + 72 * 3600_000).toISOString()
+              : null,
           createdAt: at,
         };
         orders.set(order.id, { order, designIds });

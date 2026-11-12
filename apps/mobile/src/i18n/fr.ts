@@ -268,7 +268,6 @@ export const fr = {
   'payment.summary.pickupFree': 'Retrait : gratuit',
   'payment.summary.total': 'Total',
   'payment.summary.deposit': 'Acompte à payer maintenant',
-  'payment.summary.depositLater': 'Le montant de l’acompte s’affiche à la validation.',
   'payment.summary.balance': 'Solde à payer à la livraison',
   'payment.method.label': 'Moyen de paiement',
   'payment.method.tmoney': 'T-Money',

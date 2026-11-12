@@ -3,6 +3,7 @@ import type { CartItem as CartItemRow, Design as DesignRow, Prisma } from '@pris
 import {
   CART_LINE_MAX_QUANTITY,
   computeCartTotals,
+  computeCodDepositXof,
   type AddCartItemInput,
   type Cart,
   type CartItem,
@@ -16,6 +17,7 @@ import { uuidv7 } from '../../common/uuid';
 import { DesignsService } from '../../designs/designs.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DeliveryService } from '../delivery/delivery.service';
+import { SettingsService } from '../settings/settings.service';
 import { StockService, stockKey } from '../stock/stock.service';
 
 export type CartLineRow = CartItemRow & { design: DesignRow };
@@ -40,6 +42,7 @@ export class CartService {
     private readonly designs: DesignsService,
     private readonly stock: StockService,
     private readonly delivery: DeliveryService,
+    private readonly settings: SettingsService,
   ) {}
 
   private async cartId(userId: string): Promise<string> {
@@ -162,11 +165,13 @@ export class CartService {
     if (cart.items.length === 0) throw emptyCart();
     const r = await this.delivery.quote(reception, userId, now);
     const totals = computeCartTotals(cart.items, r.deliveryFeeXof);
+    const percent = await this.settings.get('cod_deposit_percent');
     return {
       subtotalXof: totals.subtotalXof,
       deliveryFeeXof: totals.deliveryFeeXof,
       totalXof: totals.totalXof,
       vatIncludedXof: totals.vatIncludedXof,
+      codDepositXof: computeCodDepositXof(totals.totalXof, percent),
       estimatedReadyAt: r.estimatedReadyAt,
       estimatedDeliveryAt: r.estimatedDeliveryAt,
     };

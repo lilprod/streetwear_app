@@ -48,6 +48,8 @@ export function toOrder(o: OrderWithRelations): Order {
     reception: o.receptionSnapshot as unknown as Order['reception'],
     history: o.history.map((h) => ({ status: h.toStatus, at: h.createdAt.toISOString() })),
     expiresAt: o.expiresAt ? o.expiresAt.toISOString() : null,
+    estimatedReadyAt: o.estimatedReadyAt ? o.estimatedReadyAt.toISOString() : null,
+    estimatedDeliveryAt: o.estimatedDeliveryAt ? o.estimatedDeliveryAt.toISOString() : null,
     createdAt: o.createdAt.toISOString(),
   };
 }

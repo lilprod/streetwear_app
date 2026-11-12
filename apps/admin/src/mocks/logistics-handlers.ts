@@ -22,6 +22,23 @@ import type {
   AdminZone,
 } from '../lib/logistics-api';
 
+/** Modèle interne du mock (forme riche) ; l'API publie `AdminDelivery` via `toAdminDelivery`. */
+type MockDelivery = {
+  id: string;
+  orderId: string;
+  status: 'to_assign' | 'assigned' | 'in_progress' | 'delivered' | 'failed';
+  zoneId: string;
+  feeXof: number;
+  courierId: string | null;
+  address: CourierDelivery['address'];
+  codBalanceXof: number | null;
+  codCollectedXof: number | null;
+  handoverAttempts: number;
+  scheduledFor: string;
+  failReason: string | null;
+  failNote: string | null;
+};
+
 export const DEMO_HANDOVER_CODE = '482913';
 export const DEMO_COURIERS: AdminCourier[] = [
   { id: uid(980), name: 'Koffi Livreur', phone: '+22891000000' },
@@ -63,9 +80,9 @@ const address = (i: number, withCod: boolean): CourierDelivery['address'] => ({
 const today = () => new Date().toISOString().slice(0, 10);
 const orderId = (n: number): string => FIXTURE_ORDERS[n - 1]?.id ?? '';
 
-const deliveriesInit = (): AdminDelivery[] => {
+const deliveriesInit = (): MockDelivery[] => {
   const at = (h: number) => `${today()}T${String(h).padStart(2, '0')}:00:00.000Z`;
-  const base = (i: number, n: number, over: Partial<AdminDelivery>): AdminDelivery => ({
+  const base = (i: number, n: number, over: Partial<MockDelivery>): MockDelivery => ({
     id: uid(850 + i),
     orderId: orderId(n),
     status: 'to_assign',
@@ -164,7 +181,30 @@ const guard = (request: Request, allowed: AdminRole[]): Guard => {
 const LOGI: AdminRole[] = ['logistics', 'super_admin'];
 const PROD: AdminRole[] = ['production', 'super_admin'];
 
-const courierView = (d: AdminDelivery): CourierDelivery => {
+const toAdminDelivery = (d: MockDelivery): AdminDelivery => {
+  const o = FIXTURE_ORDERS.find((x) => x.id === d.orderId);
+  const zone = FIXTURE_ZONES.find((z) => z.id === d.zoneId);
+  const courier = DEMO_COURIERS.find((c) => c.id === d.courierId);
+  return {
+    id: d.id,
+    orderId: d.orderId,
+    orderNumber: o?.number ?? 'TG-000000',
+    status: d.status,
+    customerName: 'Kofi Mensah',
+    recipientPhone: d.address.recipientPhone,
+    addressLabel: d.address.district,
+    landmark: d.address.landmark,
+    lat: d.address.lat,
+    lng: d.address.lng,
+    zone: zone ? { id: zone.id, name: zone.name } : null,
+    courier: courier ?? null,
+    codBalanceXof: d.codBalanceXof ?? 0,
+    scheduledFor: d.scheduledFor,
+    updatedAt: d.scheduledFor,
+  };
+};
+
+const courierView = (d: MockDelivery): CourierDelivery => {
   const o = FIXTURE_ORDERS.find((x) => x.id === d.orderId);
   return {
     id: d.id,
@@ -221,11 +261,11 @@ export const logisticsHandlers = [
     const u = new URL(request.url);
     const status = u.searchParams.get('status');
     const date = u.searchParams.get('date') ?? today();
-    return HttpResponse.json(
-      deliveries.filter(
-        (d) => d.scheduledFor.slice(0, 10) === date && (!status || d.status === status),
-      ),
-    );
+    return HttpResponse.json({
+      items: deliveries
+        .filter((d) => d.scheduledFor.slice(0, 10) === date && (!status || d.status === status))
+        .map(toAdminDelivery),
+    });
   }),
   http.post('*/v1/admin/deliveries/:id/assign', async ({ request, params }) => {
     const g = guard(request, LOGI);

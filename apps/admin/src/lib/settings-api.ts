@@ -1,25 +1,14 @@
+import type { NotificationChannel, NotificationTemplate, ShopSettings } from '@streetwear/shared';
 import { api } from './api';
 
-export type PaymentMethodSetting = 'tmoney' | 'flooz' | 'card' | 'cod';
-export type ShopSettings = {
-  cod_deposit_percent: number;
-  order_expiry_minutes: number;
-  payment_methods_enabled: PaymentMethodSetting[];
-};
+export type {
+  NotificationChannel,
+  NotificationTemplate,
+  PaymentMethodSetting,
+  ShopSettings,
+} from '@streetwear/shared';
 export type SettingsPatch = Partial<ShopSettings>;
 
-export type NotificationChannel = 'push' | 'sms' | 'email';
-export type NotificationTemplate = {
-  key: string;
-  channel: NotificationChannel;
-  title: string | null;
-  body: string;
-  active: boolean;
-  variables: string[];
-  preview: { title: string | null; body: string };
-  smsMaxLength: number | null;
-  updatedAt: string;
-};
 export type TemplatePatch = {
   key: string;
   channel: NotificationChannel;

@@ -43,6 +43,12 @@ interface Outcome {
 const CLAIM_TTL_MS = 2 * 60_000;
 const PERMANENT_PUSH_ERRORS = new Set(['DeviceNotRegistered']);
 
+/** Code transmis en clair dans `data.code` du push, jamais persisté ni journalisé. */
+const PUSH_CODE_VAR: Partial<Record<string, CodeVar>> = {
+  ready_for_pickup: 'pickupCode',
+  shipped: 'handoverCode',
+};
+
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger('Notifications');
@@ -93,7 +99,15 @@ export class NotificationsService {
       orderNumber: data.orderNumber,
       status: STATUS_LABEL[data.status] ?? data.status,
     };
-    const codeVars = [...new Set(claims.flatMap((c) => codeVarsIn(c.template.body)))];
+    const pushCodeVar = claims.some((c) => c.template.channel === 'push')
+      ? PUSH_CODE_VAR[data.status]
+      : undefined;
+    const codeVars = [
+      ...new Set([
+        ...claims.flatMap((c) => codeVarsIn(c.template.body)),
+        ...(pushCodeVar ? [pushCodeVar] : []),
+      ]),
+    ];
     if (codeVars.length) {
       const code = await this.issueCode(job, data, codeVars);
       if (code === null) {
@@ -186,12 +200,14 @@ export class NotificationsService {
     if (!tokens.length) return { status: 'skipped', error: 'NO_PUSH_TOKEN' };
     const title = render(tpl.title ?? '', values);
     const body = render(tpl.body, values);
+    const codeVar = PUSH_CODE_VAR[data.status];
+    const code = codeVar ? values[codeVar] : undefined;
     const tickets = await this.push.send(
       tokens.map((t) => ({
         to: t.token,
         title,
         body,
-        data: { orderId: data.orderId, status: data.status },
+        data: { orderId: data.orderId, status: data.status, ...(code ? { code } : {}) },
       })),
     );
     const byToken = new Map(tokens.map((t) => [t.token, t.id]));

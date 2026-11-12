@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "typecheck": "prisma generate && tsc --noEmit",
     "test": "jest --silent --runInBand",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:seed:demo": "node --env-file-if-exists=.env --import tsx prisma/seed-demo.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts",

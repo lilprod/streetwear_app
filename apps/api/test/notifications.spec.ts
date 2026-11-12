@@ -361,6 +361,7 @@ describe('SP07 notifications', () => {
       const code = /Code de retrait : (\d{6})$/.exec(push.body)?.[1] as string;
       expect(code).toMatch(/^\d{6}$/);
       expect(push.title).toBe('Prête au retrait');
+      expect(push.data).toEqual({ orderId: o.id, status: 'ready_for_pickup', code });
       expect(t.sms.outbox.at(-1)?.text).toBe(
         `[Streetwear] : ${o.number} prete. Code de retrait ${code}.`,
       );
@@ -412,6 +413,7 @@ describe('SP07 notifications', () => {
       const push = def(t.push.outbox.at(-1));
       const code = /Code de remise : (\d{6})$/.exec(push.body)?.[1] as string;
       expect(push.title).toBe('En route');
+      expect(push.data).toEqual({ orderId: o.id, status: 'shipped', code });
       expect(t.sms.outbox.at(-1)?.text).toBe(
         `[Streetwear] : ${o.number} en livraison. Code de remise ${code}.`,
       );
@@ -435,6 +437,35 @@ describe('SP07 notifications', () => {
       expect(
         (await rows(o.id)).filter((r) => r.orderStatus === 'ready_for_pickup').map((r) => r.error),
       ).toEqual(['STALE', 'STALE']);
+    });
+
+    it('data.code du push est présent même si le corps du modèle ne contient pas le code, sans persistance', async () => {
+      const key = { key_channel: { key: 'order.ready_for_pickup', channel: 'push' as const } };
+      const tpl = await t.prisma.notificationTemplate.findUniqueOrThrow({ where: key });
+      await t.prisma.notificationTemplate.update({
+        where: key,
+        data: { body: 'Ta commande {{orderNumber}} est prête.' },
+      });
+      try {
+        const o = await t.paid('pickup');
+        await t.drain();
+        await t.advance(o.id, 'ready_for_pickup');
+        await t.service.process(memoryJob(def(takeLast())));
+        const push = def(t.push.outbox.at(-1));
+        expect(push.body).toBe(`Ta commande ${o.number} est prête.`);
+        const code = (push.data as { code?: string }).code as string;
+        expect(code).toMatch(/^\d{6}$/);
+        const pickup = await t.prisma.pickup.findUniqueOrThrow({ where: { orderId: o.id } });
+        expect(pickup.pickupCodeHash).toBe(
+          t.app.get(DeliveryService).codeHash('pickup', pickup.id, code),
+        );
+        const rows = await t.prisma.notification.findMany({ where: { orderId: o.id } });
+        expect(JSON.stringify(rows)).not.toContain(code);
+        expect(await dumpDb()).not.toContain(code);
+        expect(logs.join('\n')).not.toContain(code);
+      } finally {
+        await t.prisma.notificationTemplate.update({ where: key, data: { body: tpl.body } });
+      }
     });
 
     it('aucun code en clair dans Redis (job BullMQ réel), ni en base, ni dans les journaux', async () => {

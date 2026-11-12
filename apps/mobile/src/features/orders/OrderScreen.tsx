@@ -38,6 +38,15 @@ import {
 } from './helpers';
 
 const REFRESH_MS = 30_000;
+const ACTIVE_ESTIMATE: readonly Order['status'][] = [
+  'pending_payment',
+  'paid',
+  'deposit_paid',
+  'in_production',
+  'ready',
+  'shipped',
+  'ready_for_pickup',
+];
 
 type State =
   { status: 'loading' } | { status: 'error'; offline: boolean } | { status: 'ready'; order: Order };
@@ -156,7 +165,11 @@ export function OrderScreen({ variant }: { variant: 'tracking' | 'confirmation' 
 
   const code = codeFor(getStorage(), o.id, o.status);
   const codeTitle = o.status === 'shipped' ? t('order.code.handover') : t('order.code.pickup');
-  const estimated = estimate ? (estimate.estimatedDeliveryAt ?? estimate.estimatedReadyAt) : null;
+  const estimated = ACTIVE_ESTIMATE.includes(o.status)
+    ? (o.estimatedDeliveryAt ??
+      o.estimatedReadyAt ??
+      (estimate ? (estimate.estimatedDeliveryAt ?? estimate.estimatedReadyAt) : null))
+    : null;
 
   return (
     <Screen edges={['top', 'bottom']}>

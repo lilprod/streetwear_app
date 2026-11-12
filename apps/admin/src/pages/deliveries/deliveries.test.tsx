@@ -193,34 +193,39 @@ describe('courses du jour', () => {
   );
 
   it(
-    'se replie sur la saisie d’identifiant si la liste des livreurs est absente (404)',
+    'affiche un message d’erreur clair, sans saisie d’identifiant, si la liste des livreurs est absente',
     async () => {
       loginAs('logistics');
-      let sent = '';
       server.use(
         http.get('*/v1/admin/couriers', () =>
           HttpResponse.json(
-            { error: { code: 'NOT_FOUND', message: 'Introuvable.' } },
+            { error: { code: 'NOT_FOUND', message: 'Ressource introuvable.' } },
             { status: 404 },
           ),
         ),
-        http.post('*/v1/admin/deliveries/:id/assign', async ({ request }) => {
-          sent = ((await request.json()) as { courierId: string }).courierId;
-          return HttpResponse.json({ orderId: FIXTURE_ORDERS[2]?.id });
-        }),
       );
       renderApp('/livraisons');
-      const user = userEvent.setup();
-      const field = await screen.findByLabelText(fr['deliveries.courier.id']);
-      const button = await screen.findByRole('button', {
-        name: `${fr['deliveries.assign']} TG-000003`,
-      });
-      expect(button).toBeDisabled();
-      await user.type(field, '00000000-0000-4000-8000-000000000981');
-      await user.click(
+      expect(await screen.findByText('Ressource introuvable.')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Identifiant du livreur')).not.toBeInTheDocument();
+      expect(
         await screen.findByRole('button', { name: `${fr['deliveries.assign']} TG-000003` }),
-      );
-      await waitFor(() => expect(sent).toBe('00000000-0000-4000-8000-000000000981'));
+      ).toBeDisabled();
+    },
+    T,
+  );
+
+  it(
+    'n’appelle pas le détail de commande pour chaque ligne',
+    async () => {
+      loginAs('logistics');
+      let detailCalls = 0;
+      server.events.on('request:start', ({ request }) => {
+        if (/\/v1\/admin\/orders\/[0-9a-f-]{36}$/.test(request.url)) detailCalls += 1;
+      });
+      renderApp('/livraisons');
+      expect(await screen.findByText('TG-000003')).toBeInTheDocument();
+      server.events.removeAllListeners();
+      expect(detailCalls).toBe(0);
     },
     T,
   );

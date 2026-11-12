@@ -36,7 +36,7 @@ export interface AdminStockItem {
   id: string;
   colorId: string;
   colorName: string;
-  size: string;
+  size: Size;
   onHand: number;
   reserved: number;
   available: number;
@@ -338,7 +338,7 @@ export class StockService implements StockReader {
       id: r.id,
       colorId: r.colorId,
       colorName,
-      size: r.size,
+      size: r.size as Size,
       onHand: r.onHand,
       reserved: r.reserved,
       available,
