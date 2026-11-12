@@ -162,4 +162,38 @@ describe('catalogue', () => {
     },
     SLOW,
   );
+
+  it(
+    'règles de prix : montant non entier refusé',
+    async () => {
+      loginAs('super_admin');
+      renderApp('/catalogue');
+      await userEvent.click(await screen.findByRole('button', { name: fr['catalog.tab.prices'] }));
+      const form = await screen.findByRole('form', { name: fr['catalog.prices.title'] });
+      const base = within(form).getByLabelText(fr['catalog.prices.base']);
+      await waitFor(() => expect(base).toHaveValue('5000'));
+      await userEvent.clear(base);
+      await userEvent.type(base, '12,5');
+      await userEvent.click(within(form).getByRole('button', { name: fr['catalog.form.save'] }));
+      expect(await within(form).findByText(fr['catalog.prices.format'])).toBeInTheDocument();
+    },
+    SLOW,
+  );
+
+  it(
+    'couleurs : code hexadécimal au format #RRGGBB exigé',
+    async () => {
+      loginAs('super_admin');
+      renderApp('/catalogue');
+      await userEvent.click(await screen.findByRole('button', { name: fr['catalog.tab.colors'] }));
+      const form = await screen.findByRole('form', { name: fr['catalog.color.new'] });
+      await userEvent.type(within(form).getByLabelText(fr['catalog.form.name']), 'Rouge');
+      const hex = within(form).getByLabelText(fr['catalog.color.hex']);
+      await userEvent.clear(hex);
+      await userEvent.type(hex, '#FF00');
+      await userEvent.click(within(form).getByRole('button', { name: fr['catalog.color.add'] }));
+      expect(await within(form).findByText(fr['catalog.color.hexFormat'])).toBeInTheDocument();
+    },
+    SLOW,
+  );
 });
