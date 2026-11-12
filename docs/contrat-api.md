@@ -219,7 +219,7 @@ manuel), `reconciliation.mismatch`.
 | POST | `/admin/order-items/:id/print-files/regenerate` → `202 { status: 'queued' }` | production, super_admin | SP08 |
 | GET / POST / PATCH | `/admin/delivery-zones` | logistics, super_admin | SP06 |
 | GET | `/admin/deliveries` `?status&date` → `{ items: AdminDelivery[] }` | logistics, super_admin | SP06 |
-| POST | `/admin/deliveries/:id/assign` `{ courierId }` | logistics, super_admin | SP06 |
+| POST | `/admin/deliveries/:id/assign` `{ courierId }` → livraison mise à jour (forme interne, l'admin relit la liste) | logistics, super_admin | SP06 |
 | GET | `/admin/couriers` → `{ items: { id, name, phone }[] }` (profils livreurs des comptes `courier` actifs, triés par nom ; `id` = identifiant du profil livreur attendu par `assign`) | logistics, super_admin | SP06 (complément) |
 | GET / POST / PATCH | `/admin/stores`, `/admin/stores/:id/slots` (POST `{ days?, capacity? }` génère les créneaux → `{ created }` ; PATCH `/:slotId { capacity }`) | logistics, super_admin | SP06 |
 | GET | `/admin/stock` | production, super_admin | SP04 |
@@ -327,7 +327,7 @@ type StatsSummary = { from: string; to: string; // jours civils Africa/Lome, dé
 ### Import d'un motif ou d'une police (SP03)
 
 1. `POST /admin/media/upload-signature { kind }` → signature d'upload direct vers le fournisseur de médias.
-2. Le back-office envoie le fichier directement au fournisseur. Avec le stockage local (développement, recette), `uploadUrl` désigne `POST /v1/admin/media/upload` de l'API (multipart, mêmes champs signés que Cloudinary, signature et expiration vérifiées, taille et format limités).
+2. Le back-office envoie le fichier directement au fournisseur. Avec le stockage local (route publique authentifiée par la signature, comme Cloudinary ; HMAC 10 min, `public_id` imposé `patterns|fonts/<uuid>`, format détecté par signature binaire, 20 Mo max ; 404 si le fournisseur n'est pas local) (développement, recette), `uploadUrl` désigne `POST /v1/admin/media/upload` de l'API (multipart, mêmes champs signés que Cloudinary, signature et expiration vérifiées, taille et format limités).
 3. `POST /admin/patterns` avec `{ …métadonnées, imagePublicId, imageFormat, imageBytes, widthPx, heightPx }` ; pour un SVG, `svgSource` est obligatoire (nettoyé puis stocké par l'API). Les polices suivent le même principe (`fileFormat`, `fileBytes`).
 4. Activation refusée → `400 VALIDATION_FAILED` avec `details.reasons` ∈ `RIGHTS_HOLDER_MISSING`, `IMAGE_TOO_SMALL`.
 

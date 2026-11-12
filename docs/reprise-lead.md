@@ -20,10 +20,10 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | SP07 Notifications | Fusionné (SMS `console`, push `fake`/Expo, e-mail `fake`/SMTP) |
 | SP10 Parcours mobile (lots A et B) | Fusionné (mode dégradé sans carte tant qu'il n'y a pas de clé Google Maps) |
 | SP11 Back-office (lots A, B, C) | Fusionné |
-| **Lot API complémentaire (voir plus bas), puis SP12** | **Prochaine étape** |
-| SP12 QA et recette | En dernier |
+| Lot API complémentaire | Fusionné |
+| **SP12 QA et recette** | **Prochaine étape** |
 
-Dernière vérification (base neuve) : API 392, shared 91, admin 166, mobile 175, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 415, shared 96, admin 167, mobile 177, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -103,6 +103,13 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - Dates des formulaires en JJ/MM/AAAA quel que soit le navigateur ; fil d'Ariane avec le numéro TG-….
 - Le seed ne crée ni catalogue ni commande ni livreur : jeu de données de recette à écrire pour SP12 (les scripts des agents sont dans le scratchpad de la session, non versionnés).
 - Tests : `testTimeout` 20 s dans `apps/admin/vite.config.ts` ; `asyncUtilTimeout` 10 s côté mobile.
+
+## Après le lot API complémentaire (13/11)
+
+- Fait : `/admin/couriers`, `/admin/deliveries` enrichi (`AdminDelivery`), `/admin/stats/summary` (CA = commandes créées dans la période et payées ou acompte versé, statuts annulés/remboursés/retournés/expirés exclus), `Quote.codDepositXof` (`computeCodDepositXof` dans shared/pricing), dates estimées figées dans `Order`, `data.code` dans les push retrait/remise (jamais persisté), upload local signé, types admin dans `packages/shared/contracts/admin-backoffice.ts`, `AdminStockItem.size` en `Size`.
+- **Jeu de démo de recette** : `pnpm --filter api db:seed:demo` (idempotent, refusé en production) ; comptes `<rôle>@demo.streetwear.local`, identifiants dans `apps/api/README.md` (démo locale uniquement) ; 10 commandes dans des statuts variés, sans lignes `payments` ni fichiers d'impression réels.
+- Tests API : `test/setup-env.ts` ne lit plus `.env` ; bases via `TEST_DATABASE_URL` / `TEST_REDIS_URL`, défauts `streetwear_test` et Redis base 1 (ceux de la CI).
+- Limites connues : l'upload local garde les fichiers en mémoire du processus (perdus au redémarrage) et lit le fichier avant de vérifier la signature (20 Mo max) ; jamais testé avec Cloudinary réel.
 
 ## Modèles des agents
 
