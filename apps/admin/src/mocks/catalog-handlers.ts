@@ -10,7 +10,7 @@ import type {
   TshirtColor,
 } from '../lib/catalog-api';
 
-const MIN_ACTIVE_WIDTH_PX = 1000;
+const MIN_ACTIVE_WIDTH_PX = 4000;
 const CLOUD = 'https://api.cloudinary.com/v1_1/demo-cloud';
 
 let uploadConfigured = true;
