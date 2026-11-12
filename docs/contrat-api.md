@@ -132,6 +132,7 @@ type Cart = { items: CartItem[]; subtotalXof: number; itemCount: number };
 type CartItem = { id: string; design: Design; size: Size; quantity: number; unitPriceXof: number; lineTotalXof: number; available: boolean };
 type ReceptionInput = { type: 'home'; addressId: string } | { type: 'pickup'; storeId: string; slotId: string };
 type Quote = { subtotalXof: number; deliveryFeeXof: number; totalXof: number; vatIncludedXof: number;
+  codDepositXof: number; // acompte dû si le client choisit le paiement à la livraison (même calcul que depositXof)
   estimatedReadyAt: string; estimatedDeliveryAt: string | null };
 ```
 
@@ -165,7 +166,9 @@ type OrderStatus = 'pending_payment' | 'payment_failed' | 'expired' | 'paid' | '
 type Order = { id: string; number: string; status: OrderStatus; items: OrderItem[]; subtotalXof: number;
   deliveryFeeXof: number; totalXof: number; depositXof: number | null; paymentMethod: string;
   reception: { type: 'home'; address: Address } | { type: 'pickup'; store: Store; slot: PickupSlot };
-  history: { status: OrderStatus; at: string }[]; expiresAt: string | null; createdAt: string };
+  history: { status: OrderStatus; at: string }[]; expiresAt: string | null;
+  estimatedReadyAt: string | null; estimatedDeliveryAt: string | null; // figées à la création de la commande
+  createdAt: string };
 type OrderSummary = { id: string; number: string; status: OrderStatus; totalXof: number;
   paymentMethod: string; itemCount: number; createdAt: string };
 type OrderItem = { id: string; design: { spec: DesignSpec; previewFrontUrl: string | null; previewBackUrl: string | null };
@@ -215,8 +218,9 @@ manuel), `reconciliation.mismatch`.
 | GET | `/admin/order-items/:id/print-files` → `{ front?: signedUrl, back?: signedUrl }` | production, super_admin | SP08 |
 | POST | `/admin/order-items/:id/print-files/regenerate` → `202 { status: 'queued' }` | production, super_admin | SP08 |
 | GET / POST / PATCH | `/admin/delivery-zones` | logistics, super_admin | SP06 |
-| GET | `/admin/deliveries` `?status&date` | logistics, super_admin | SP06 |
+| GET | `/admin/deliveries` `?status&date` → `{ items: AdminDelivery[] }` | logistics, super_admin | SP06 |
 | POST | `/admin/deliveries/:id/assign` `{ courierId }` | logistics, super_admin | SP06 |
+| GET | `/admin/couriers` → `{ items: { id, name, phone }[] }` (profils livreurs des comptes `courier` actifs, triés par nom ; `id` = identifiant du profil livreur attendu par `assign`) | logistics, super_admin | SP06 (complément) |
 | GET / POST / PATCH | `/admin/stores`, `/admin/stores/:id/slots` (POST `{ days?, capacity? }` génère les créneaux → `{ created }` ; PATCH `/:slotId { capacity }`) | logistics, super_admin | SP06 |
 | GET | `/admin/stock` | production, super_admin | SP04 |
 | POST | `/admin/stock/movements` `{ colorId, size, type: 'in' \| 'adjust', quantity, note }` | production, super_admin | SP04 |
@@ -229,7 +233,7 @@ manuel), `reconciliation.mismatch`.
 | GET | `/admin/audit-logs` `?entity&entityId` | super_admin | SP02 |
 | GET / PATCH | `/admin/settings` | super_admin | SP02 |
 | GET / PATCH | `/admin/notification-templates` : GET → `{ items: NotificationTemplate[] }` ; PATCH sur la collection `{ key, channel, title?, body?, active? }` (corps strict) → `NotificationTemplate` ; refus `400 VALIDATION_FAILED` avec `details.reasons` ∈ `UNKNOWN_VARIABLE`, `MALFORMED_PLACEHOLDER`, `CODE_IN_TITLE`, `SMS_NOT_GSM7`, `SMS_TOO_LONG`, `SMS_HAS_NO_TITLE`, `TITLE_REQUIRED` ; `404` couple inconnu | super_admin | SP07 |
-| GET | `/admin/stats/summary` `?from&to` → `{ ordersCount, revenueXof, averageOrderXof, byStatus, byReception, topPatterns, topColors }` | order_manager, super_admin | SP11 |
+| GET | `/admin/stats/summary` `?from&to` → `StatsSummary` | order_manager, super_admin | SP04 (complément) |
 
 ```ts
 type AdminRole = 'super_admin' | 'order_manager' | 'production' | 'logistics' | 'courier';
@@ -264,6 +268,10 @@ type ProductionQueueItem = { orderId: string; orderNumber: string; status: Order
 type AdminStockItem = { id: string; colorId: string; colorName: string; size: Size; onHand: number;
   reserved: number; available: number; alertThreshold: number; belowThreshold: boolean };
 ```
+
+### Données des notifications push
+
+`data` = `{ orderId, status }` ; pour `order.ready_for_pickup` et `order.shipped`, en plus `code` (code de retrait ou de remise en clair, à afficher par l'app ; jamais persisté côté serveur ni journalisé).
 
 ### Modèles de notifications (SP07)
 
@@ -301,10 +309,25 @@ Code de retrait faux (`ready_for_pickup → delivered`) : `400 HANDOVER_CODE_INV
 
 Ces types (`AdminOrderSummary`, `AdminOrder`, `ProductionQueueItem`, `AdminStockItem`) sont exportés par `packages/shared/contracts`, et `ERROR_CODES` y reprend tous les codes du tableau « Codes d'erreur communs ».
 
+### Livraisons et statistiques admin (compléments)
+
+```ts
+type AdminDelivery = { id: string; orderId: string; orderNumber: string; status: string;
+  customerName: string | null; recipientPhone: string; addressLabel: string; landmark: string | null;
+  lat: number; lng: number; zone: { id: string; name: string } | null;
+  courier: { id: string; name: string; phone: string } | null;
+  codBalanceXof: number; scheduledFor: string | null; updatedAt: string };
+type StatsSummary = { from: string; to: string; // jours civils Africa/Lome, défaut : 30 derniers jours
+  ordersCount: number; revenueXof: number; averageOrderXof: number; // commandes payées ou acompte versé
+  byStatus: Record<OrderStatus, number>; byReception: { home: number; pickup: number };
+  topPatterns: { id: string; name: string; count: number }[]; // 10 max
+  topColors: { id: string; name: string; hex: string; count: number }[] };
+```
+
 ### Import d'un motif ou d'une police (SP03)
 
 1. `POST /admin/media/upload-signature { kind }` → signature d'upload direct vers le fournisseur de médias.
-2. Le back-office envoie le fichier directement au fournisseur.
+2. Le back-office envoie le fichier directement au fournisseur. Avec le stockage local (développement, recette), `uploadUrl` désigne `POST /v1/admin/media/upload` de l'API (multipart, mêmes champs signés que Cloudinary, signature et expiration vérifiées, taille et format limités).
 3. `POST /admin/patterns` avec `{ …métadonnées, imagePublicId, imageFormat, imageBytes, widthPx, heightPx }` ; pour un SVG, `svgSource` est obligatoire (nettoyé puis stocké par l'API). Les polices suivent le même principe (`fileFormat`, `fileBytes`).
 4. Activation refusée → `400 VALIDATION_FAILED` avec `details.reasons` ∈ `RIGHTS_HOLDER_MISSING`, `IMAGE_TOO_SMALL`.
 
