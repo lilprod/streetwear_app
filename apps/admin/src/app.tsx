@@ -11,6 +11,11 @@ import { LoginPage } from './pages/login';
 import { OrderDetailPage } from './pages/orders/order-detail';
 import { OrdersListPage } from './pages/orders/orders-list';
 import { ProductionPage } from './pages/production/production-page';
+import { CourierPage } from './pages/courier/courier-page';
+import { DeliveriesPage } from './pages/deliveries/deliveries-page';
+import { ZonesPage } from './pages/deliveries/zones-page';
+import { PickupPage } from './pages/pickup/pickup-page';
+import { StockPage } from './pages/stock/stock-page';
 import { ModulePage } from './pages/module-page';
 import { ForbiddenPage, NotFoundPage } from './pages/status-pages';
 
@@ -22,9 +27,18 @@ function Home() {
   return <DashboardPage />;
 }
 
-const PLACEHOLDERS: ModuleId[] = MODULES.filter(
-  (m) => m.id !== 'dashboard' && m.id !== 'orders' && m.id !== 'production',
-).map((m) => m.id);
+const IMPLEMENTED: ModuleId[] = [
+  'dashboard',
+  'orders',
+  'production',
+  'deliveries',
+  'courier',
+  'pickup',
+  'stock',
+];
+const PLACEHOLDERS: ModuleId[] = MODULES.filter((m) => !IMPLEMENTED.includes(m.id)).map(
+  (m) => m.id,
+);
 
 export function App() {
   const [client] = useState(
@@ -60,6 +74,46 @@ export function App() {
                   element={
                     <RequireModule id="production">
                       <ProductionPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/livraisons"
+                  element={
+                    <RequireModule id="deliveries">
+                      <DeliveriesPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/livraisons/zones"
+                  element={
+                    <RequireModule id="deliveries">
+                      <ZonesPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/livreur"
+                  element={
+                    <RequireModule id="courier">
+                      <CourierPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/retrait"
+                  element={
+                    <RequireModule id="pickup">
+                      <PickupPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/stock"
+                  element={
+                    <RequireModule id="stock">
+                      <StockPage />
                     </RequireModule>
                   }
                 />

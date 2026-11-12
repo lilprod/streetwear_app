@@ -1,16 +1,29 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { getOrder } from '../lib/orders-api';
 import { fr } from '../i18n/fr';
 import { MODULES } from '../auth/modules';
 
 export function Breadcrumbs() {
   const { pathname } = useLocation();
   const segments = pathname.split('/').filter(Boolean);
+  const orderId = segments[0] === 'commandes' ? segments[1] : undefined;
+  const order = useQuery({
+    queryKey: ['order', orderId],
+    queryFn: () => getOrder(orderId ?? ''),
+    enabled: !!orderId,
+  });
   const first = MODULES.find((m) => m.path === `/${segments[0] ?? ''}`);
   const crumbs: { label: string; to?: string }[] = [{ label: fr['breadcrumb.home'], to: '/' }];
   if (first && first.path !== '/') {
     crumbs.push({ label: fr[first.labelKey], to: segments.length > 1 ? first.path : undefined });
     if (segments.length > 1)
-      crumbs.push({ label: decodeURIComponent(segments.slice(1).join(' / ')) });
+      crumbs.push({
+        label:
+          orderId && segments.length === 2 && !order.isError
+            ? (order.data?.number ?? fr['app.loading'])
+            : decodeURIComponent(segments.slice(1).join(' / ')),
+      });
   }
   if (crumbs.length === 1) crumbs[0] = { label: fr['breadcrumb.home'] };
 

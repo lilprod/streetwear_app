@@ -95,7 +95,7 @@ describe('liste des commandes', () => {
     renderApp('/commandes');
     const user = userEvent.setup();
     await screen.findByText('TG-000001');
-    await user.type(screen.getByLabelText(fr['orders.from']), '2026-11-17');
+    await user.type(screen.getByLabelText(fr['orders.from']), '17/11/2026');
     expect(await screen.findByText('TG-000008')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText('TG-000001')).not.toBeInTheDocument());
   });
