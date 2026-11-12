@@ -1,3 +1,3 @@
-import { ReceptionPlaceholder } from '../../src/features/purchase/placeholders';
+import { ReceptionScreen } from '../../src/features/reception/ReceptionScreen';
 
-export default ReceptionPlaceholder;
+export default ReceptionScreen;

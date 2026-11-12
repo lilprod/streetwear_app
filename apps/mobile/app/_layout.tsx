@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
@@ -9,7 +9,8 @@ import { GeistMono_500Medium } from '@expo-google-fonts/geist-mono/500Medium';
 import { BebasNeue_400Regular } from '@expo-google-fonts/bebas-neue/400Regular';
 import { Anton_400Regular } from '@expo-google-fonts/anton/400Regular';
 import { PermanentMarker_400Regular } from '@expo-google-fonts/permanent-marker/400Regular';
-import { bootstrapSession } from '../src/auth/session';
+import { bootstrapSession, useSession } from '../src/auth/session';
+import { installNotificationHandlers, refreshPushToken } from '../src/features/notifications/push';
 import { initSentry } from '../src/sentry';
 
 initSentry(process.env.EXPO_PUBLIC_SENTRY_DSN, process.env.EXPO_PUBLIC_APP_ENV);
@@ -24,9 +25,24 @@ export default function RootLayout() {
     Anton_400Regular,
     PermanentMarker_400Regular,
   });
+  const sessionStatus = useSession((s) => s.status);
   useEffect(() => {
     void bootstrapSession();
   }, []);
+  useEffect(() => {
+    if (!loaded || sessionStatus !== 'authenticated') return;
+    void refreshPushToken();
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+    installNotificationHandlers((route) => router.push(route)).then(
+      (off) => (cancelled ? off() : (cleanup = off)),
+      () => undefined,
+    );
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [loaded, sessionStatus]);
   if (!loaded) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

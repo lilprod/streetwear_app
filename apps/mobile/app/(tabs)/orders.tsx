@@ -1,3 +1,3 @@
-import { OrdersPlaceholder } from '../../src/features/purchase/placeholders';
+import { OrdersScreen } from '../../src/features/orders/OrdersScreen';
 
-export default OrdersPlaceholder;
+export default OrdersScreen;

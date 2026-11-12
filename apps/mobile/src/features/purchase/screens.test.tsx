@@ -28,7 +28,6 @@ import { createGuestCart } from '../cart/guestCart';
 import { addLine, resetCartStore } from '../cart/store';
 import { HomeScreen } from '../home/HomeScreen';
 import { createDraftsRepo } from '../studio/drafts';
-import { ConfirmationPlaceholder, PaymentPlaceholder, ReceptionPlaceholder } from './placeholders';
 import { SizeScreen } from './SizeScreen';
 
 const spec = VALID_DESIGNS.patternOnly as DesignSpec;
@@ -191,9 +190,7 @@ describe('Cart screen', () => {
     expect(next.props.accessibilityState).toMatchObject({ disabled: true });
     await fireEvent.press(next);
     expect(routerMock.push).not.toHaveBeenCalled();
-    await fireEvent.press(
-      screen.getByRole('button', { name: 'Retirer Design sans nom du panier' }),
-    );
+    await fireEvent.press(screen.getByRole('button', { name: 'Retirer Mon kente du panier' }));
     expect(await screen.findByText('Ton panier est vide')).toBeTruthy();
   });
 
@@ -214,7 +211,7 @@ describe('Cart screen', () => {
     await render(<CartScreen />);
     expect(await screen.findByText('Impossible de charger ton panier.')).toBeTruthy();
     await fireEvent.press(screen.getByRole('button', { name: 'Réessayer' }));
-    expect(await screen.findByText('Design sans nom')).toBeTruthy();
+    expect(await screen.findByText('Mon kente')).toBeTruthy();
     getCart.mockRestore();
   });
 
@@ -387,20 +384,5 @@ describe('Home screen', () => {
     await render(<HomeScreen />);
     expect(await screen.findByText('Connecte-toi à Internet pour voir les motifs.')).toBeTruthy();
     expect(screen.getByText('Tu es hors ligne')).toBeTruthy();
-  });
-});
-
-describe('Purchase stack placeholders', () => {
-  it.each([
-    ['Réception', ReceptionPlaceholder],
-    ['Paiement', PaymentPlaceholder],
-    ['Confirmation', ConfirmationPlaceholder],
-  ])('%s is navigable', async (title, Component) => {
-    await render(<Component />);
-    expect(screen.getAllByText(title).length).toBeGreaterThan(0);
-    await fireEvent.press(screen.getByRole('button', { name: 'Retour' }));
-    expect(routerMock.back).toHaveBeenCalled();
-    await fireEvent.press(screen.getByRole('button', { name: 'Retour à l’accueil' }));
-    expect(routerMock.replace).toHaveBeenCalledWith('/');
   });
 });
