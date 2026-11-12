@@ -19,10 +19,11 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | SP05 Paiement (adaptateur `fake`) | Fusionné ; agrégateur réel après le comité du 13/11 |
 | SP07 Notifications | Fusionné (SMS `console`, push `fake`/Expo, e-mail `fake`/SMTP) |
 | SP10 Parcours mobile (lots A et B) | Fusionné (mode dégradé sans carte tant qu'il n'y a pas de clé Google Maps) |
-| **SP11 lot C, petit lot API mobile (voir plus bas)** | **Prochaine étape** |
+| SP11 Back-office (lots A, B, C) | Fusionné |
+| **Lot API complémentaire (voir plus bas), puis SP12** | **Prochaine étape** |
 | SP12 QA et recette | En dernier |
 
-Dernière vérification (base neuve) : API 392, shared 91, admin 97, mobile 175, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 392, shared 91, admin 166, mobile 175, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -90,10 +91,18 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - Mobile : un visiteur garde un panier local (MMKV), synchronisé à la connexion (`syncGuestCartToAccount`) car `/designs` et `/cart` exigent un compte.
 - Mobile : typecheck avec `apps/mobile/tsconfig.typecheck.json`, qui force les types React 19 du mobile (pnpm peut remonter ceux de l'admin, React 18). Pas de `paths` dans `tsconfig.json` : jest-expo les transforme en moduleNameMapper.
 - Lot B fusionné le 12/11 : réception (carte `react-native-maps` ou mode dégradé par quartiers, `EXPO_PUBLIC_MAPS_ENABLED`, `GOOGLE_MAPS_ANDROID_API_KEY` au build), paiement (clé d'idempotence par tentative, attente 3 s / 2 min, reprise après coupure), suivi, reçu PDF, WhatsApp (`EXPO_PUBLIC_WHATSAPP_NUMBER`), push (`EAS_PROJECT_ID`), compte et suppression. Script réel : 52 vérifications OK. Bundle Hermes 7,3 Mo.
-- **Petit lot API demandé par le mobile** (à confier à `dev-backend`, puis mettre à jour le contrat) : `data.code` dans le push `order.ready_for_pickup` / `order.shipped` (aujourd'hui le mobile extrait le code du corps du message par expression régulière ; ne jamais le persister dans `notifications.payload`), `depositXof` dans `Quote`, `estimatedReadyAt` / `estimatedDeliveryAt` dans `Order`. Aucune route d'annulation client ni de changement de moyen de paiement après `payment_failed` (à trancher avec le client).
+- **Lot API complémentaire demandé par le back-office (lot C)** : `GET /admin/stats/summary` (tableau de bord, forme du contrat ; aujourd'hui 404), `GET /admin/couriers` → `{ items: { id, name, phone }[] }` (logistics, super_admin ; sans elle l'affectation d'un livreur demande l'UUID), enrichir `GET /admin/deliveries` (`orderNumber`, `customerName`, `zoneName`, `courier`), route de réception de l'upload en stockage local (l'adaptateur annonce `MEDIA_BASE_URL/upload` qui n'existe pas), types admin (catalogue, comptes, audit, réglages, modèles, logistique) à verser dans `packages/shared/contracts`, `AdminStockItem.size` en `Size`.
+- **Petit lot API demandé par le mobile** (même lot, puis mettre à jour le contrat) : `data.code` dans le push `order.ready_for_pickup` / `order.shipped` (aujourd'hui le mobile extrait le code du corps du message par expression régulière ; ne jamais le persister dans `notifications.payload`), `depositXof` dans `Quote`, `estimatedReadyAt` / `estimatedDeliveryAt` dans `Order`. Aucune route d'annulation client ni de changement de moyen de paiement après `payment_failed` (à trancher avec le client).
 - Tests API fragiles : `test/setup-env.ts` charge `apps/api/.env` ; un `NOTIFICATION_CODE_KEY` local y fait échouer 2 tests SP07. Les tests doivent fixer leur environnement eux-mêmes (à corriger dans le petit lot API).
 - Quartiers et coordonnées du mode dégradé (`reception/logic.ts`) à valider avec la marque ; textes légaux et CGV provisoires ; Google Sign-In non câblé ; `npx expo install --check` à faire au premier build natif.
 - Jamais vérifié : appareil Android 2 Go, iPhone, lecteurs d'écran, remplissage SMS natif, carte réelle, push réels, retour du navigateur carte, partage du reçu.
+
+## Points ouverts après SP11 lot C
+
+- Back-office complet : livraisons et zones (import GeoJSON, carte Leaflet/OSM), vue livreur `/livreur` (360 px), retrait, stock, catalogue (upload Cloudinary non testé, pas de compte), paiements et rapprochement, équipe, audit, réglages, modèles de notifications, tableau de bord (Recharts, en attente de la route stats). Vérifié par Playwright contre l'API réelle (affectation livreur → expédition → remise avec code faux puis juste ; catalogue, équipe, réglages).
+- Dates des formulaires en JJ/MM/AAAA quel que soit le navigateur ; fil d'Ariane avec le numéro TG-….
+- Le seed ne crée ni catalogue ni commande ni livreur : jeu de données de recette à écrire pour SP12 (les scripts des agents sont dans le scratchpad de la session, non versionnés).
+- Tests : `testTimeout` 20 s dans `apps/admin/vite.config.ts` ; `asyncUtilTimeout` 10 s côté mobile.
 
 ## Modèles des agents
 

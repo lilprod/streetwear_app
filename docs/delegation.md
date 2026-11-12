@@ -133,5 +133,5 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 | SP08 | Terminé — rendu A3 en 0,9 à 1,6 s, 411 Mo ; 20 fichiers réels à valider par l'atelier | `ccr-beb850b2-5rmap5` | 07/11/2026 |
 | SP09 | Terminé en mode mock — fluidité et appareils à vérifier sur téléphone | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP10 | Terminé (lots A et B ; 175 tests mobile ; 52 vérifications contre l'API réelle) ; jamais testé sur appareil | `ccr-beb850b2-5rmap5` | 12/11/2026 |
-| SP11 | Lots A et B terminés (commandes, production, branchés sur l'API réelle ; 97 tests admin) ; lot C à faire | `ccr-beb850b2-5rmap5` | 08/11/2026 |
+| SP11 | Terminé (lots A, B, C ; 166 tests admin ; parcours Playwright contre l'API réelle) ; route stats et liste des livreurs à ajouter côté API | `ccr-beb850b2-5rmap5` | 13/11/2026 |
 | SP12 | À faire | | |
