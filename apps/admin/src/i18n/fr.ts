@@ -1,4 +1,7 @@
+import { frLogistics } from './fr-logistics';
+
 export const fr = {
+  ...frLogistics,
   'home.title': 'Back-office',
   'app.brand': 'Streetwear',
   'app.skipToContent': 'Aller au contenu',

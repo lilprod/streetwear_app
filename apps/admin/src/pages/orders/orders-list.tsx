@@ -12,6 +12,7 @@ import {
   type ReceptionType,
 } from '@streetwear/shared';
 import { useAuth } from '../../auth/auth-context';
+import { DateField } from '../../components/date-field';
 import { DataTable } from '../../components/data-table';
 import { FilterBar } from '../../components/filter-bar';
 import { StatusBadge } from '../../components/status-badge';
@@ -219,24 +220,8 @@ export function OrdersListPage() {
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs font-medium text-inkSecondary">
-            {fr['orders.from']}
-            <input
-              type="date"
-              className={selectClass}
-              value={from}
-              onChange={(e) => change(setFrom)(e.target.value)}
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-medium text-inkSecondary">
-            {fr['orders.to']}
-            <input
-              type="date"
-              className={selectClass}
-              value={to}
-              onChange={(e) => change(setTo)(e.target.value)}
-            />
-          </label>
+          <DateField label={fr['orders.from']} value={from} onChange={change(setFrom)} />
+          <DateField label={fr['orders.to']} value={to} onChange={change(setTo)} />
         </FilterBar>
       </div>
       {list.error && (

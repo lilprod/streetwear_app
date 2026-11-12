@@ -14,6 +14,16 @@ import { checkoutStore, resetCheckout } from './store';
 
 jest.setTimeout(20_000);
 
+/** Zone resolution is debounced: wait until « Continuer » is enabled before pressing it,
+ * otherwise a press can land while a second resolution has put the zone back in loading. */
+async function pressContinue(): Promise<void> {
+  const name = 'Continuer vers le paiement';
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name }).props.accessibilityState?.disabled).toBeFalsy(),
+  );
+  await fireEvent.press(screen.getByRole('button', { name }));
+}
+
 let api: ApiClient;
 
 beforeEach(async () => {
@@ -55,7 +65,7 @@ describe('Reception screen, delivery without map (degraded mode)', () => {
     expect(screen.getByText(/La carte n’est pas disponible/)).toBeTruthy();
     const first = QUARTIERS[0];
     await fireEvent.press(screen.getByRole('button', { name: first?.name ?? '' }));
-    expect(await screen.findByText(/Zone : Lomé centre/, {}, { timeout: 3000 })).toBeTruthy();
+    expect(await screen.findByText(/Zone : Lomé centre/)).toBeTruthy();
     expect(screen.getByText(/Livraison 1\s000\sFCFA/)).toBeTruthy();
     await fireEvent.changeText(screen.getByLabelText(/Repère/), 'Près du marché');
     await fireEvent.press(screen.getByRole('button', { name: 'Continuer vers le paiement' }));
@@ -69,8 +79,8 @@ describe('Reception screen, delivery without map (degraded mode)', () => {
   it('asks for a landmark before continuing', async () => {
     await render(<ReceptionScreen />);
     await fireEvent.press(screen.getByRole('button', { name: QUARTIERS[0]?.name ?? '' }));
-    await screen.findByText(/Zone : /, {}, { timeout: 3000 });
-    await fireEvent.press(screen.getByRole('button', { name: 'Continuer vers le paiement' }));
+    await screen.findByText(/Zone : /);
+    await pressContinue();
     expect(await screen.findByText('Ajoute un repère pour le livreur.')).toBeTruthy();
     expect(routerMock.push).not.toHaveBeenCalled();
   });
@@ -79,9 +89,7 @@ describe('Reception screen, delivery without map (degraded mode)', () => {
     jest.spyOn(api, 'resolveZone').mockResolvedValue(null);
     await render(<ReceptionScreen />);
     await fireEvent.press(screen.getByRole('button', { name: QUARTIERS[0]?.name ?? '' }));
-    expect(
-      await screen.findByText(/On ne livre pas encore à cet endroit/, {}, { timeout: 3000 }),
-    ).toBeTruthy();
+    expect(await screen.findByText(/On ne livre pas encore à cet endroit/)).toBeTruthy();
     expect(
       screen.getByRole('button', { name: 'Continuer vers le paiement' }).props.accessibilityState,
     ).toMatchObject({ disabled: true });
@@ -134,8 +142,8 @@ describe('Reception screen, delivery without map (degraded mode)', () => {
     });
     await render(<ReceptionScreen />);
     await fireEvent.press(await screen.findByRole('button', { name: 'Maison · Tokoin' }));
-    await screen.findByText(/Zone : /, {}, { timeout: 3000 });
-    await fireEvent.press(screen.getByRole('button', { name: 'Continuer vers le paiement' }));
+    await screen.findByText(/Zone : /);
+    await pressContinue();
     await waitFor(() => expect(routerMock.push).toHaveBeenCalledWith('/purchase/payment'));
     expect(await api.listAddresses()).toHaveLength(1);
     expect(checkoutStore.getState().reception).toMatchObject({ address: { id: saved.id } });

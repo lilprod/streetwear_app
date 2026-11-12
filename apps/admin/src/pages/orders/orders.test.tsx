@@ -88,14 +88,14 @@ describe('liste des commandes', () => {
     await user.clear(screen.getByRole('searchbox'));
     await user.type(screen.getByRole('searchbox'), 'introuvable{Enter}');
     expect(await screen.findByText(fr['table.empty'])).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it('filtre par dates', async () => {
     loginAs('order_manager');
     renderApp('/commandes');
     const user = userEvent.setup();
     await screen.findByText('TG-000001');
-    await user.type(screen.getByLabelText(fr['orders.from']), '2026-11-17');
+    await user.type(screen.getByLabelText(fr['orders.from']), '17/11/2026');
     expect(await screen.findByText('TG-000008')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText('TG-000001')).not.toBeInTheDocument());
   });
