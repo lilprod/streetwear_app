@@ -11,9 +11,10 @@ let inFlight: Promise<SyncResult> | null = null;
 async function syncOne(api: ApiClient, repo: DraftsRepo, snapshot: DraftRecord): Promise<void> {
   let serverId = snapshot.serverId;
   if (snapshot.dirty) {
+    const name = snapshot.name?.trim() ? { name: snapshot.name.trim().slice(0, 100) } : {};
     const design = serverId
-      ? await api.updateDesign(serverId, { spec: snapshot.spec, isDraft: true })
-      : await api.createDesign({ spec: snapshot.spec });
+      ? await api.updateDesign(serverId, { spec: snapshot.spec, isDraft: true, ...name })
+      : await api.createDesign({ spec: snapshot.spec, ...name });
     serverId = design.id;
     repo.update(snapshot.localId, (r) => ({
       ...r,

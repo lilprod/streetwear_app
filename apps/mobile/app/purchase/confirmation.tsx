@@ -1,3 +1,5 @@
-import { ConfirmationPlaceholder } from '../../src/features/purchase/placeholders';
+import { OrderScreen } from '../../src/features/orders/OrderScreen';
 
-export default ConfirmationPlaceholder;
+export default function ConfirmationRoute() {
+  return <OrderScreen variant="confirmation" />;
+}

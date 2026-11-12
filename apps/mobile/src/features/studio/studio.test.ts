@@ -274,6 +274,26 @@ describe('drafts: offline then sync', () => {
     expect(server.items.some((d) => d.id === rec.serverId && d.previewFrontUrl)).toBe(true);
   });
 
+  it('sends the draft name to the server on creation and on update', async () => {
+    const repo = createDraftsRepo(createMemoryStorage());
+    const s = makeStore();
+    const text = { fontId: 'font-bebas', colorHex: '#FFFFFF', side: 'back' as const };
+    s.getState().editText({ text: 'KENTE' }, text);
+    repo.save({ localId: 'n1', spec: selectSpec(s.getState()) as DesignSpec, name: 'Mon kente' });
+    const api = createMockApi({ latencyMs: 0 });
+    const created = jest.spyOn(api, 'createDesign');
+    const updated = jest.spyOn(api, 'updateDesign');
+    await syncDrafts(api, repo);
+    expect(created).toHaveBeenCalledWith(expect.objectContaining({ name: 'Mon kente' }));
+    const serverId = repo.get('n1')?.serverId as string;
+    expect((await api.getDesign(serverId)).name).toBe('Mon kente');
+    s.getState().editText({ text: 'KENTE BLEU' }, text);
+    repo.save({ localId: 'n1', spec: selectSpec(s.getState()) as DesignSpec, name: 'Kente bleu' });
+    await syncDrafts(api, repo);
+    expect(updated).toHaveBeenCalledWith(serverId, expect.objectContaining({ name: 'Kente bleu' }));
+    expect((await api.getDesign(serverId)).name).toBe('Kente bleu');
+  });
+
   it('marks a rejected text and does not retry it until edited', async () => {
     const repo = createDraftsRepo(createMemoryStorage());
     const s = makeStore();

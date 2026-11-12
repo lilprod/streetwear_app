@@ -32,6 +32,7 @@ import {
 import { t } from '../i18n/fr';
 import { newLayerId } from '../features/studio/model';
 import type { TokenStore } from '../auth/tokens';
+import { createMockOrders, type MockOrdersOptions } from './mock-orders';
 import { ApiError, type ApiClient } from './types';
 
 export const MOCK_BANNED_WORDS = ['merde', 'putain', 'connard', 'salope'];
@@ -46,7 +47,7 @@ export type MockOptions = {
   tokens?: TokenStore;
   otpCode?: string;
   soldOutSizes?: Size[];
-};
+} & MockOrdersOptions;
 
 export function createMockApi(options: MockOptions = {}): ApiClient {
   const latency = options.latencyMs ?? 120;
@@ -160,7 +161,31 @@ export function createMockApi(options: MockOptions = {}): ApiClient {
     return d;
   };
 
+  const orders = createMockOrders(
+    {
+      now,
+      wait,
+      authed,
+      cart: buildCart,
+      clearCart: () => {
+        cartItems = [];
+      },
+      addToCart: (line) => {
+        const twin = cartItems.find((l) => l.designId === line.designId && l.size === line.size);
+        if (twin) twin.quantity = Math.min(CART_LINE_MAX_QUANTITY, twin.quantity + line.quantity);
+        else {
+          itemSeq += 1;
+          cartItems.push({ id: uid(2000 + itemSeq), ...line });
+        }
+      },
+      invalid,
+    },
+    options,
+  );
+  const { addressById, ...ordersApi } = orders;
+
   const base: ApiClient = {
+    ...ordersApi,
     listCategories: () => wait(() => [...FIXTURE_CATEGORIES]),
     listPatterns: (q) =>
       wait(() => {
@@ -353,7 +378,14 @@ export function createMockApi(options: MockOptions = {}): ApiClient {
         const parsed = QuoteInputSchema.safeParse({ reception });
         const cart = buildCart();
         if (!parsed.success || cart.items.length === 0) throw invalid();
-        const fee = parsed.data.reception.type === 'home' ? (FIXTURE_ZONES[0]?.feeXof ?? 0) : 0;
+        const target = parsed.data.reception;
+        let fee = 0;
+        if (target.type === 'home') {
+          const address = addressById(target.addressId);
+          const zone = address ? address.zone : (FIXTURE_ZONES[0] ?? null);
+          if (!zone) throw new ApiError('OUT_OF_ZONE', t('api.outOfZone'), 422);
+          fee = zone.feeXof;
+        }
         const totals = computeCartTotals(cart.items, fee);
         const ready = new Date(now().getTime() + 48 * 3600_000).toISOString();
         return {

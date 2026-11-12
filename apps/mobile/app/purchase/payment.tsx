@@ -1,3 +1,3 @@
-import { PaymentPlaceholder } from '../../src/features/purchase/placeholders';
+import { PaymentScreen } from '../../src/features/payment/PaymentScreen';
 
-export default PaymentPlaceholder;
+export default PaymentScreen;

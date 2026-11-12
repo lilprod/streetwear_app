@@ -168,3 +168,68 @@ describe('mock / real API switch', () => {
     expect(getApi()).toBe(getApi());
   });
 });
+
+describe('http client: orders and payments', () => {
+  const make = (handler: (url: string, init: RequestInit) => Promise<Response>) =>
+    createHttpApi({
+      baseUrl: 'http://api.test/v1',
+      tokens: createMemoryTokenStore({ accessToken: 'a', refreshToken: 'r' }),
+      fetchImpl: handler as unknown as typeof fetch,
+    });
+  const KEY = '11111111-1111-4111-8111-111111111111';
+
+  it('sends the Idempotency-Key on order and payment creation, unchanged on replay', async () => {
+    const seen: { url: string; key?: string }[] = [];
+    const api = make(async (url, init) => {
+      seen.push({ url, key: (init.headers as Record<string, string>)['Idempotency-Key'] });
+      return json(500, errorBody('SERVICE_UNAVAILABLE'));
+    });
+    const reception = { type: 'home', addressId: '00000000-0000-4000-8000-000000000801' } as const;
+    await api.createOrder({ reception, paymentMethod: 'tmoney' }, KEY).catch(() => undefined);
+    await api.createOrder({ reception, paymentMethod: 'tmoney' }, KEY).catch(() => undefined);
+    await api
+      .createPayment(KEY, { method: 'tmoney', payerPhone: '+22890123456' }, KEY)
+      .catch(() => undefined);
+    expect(seen.map((s) => s.key)).toEqual([KEY, KEY, KEY]);
+    expect(seen[2]?.url).toContain(`/orders/${KEY}/payments`);
+  });
+
+  it('turns a 404 on zone resolution into "out of zone"', async () => {
+    const api = make(async () => json(404, errorBody('NOT_FOUND')));
+    await expect(api.resolveZone(1, 2)).resolves.toBeNull();
+    const failing = make(async () => json(500, errorBody('SERVICE_UNAVAILABLE')));
+    await expect(failing.resolveZone(1, 2)).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it('exposes ORDER_NOT_PAYABLE details as a typed error', async () => {
+    const api = make(async () =>
+      json(409, errorBody('ORDER_NOT_PAYABLE', 'x', { reason: 'payment_pending', paymentId: 'p' })),
+    );
+    const error = await api
+      .createPayment(KEY, { method: 'card' }, KEY)
+      .catch((e: unknown) => e as ApiError);
+    expect(error).toMatchObject({
+      code: 'ORDER_NOT_PAYABLE',
+      details: { reason: 'payment_pending' },
+    });
+  });
+
+  it('downloads the receipt as bytes with the session token', async () => {
+    let accept = '';
+    let auth = '';
+    const api = make(async (_url, init) => {
+      const h = init.headers as Record<string, string>;
+      accept = h.Accept ?? '';
+      auth = h.Authorization ?? '';
+      return {
+        ok: true,
+        status: 200,
+        arrayBuffer: async () => new TextEncoder().encode('%PDF').buffer,
+      } as unknown as Response;
+    });
+    const bytes = await api.getReceiptPdf(KEY);
+    expect(new TextDecoder().decode(bytes)).toBe('%PDF');
+    expect(accept).toBe('application/pdf');
+    expect(auth).toBe('Bearer a');
+  });
+});
