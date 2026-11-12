@@ -111,6 +111,6 @@ describe('navigation par rôle', () => {
     loginAs('super_admin');
     renderApp('/commandes/TG-000001');
     const crumbs = await screen.findByRole('navigation', { name: fr['breadcrumb.label'] });
-    expect(within(crumbs).getByText('TG-000001')).toHaveAttribute('aria-current', 'page');
+    expect(await within(crumbs).findByText('TG-000001')).toHaveAttribute('aria-current', 'page');
   });
 });
