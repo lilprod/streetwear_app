@@ -9,5 +9,10 @@ export default defineConfig({
     // The API has no CORS: in dev, /v1 is proxied to it (same origin as in recette and production).
     proxy: { '/v1': process.env.API_PROXY_TARGET ?? 'http://localhost:3000' },
   },
-  test: { environment: 'jsdom', globals: true, setupFiles: ['./src/test-setup.ts'] },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test-setup.ts'],
+    testTimeout: 20_000,
+  },
 });

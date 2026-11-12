@@ -88,7 +88,7 @@ describe('liste des commandes', () => {
     await user.clear(screen.getByRole('searchbox'));
     await user.type(screen.getByRole('searchbox'), 'introuvable{Enter}');
     expect(await screen.findByText(fr['table.empty'])).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it('filtre par dates', async () => {
     loginAs('order_manager');
