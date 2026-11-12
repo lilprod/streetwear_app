@@ -154,7 +154,7 @@ describe('API complements: couriers, deliveries, stats', () => {
         status: 'assigned',
         customerName: 'Client 1',
         recipientPhone: '+22890123456',
-        addressLabel: 'Maison 1',
+        addressLabel: 'Maison 1, Tokoin',
         landmark: 'Près du marché',
         lat: TOKOIN.lat,
         lng: TOKOIN.lng,

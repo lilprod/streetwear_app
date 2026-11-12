@@ -16,7 +16,7 @@
     "typecheck": "prisma generate && tsc --noEmit",
     "test": "jest --silent --runInBand",
     "db:seed": "prisma db seed",
-    "db:seed:demo": "node --env-file-if-exists=.env --import tsx prisma/seed-demo.ts"
+    "db:seed:demo": "pnpm build && node --env-file-if-exists=.env dist/seed/demo.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts",

@@ -157,7 +157,7 @@ describe('order codes from notifications', () => {
           request: {
             content: {
               body: 'Code de retrait : 424242',
-              data: { orderId, status: 'ready_for_pickup' },
+              data: { orderId, status: 'ready_for_pickup', code: '424242' },
             },
           },
         },

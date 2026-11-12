@@ -208,6 +208,7 @@ export class DeliveryAdminService {
       items: rows.map((d) => {
         const a = d.addressSnapshot as {
           label?: string;
+          district?: string;
           landmark?: string | null;
           lat?: number;
           lng?: number;
@@ -220,7 +221,7 @@ export class DeliveryAdminService {
           status: d.status,
           customerName: d.order.user.name,
           recipientPhone: a.recipientPhone ?? d.order.user.phone ?? '',
-          addressLabel: a.label ?? '',
+          addressLabel: [a.label, a.district].filter(Boolean).join(', '),
           landmark: a.landmark ?? null,
           lat: a.lat ?? 0,
           lng: a.lng ?? 0,

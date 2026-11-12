@@ -6,23 +6,23 @@
 import type { PrismaClient } from '@prisma/client';
 import type { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
-import { seedCatalog } from '../src/catalog/seed';
-import { hashPassword } from '../src/common/password';
-import { encrypt } from '../src/common/crypto';
-import { uuidv7 } from '../src/common/uuid';
-import { ENV } from '../src/config/env';
-import { DesignsService } from '../src/designs/designs.service';
-import { CartService } from '../src/modules/cart/cart.service';
-import { DeliveryAdminService } from '../src/modules/delivery/delivery-admin.service';
-import { seedDelivery } from '../src/modules/delivery/seed';
-import { SlotsService } from '../src/modules/delivery/slots.service';
-import { ZonesService } from '../src/modules/delivery/zones.service';
-import { seedNotificationTemplates } from '../src/modules/notifications/seed';
-import { OrdersService } from '../src/modules/orders/orders.service';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { seed } from '../src/seed/seed';
-import { seedStock } from '../src/modules/stock/seed';
+import { AppModule } from '../app.module';
+import { seedCatalog } from '../catalog/seed';
+import { hashPassword } from '../common/password';
+import { encrypt } from '../common/crypto';
+import { uuidv7 } from '../common/uuid';
+import { ENV } from '../config/env';
+import { DesignsService } from '../designs/designs.service';
+import { CartService } from '../modules/cart/cart.service';
+import { DeliveryAdminService } from '../modules/delivery/delivery-admin.service';
+import { seedDelivery } from '../modules/delivery/seed';
+import { SlotsService } from '../modules/delivery/slots.service';
+import { ZonesService } from '../modules/delivery/zones.service';
+import { seedNotificationTemplates } from '../modules/notifications/seed';
+import { OrdersService } from '../modules/orders/orders.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { seed } from './seed';
+import { seedStock } from '../modules/stock/seed';
 import {
   FIXTURE_STORE,
   VALID_DESIGNS,
@@ -204,7 +204,7 @@ const ORDERS: {
   },
 ];
 
-const key = (n: number) => `00000000-0000-4000-8000-00000000de${String(n).padStart(2, '0')}`;
+const key = (n: number) => `00000000-0000-4000-8000-${(0xde0000000000 + n).toString(16)}`;
 
 export function assertNotProduction(env: NodeJS.ProcessEnv = process.env): void {
   if (env.NODE_ENV === 'production') {
