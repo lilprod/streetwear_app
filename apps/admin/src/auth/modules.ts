@@ -11,6 +11,7 @@ export type ModuleId =
   | 'catalog'
   | 'payments'
   | 'team'
+  | 'settings'
   | 'courier';
 
 export type AppModule = {
@@ -55,6 +56,7 @@ export const MODULES: readonly AppModule[] = [
     roles: ['order_manager', 'super_admin'],
   },
   { id: 'team', path: '/equipe', labelKey: 'nav.team', roles: ['super_admin'] },
+  { id: 'settings', path: '/reglages', labelKey: 'nav.settings', roles: ['super_admin'] },
   { id: 'courier', path: '/livreur', labelKey: 'nav.courier', roles: ['courier'] },
 ];
 

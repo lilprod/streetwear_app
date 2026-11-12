@@ -6,16 +6,20 @@ import { RequireAuth, RequireModule } from './auth/guards';
 import { homePath, MODULES, type ModuleId } from './auth/modules';
 import { ToastProvider } from './components/toast';
 import { Shell } from './layout/shell';
-import { DashboardPage } from './pages/dashboard';
+import { CatalogPage } from './pages/catalog/catalog-page';
+import { DashboardPage } from './pages/dashboard/dashboard-page';
 import { LoginPage } from './pages/login';
 import { OrderDetailPage } from './pages/orders/order-detail';
 import { OrdersListPage } from './pages/orders/orders-list';
+import { PaymentsPage } from './pages/payments/payments-page';
 import { ProductionPage } from './pages/production/production-page';
 import { CourierPage } from './pages/courier/courier-page';
 import { DeliveriesPage } from './pages/deliveries/deliveries-page';
 import { ZonesPage } from './pages/deliveries/zones-page';
 import { PickupPage } from './pages/pickup/pickup-page';
 import { StockPage } from './pages/stock/stock-page';
+import { SettingsPage } from './pages/settings/settings-page';
+import { TeamPage } from './pages/team/team-page';
 import { ModulePage } from './pages/module-page';
 import { ForbiddenPage, NotFoundPage } from './pages/status-pages';
 
@@ -35,6 +39,10 @@ const IMPLEMENTED: ModuleId[] = [
   'courier',
   'pickup',
   'stock',
+  'catalog',
+  'payments',
+  'team',
+  'settings',
 ];
 const PLACEHOLDERS: ModuleId[] = MODULES.filter((m) => !IMPLEMENTED.includes(m.id)).map(
   (m) => m.id,
@@ -114,6 +122,38 @@ export function App() {
                   element={
                     <RequireModule id="stock">
                       <StockPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/catalogue"
+                  element={
+                    <RequireModule id="catalog">
+                      <CatalogPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/paiements"
+                  element={
+                    <RequireModule id="payments">
+                      <PaymentsPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/equipe"
+                  element={
+                    <RequireModule id="team">
+                      <TeamPage />
+                    </RequireModule>
+                  }
+                />
+                <Route
+                  path="/reglages"
+                  element={
+                    <RequireModule id="settings">
+                      <SettingsPage />
                     </RequireModule>
                   }
                 />

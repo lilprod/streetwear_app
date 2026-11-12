@@ -4,11 +4,13 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import { server } from './mocks/server';
 import { resetOrdersState } from './mocks/orders-handlers';
 import { resetLogisticsState } from './mocks/logistics-handlers';
+import { resetAdminModulesState } from './mocks/admin-modules-handlers';
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   resetOrdersState();
   resetLogisticsState();
+  resetAdminModulesState();
   cleanup();
   server.resetHandlers();
   localStorage.clear();
