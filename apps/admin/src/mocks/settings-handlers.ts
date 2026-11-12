@@ -34,7 +34,7 @@ const seedTemplates = (): NotificationTemplate[] =>
       key: 'order.ready_for_pickup',
       channel: 'sms' as const,
       title: null,
-      body: '{{brand}} : commande {{orderNumber}} prête. Code de retrait : {{pickupCode}}',
+      body: '{{brand}} : commande {{orderNumber}} disponible. Code de retrait : {{pickupCode}}',
       active: true,
       variables: ['brand', 'orderNumber', 'status', 'pickupCode'],
       smsMaxLength: 160,

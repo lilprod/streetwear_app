@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import {
   formatXof,
@@ -32,6 +32,7 @@ export function DashboardPage() {
   const stats = useQuery({
     queryKey: ['stats', 'summary', applied],
     queryFn: ({ signal }) => getStatsSummary(applied, signal),
+    placeholderData: keepPreviousData,
   });
 
   const submit = (e: FormEvent) => {
