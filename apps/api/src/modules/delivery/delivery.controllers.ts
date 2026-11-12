@@ -168,6 +168,10 @@ export class DeliveryAdminController {
   ) {
     return this.svc.listDeliveries(q);
   }
+  @Get('couriers')
+  couriers() {
+    return this.svc.listCouriers();
+  }
   @Post('deliveries/:id/assign')
   @HttpCode(200)
   assign(

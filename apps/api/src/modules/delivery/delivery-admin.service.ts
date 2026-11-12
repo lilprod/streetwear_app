@@ -7,6 +7,7 @@ import type {
   Prisma,
   Store,
 } from '@prisma/client';
+import type { AdminCourier, AdminDelivery } from '@streetwear/shared';
 import { apiError } from '../../common/api-error';
 import { notFound } from '../../common/api-exception';
 import { uuidv7 } from '../../common/uuid';
@@ -180,15 +181,77 @@ export class DeliveryAdminService {
     );
   }
 
-  async listDeliveries(q: { status?: DeliveryStatus; date?: string }) {
+  async listDeliveries(q: { status?: DeliveryStatus; date?: string }): Promise<{
+    items: AdminDelivery[];
+  }> {
     const rows = await this.prisma.delivery.findMany({
       where: {
         ...(q.status && { status: q.status }),
         scheduledFor: dayRange(q.date ?? new Date().toISOString().slice(0, 10)),
       },
+      include: {
+        zone: { select: { id: true, name: true } },
+        courier: { select: { id: true, phone: true, adminUserId: true } },
+        order: { select: { number: true, user: { select: { name: true, phone: true } } } },
+      },
       orderBy: [{ scheduledFor: 'asc' }, { id: 'asc' }],
     });
-    return rows.map(deliveryOut);
+    const adminIds = [...new Set(rows.flatMap((d) => (d.courier ? [d.courier.adminUserId] : [])))];
+    const admins = adminIds.length
+      ? await this.prisma.adminUser.findMany({
+          where: { id: { in: adminIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : [];
+    const names = new Map(admins.map((a) => [a.id, a.name ?? a.email]));
+    return {
+      items: rows.map((d) => {
+        const a = d.addressSnapshot as {
+          label?: string;
+          landmark?: string | null;
+          lat?: number;
+          lng?: number;
+          recipientPhone?: string;
+        };
+        return {
+          id: d.id,
+          orderId: d.orderId,
+          orderNumber: d.order.number,
+          status: d.status,
+          customerName: d.order.user.name,
+          recipientPhone: a.recipientPhone ?? d.order.user.phone ?? '',
+          addressLabel: a.label ?? '',
+          landmark: a.landmark ?? null,
+          lat: a.lat ?? 0,
+          lng: a.lng ?? 0,
+          zone: d.zone,
+          courier: d.courier
+            ? {
+                id: d.courier.id,
+                name: names.get(d.courier.adminUserId) ?? '',
+                phone: d.courier.phone,
+              }
+            : null,
+          codBalanceXof: d.codBalanceXof ?? 0,
+          scheduledFor: d.scheduledFor.toISOString(),
+          updatedAt: d.updatedAt.toISOString(),
+        };
+      }),
+    };
+  }
+
+  async listCouriers(): Promise<{ items: AdminCourier[] }> {
+    const couriers = await this.prisma.courier.findMany({ where: { active: true } });
+    const admins = await this.prisma.adminUser.findMany({
+      where: { id: { in: couriers.map((c) => c.adminUserId) }, role: 'courier', active: true },
+      select: { id: true, name: true, email: true },
+    });
+    const byId = new Map(admins.map((a) => [a.id, a.name ?? a.email]));
+    const items = couriers
+      .filter((c) => byId.has(c.adminUserId))
+      .map((c) => ({ id: c.id, name: byId.get(c.adminUserId) as string, phone: c.phone }))
+      .sort((x, y) => x.name.localeCompare(y.name, 'fr'));
+    return { items };
   }
 
   async assign(id: string, courierId: string) {

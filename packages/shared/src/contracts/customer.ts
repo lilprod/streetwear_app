@@ -238,6 +238,7 @@ export const QuoteSchema = z.object({
   deliveryFeeXof: xof,
   totalXof: xof,
   vatIncludedXof: xof,
+  codDepositXof: xof,
   estimatedReadyAt: isoDate,
   estimatedDeliveryAt: isoDate.nullable(),
 });
@@ -276,6 +277,8 @@ export const OrderSchema = z.object({
   reception: OrderReceptionSchema,
   history: z.array(OrderHistoryEntrySchema),
   expiresAt: isoDate.nullable(),
+  estimatedReadyAt: isoDate.nullable(),
+  estimatedDeliveryAt: isoDate.nullable(),
   createdAt: isoDate,
 });
 export const OrderSummarySchema = OrderSchema.pick({

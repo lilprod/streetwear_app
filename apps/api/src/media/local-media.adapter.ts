@@ -1,4 +1,5 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
+import { cloudinarySign } from './cloudinary-media.adapter';
 import {
   FONT_FORMATS,
   MAX_UPLOAD_BYTES,
@@ -12,18 +13,27 @@ import {
 export class LocalMediaAdapter implements MediaProvider {
   readonly objects = new Map<string, { data: Buffer; contentType: string }>();
 
-  constructor(private readonly baseUrl: string) {}
+  /** Clé de signature des uploads ; aléatoire par processus si aucune n'est fournie. */
+  readonly secret: string;
+
+  constructor(
+    private readonly baseUrl: string,
+    private readonly opts: { uploadUrl?: string; secret?: string } = {},
+  ) {
+    this.secret = opts.secret ?? randomBytes(32).toString('hex');
+  }
 
   signUpload(kind: MediaKind): UploadSignature {
     const folder = kind === 'pattern' ? 'patterns' : 'fonts';
     const publicId = `${folder}/${randomUUID()}`;
+    const timestamp = Math.floor(Date.now() / 1000);
     return {
-      uploadUrl: `${this.baseUrl}/upload`,
+      uploadUrl: this.opts.uploadUrl ?? '/v1/admin/media/upload',
       apiKey: 'local',
-      timestamp: Math.floor(Date.now() / 1000),
+      timestamp,
       folder,
       publicId,
-      signature: 'local-signature',
+      signature: cloudinarySign({ public_id: publicId, timestamp }, this.secret),
       resourceType: kind === 'pattern' ? 'image' : 'raw',
       allowedFormats: [...(kind === 'pattern' ? PATTERN_FORMATS : FONT_FORMATS)],
       maxBytes: MAX_UPLOAD_BYTES,
