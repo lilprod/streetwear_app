@@ -18,4 +18,4 @@ Mot de passe : `demo-password-12` · code TOTP : `123456`
 | livreur@streetwear.test    | courier       | pas de TOTP                      |
 | nouveau@streetwear.test    | order_manager | enrôlement TOTP au premier login |
 
-Passer à l'API de recette : `VITE_USE_MSW=false` et `VITE_API_URL` vers la recette.
+Passer à l'API réelle : `VITE_USE_MSW=false` et `VITE_API_URL` vide (même origine `/v1`). En local, Vite relaie `/v1` vers l'API (`API_PROXY_TARGET`, défaut `http://localhost:3000`) ; en recette et en production, le reverse proxy sert le back-office et l'API sur le même domaine (l'API n'active pas CORS).

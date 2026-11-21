@@ -17,6 +17,9 @@ Lisez les documents dans cet ordre. Les quatre premiers sont obligatoires pour t
 | 10 | [`design-system.md`](design-system.md) | Jetons visuels et composants issus des maquettes | Designer |
 | 11 | [`backlog.md`](backlog.md) | 34 user stories MVP avec critères d'acceptation | Chef de projet |
 | 12 | [`sous-projets/`](sous-projets/) | Une fiche par sous-projet (SP00 à SP12) avec son prompt de délégation | Chef de projet |
+| 13 | `qa/` | Recette (SP12) : plan de test, rapports de cohérence, sécurité et performance, protocoles, PV, anomalies, pilote (en cours de rédaction) | QA |
+
+Présentation générale et démarrage local : [`../README.md`](../README.md).
 
 ## Références externes au dépôt
 
@@ -30,8 +33,11 @@ Ces documents sont privés : demandez l'accès au chef de projet.
 
 | Sujet | Hypothèse retenue dans le code en attendant | Où elle vit |
 |---|---|---|
-| Agrégateur de paiement | Interface `PaymentProvider` + adaptateur factice ; PayGate Global ou CinetPay ensuite | SP05 |
+| Agrégateur de paiement | Interface `PaymentProvider` + adaptateur `fake` (refusé en production) ; un adaptateur réel s'ajoute dans `payments/providers/` | SP05 |
 | Prix de base, motif, texte | 8 500 / 1 500 / 1 000 FCFA, en base dans `price_rules`, jamais en dur | SP01, SP03 |
 | Technique d'impression | DTF, zone A3 (297 × 420 mm), PNG 300 DPI | `spec-design.md` |
 | Acompte paiement à la livraison | 50 %, paramètre `settings.cod_deposit_percent` | SP04, SP05 |
-| Fournisseur SMS | Interface `SmsProvider` + adaptateur console en dev | SP02, SP07 |
+| Fournisseur SMS | Interface `SmsProvider` + adaptateur console | SP02, SP07 |
+| Nom de marque dans les SMS | Variable `BRAND_NAME` (défaut `Streetwear`) | SP07 |
+| Carte de livraison (mobile) | Mode dégradé par quartiers tant qu'il n'y a pas de clé Google Maps Android | SP10 |
+| Annulation par le client, changement de moyen de paiement après échec | Non proposés | SP04, SP10 |
