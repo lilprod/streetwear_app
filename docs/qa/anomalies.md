@@ -1,8 +1,7 @@
 # Suivi des anomalies — Streetwear App
 
-Aucune anomalie n'est ouverte à la date de création de ce document (21/11/2026). Les anomalies
-détectées pendant la recette sont ajoutées ici. La ligne d'exemple ci-dessous est fictive et doit
-être supprimée dès la première anomalie réelle.
+Registre ouvert le 21/11/2026, alimenté le 22/11/2026 par les parties A, B et C de SP12
+(rapports `docs/qa/rapport-*.md`, `docs/qa/e2e.md`, section 7 de `docs/qa/plan-de-test.md`).
 
 ## Gravités
 
@@ -20,7 +19,20 @@ détectées pendant la recette sont ajoutées ici. La ligne d'exemple ci-dessous
 
 | ID | Date | Gravité | Titre | Étapes de reproduction | Attendu | Obtenu | Sous-projet responsable | Test qui échoue (chemin) | Statut |
 |---|---|---|---|---|---|---|---|---|---|
-| AN-EXEMPLE | 00/00/0000 | Majeure | EXEMPLE — à supprimer | 1. Ouvrir la fiche d'une commande. 2. Cliquer sur « Régénérer ». | Fichiers régénérés, bouton désactivé pendant le travail. | Message d'erreur en anglais, fichiers non régénérés. | SP11 | à compléter | ouverte |
+| AN-001 | 22/11/2026 | Majeure | Studio : pas de message « Motif indisponible » pour un brouillon dont le motif a été désactivé | 1. Créer un brouillon avec un motif. 2. Désactiver ce motif au back-office. 3. Rouvrir le brouillon dans le studio. | Le studio signale « Motif indisponible » et propose d'en choisir un autre (US-03). | Rien dans le studio ; seule la ligne du panier est signalée indisponible. | SP09 | à écrire | ouverte |
+| AN-002 | 22/11/2026 | Majeure | Pas de `trust proxy` : derrière le reverse proxy, tous les clients partagent les limites de débit | `qa/security/02-rate-limits.mjs` avec 12 en-têtes `X-Forwarded-For` distincts. | Un compteur par client réel (OTP 10/min, connexion admin 20/min). | Un seul compteur : l'IP du proxy. Un client abusif bloque l'OTP de tous. | SP00 / SP02 | `qa/security/02-rate-limits.mjs` | ouverte — à traiter avant le pilote |
+| AN-003 | 22/11/2026 | Majeure | L'expiration bloquait sur une commande incohérente (job rejoué indéfiniment, sans journal) | Voir `docs/qa/rapport-coherence.md`, A-COH-1. | Les autres commandes échues expirent ; l'erreur est journalisée. | 1 000 commandes échues non expirées pendant plus de 10 min. | SP04 | `apps/api/test/cart-orders.spec.ts` | corrigée |
+| AN-004 | 22/11/2026 | Majeure | Aucun en-tête de sécurité, `X-Powered-By: Express`, réponses authentifiées en cache | `qa/security/03-headers-cors.mjs`. | `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Cache-Control: no-store`, sans `X-Powered-By`. | Aucun de ces en-têtes. | SP00 | `apps/api/test/security-hardening.spec.ts` | corrigée |
+| AN-005 | 22/11/2026 | Majeure | Le masquage Sentry laissait passer téléphones, e-mails, noms, codes et jetons | `qa/security/04-sentry-scrub.mjs`. | Aucune donnée personnelle ni secret dans les événements Sentry. | Seules les clés exactes `phone`, `address`, `landmark` étaient masquées. | SP00 | `apps/api/test/security-hardening.spec.ts` | corrigée |
+| AN-006 | 22/11/2026 | Mineure | Une commande expirée laisse son paiement en `pending` | `qa/coherence/05-expiry.mjs` (C-EXP-1). | Paiement passé à `expired` avec la commande. | Paiement toujours `pending`. | SP05 / SP04 | `qa/results/coherence-exp-1.json` | ouverte — règle à décider |
+| AN-007 | 22/11/2026 | Mineure | Un succès fournisseur après un échec ou un écart de montant est ignoré (détecté seulement au rapprochement) | Voir `docs/qa/rapport-coherence.md`, A-COH-3. | Alerte immédiate (comme `payment.unexpected_success`). | Événement classé `duplicate`, sans alerte. | SP05 | à écrire | ouverte |
+| AN-008 | 22/11/2026 | Mineure | Corps de requête > 1 Mo : 500 au lieu de 413 | Envoyer un corps JSON de plus de 1 Mo. | 413 avec un message en français. | 500. | SP00 | `apps/api/test/security-hardening.spec.ts` | corrigée |
+| AN-009 | 22/11/2026 | Mineure | Limite « 100 req/min par IP » appliquée par route et en mémoire du processus | `qa/security/02-rate-limits.mjs`. | Limite globale par client, partagée entre instances (Redis). | Compteur par route, propre à chaque processus. | SP02 | `qa/security/02-rate-limits.mjs` | ouverte |
+| AN-010 | 22/11/2026 | Mineure | `/v1/docs` (Swagger) public en production | Ouvrir `/v1/docs` sur une API `NODE_ENV=production`. | Documentation désactivée ou protégée en production. | Accessible à tous. | SP00 | à écrire | ouverte |
+| AN-011 | 22/11/2026 | Mineure | Erreurs 5xx absentes de Sentry ; le worker ne journalise pas les jobs en échec | Provoquer une erreur serveur et un job BullMQ en échec. | Événement Sentry et ligne de journal. | Rien. | SP00 | à écrire | ouverte |
+| AN-012 | 22/11/2026 | Mineure | Expiration limitée à 200 commandes par minute | Voir `docs/qa/rapport-coherence.md`, A-COH-4. | Rattrapage d'un retard en une seule passe. | 200 par minute. | SP04 | — | ouverte |
+| AN-013 | 22/11/2026 | Mineure | Critères sans test : vignettes WebP ≤ 40 Ko (US-03), mot de passe admin ≥ 12 caractères (US-02), session client 30 jours (US-01) | Voir `docs/qa/plan-de-test.md`, section 7. | Un test par critère. | Aucun test nommé. | SP02 / SP03 | à écrire | ouverte |
+| AN-014 | 22/11/2026 | Mineure | README de l'API : les codes OTP ne s'affichent pas dans les journaux | Lire `apps/api/README.md`. | Instruction exacte pour lire les codes en local. | Instruction fausse. | SP02 | — | corrigée (`TEST_SMS_OUTBOX_FILE` documenté) |
 
 ## Règles de saisie
 

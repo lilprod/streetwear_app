@@ -134,4 +134,4 @@ Chaque sous-agent termine sa mission par ce message, et rien d'autre (une ligne 
 | SP09 | Terminé en mode mock — fluidité et appareils à vérifier sur téléphone | `ccr-beb850b2-5rmap5` | 20/10/2026 |
 | SP10 | Terminé (lots A et B ; 175 tests mobile ; 52 vérifications contre l'API réelle) ; jamais testé sur appareil | `ccr-beb850b2-5rmap5` | 12/11/2026 |
 | SP11 | Terminé (lots A, B, C ; 166 tests admin ; parcours Playwright contre l'API réelle) ; route stats et liste des livreurs à ajouter côté API | `ccr-beb850b2-5rmap5` | 13/11/2026 |
-| SP12 | À faire | | |
+| SP12 | Automatisable terminé (plan de test, Playwright 8/8, Maestro écrit, cohérence 13/14, rôles sans fuite, performance) ; 14 anomalies au registre ; appareils, atelier et pilote à mener | `ccr-beb850b2-5rmap5` | 22/11/2026 |

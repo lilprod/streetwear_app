@@ -21,9 +21,10 @@ Mise à jour : 08/11/2026, après la fusion de SP11 lot B.
 | SP10 Parcours mobile (lots A et B) | Fusionné (mode dégradé sans carte tant qu'il n'y a pas de clé Google Maps) |
 | SP11 Back-office (lots A, B, C) | Fusionné |
 | Lot API complémentaire | Fusionné |
-| **SP12 QA et recette** | **Prochaine étape** |
+| SP12 QA et recette (parties A, B, C) | Fusionnées le 22/11 ; recette sur appareil, atelier et pilote à mener |
+| **Lot de corrections SP12 (registre `docs/qa/anomalies.md`)** | **Prochaine étape** |
 
-Dernière vérification (base neuve) : API 415, shared 96, admin 167, mobile 177, mobile 18 tests, tout vert.
+Dernière vérification (base neuve) : API 425, shared 96, admin 167, mobile 187 ; Playwright 8/8, mobile 18 tests, tout vert.
 Branche unique autorisée : `ccr-beb850b2-5rmap5` (ne jamais pousser ailleurs).
 
 ## Procédure de délégation qui marche dans ce conteneur
@@ -110,6 +111,14 @@ Pour une fusion qui touche plusieurs branches API en même temps (schéma Prisma
 - **Jeu de démo de recette** : `pnpm --filter api db:seed:demo` (idempotent, refusé en production) ; comptes `<rôle>@demo.streetwear.local`, identifiants dans `apps/api/README.md` (démo locale uniquement) ; 10 commandes dans des statuts variés, sans lignes `payments` ni fichiers d'impression réels.
 - Tests API : `test/setup-env.ts` ne lit plus `.env` ; bases via `TEST_DATABASE_URL` / `TEST_REDIS_URL`, défauts `streetwear_test` et Redis base 1 (ceux de la CI).
 - Limites connues : l'upload local garde les fichiers en mémoire du processus (perdus au redémarrage) et lit le fichier avant de vérifier la signature (20 Mo max) ; jamais testé avec Cloudinary réel.
+
+## Après SP12 (22/11)
+
+- Recette : plan de test (`docs/qa/plan-de-test.md`), Playwright back-office `pnpm --filter admin e2e` (4 parcours, en CI à chaque PR), 5 flux Maestro jamais exécutés (`docs/qa/e2e.md` ; nocturne désactivé sans `MAESTRO_ENABLED` et compte EAS), scripts de cohérence, sécurité et charge dans `qa/` avec rapports `docs/qa/rapport-*.md`.
+- Résultats : 13/14 scénarios de cohérence conformes, zéro accès non autorisé (59 routes × 7 identités), p95 < 50 ms à 50 req/s sur la machine de test.
+- Registre des anomalies : `docs/qa/anomalies.md` (AN-001 à AN-014). Avant le pilote : AN-001 (motif indisponible dans le studio), AN-002 (`trust proxy`).
+- « Commande de groupe » = un design en plusieurs tailles, un panier, un paiement (décision du 22/11) ; commandes collectives hors MVP.
+- En local : `TEST_SMS_OUTBOX_FILE` écrit les SMS dans un fichier (refusé en production) ; les agents ne peuvent pas pousser eux-mêmes (permission refusée) : le lead pousse leurs sauvegardes sur `ccr-beb850b2-5rmap5-wip-*`.
 
 ## Modèles des agents
 

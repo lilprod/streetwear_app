@@ -25,6 +25,7 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | HTTP | `code` | Sens |
 |---|---|---|
 | 400 | `VALIDATION_FAILED` | Corps ou paramètres invalides ; `details` = erreurs Zod aplaties |
+| 413 | `VALIDATION_FAILED` | Corps de requête trop volumineux (plus de 1 Mo, hors upload de médias) |
 | 401 | `UNAUTHENTICATED` | Jeton absent, expiré ou invalide |
 | 403 | `FORBIDDEN` | Rôle insuffisant |
 | 404 | `NOT_FOUND` | Ressource absente ou non visible par l'appelant |
