@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { SensitiveThrottle } from '../../common/rate-limit';
 import {
   AdminLoginInputSchema,
   AdminTotpInputSchema,
@@ -13,12 +13,7 @@ import { ZodPipe } from '../../common/zod.pipe';
 import { AdminAuthService } from './admin-auth.service';
 import { Public } from './roles.decorator';
 
-const loginThrottle = {
-  default: {
-    limit: () => Number(process.env.RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE) || 20,
-    ttl: 60_000,
-  },
-};
+const loginThrottle = () => Number(process.env.RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE) || 20;
 
 @ApiTags('admin-auth')
 @Public()
@@ -28,21 +23,21 @@ export class AdminAuthController {
 
   @Post('login')
   @HttpCode(200)
-  @Throttle(loginThrottle)
+  @SensitiveThrottle(loginThrottle)
   login(@Body(new ZodPipe(AdminLoginInputSchema)) body: AdminLoginInput) {
     return this.auth.login(body.email, body.password);
   }
 
   @Post('totp')
   @HttpCode(200)
-  @Throttle(loginThrottle)
+  @SensitiveThrottle(loginThrottle)
   totp(@Body(new ZodPipe(AdminTotpInputSchema)) body: AdminTotpInput) {
     return this.auth.verifyTotp(body.challenge, body.code);
   }
 
   @Post('refresh')
   @HttpCode(200)
-  @Throttle(loginThrottle)
+  @SensitiveThrottle(loginThrottle)
   refresh(@Body(new ZodPipe(RefreshInputSchema)) body: RefreshInput) {
     return this.auth.refresh(body.refreshToken);
   }

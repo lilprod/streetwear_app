@@ -1,24 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { createApp } from './helpers';
-
-async function withEnv<T>(vars: Record<string, string>, fn: () => Promise<T>): Promise<T> {
-  const saved = Object.fromEntries(Object.keys(vars).map((k) => [k, process.env[k]]));
-  Object.assign(process.env, vars);
-  try {
-    return await fn();
-  } finally {
-    for (const [k, v] of Object.entries(saved)) {
-      if (v === undefined) Reflect.deleteProperty(process.env, k);
-      else process.env[k] = v;
-    }
-  }
-}
-
-let seq = 0;
-const nextPhone = (): string => `+22891${String(100_000 + ++seq + (Date.now() % 800_000))}`;
-const uniqueIp = (): string =>
-  `10.${Date.now() % 250}.${Math.floor(Math.random() * 250)}.${++seq % 250}`;
+import { nextPhone, uniqueIp, withEnv } from './with-env';
 
 describe('rate limits per real client (AN-002)', () => {
   const otp = (app: INestApplication, ip: string) =>
