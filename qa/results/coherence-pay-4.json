@@ -1,0 +1,77 @@
+{
+  "id": "C-PAY-4",
+  "title": "Deux paiements (clés différentes, >2 min d’écart) qui réussissent tous deux chez l’agrégateur",
+  "ok": true,
+  "ms": 2968,
+  "checks": [
+    {
+      "label": "second paiement accepté après 2 min",
+      "expected": 201,
+      "obtained": 201,
+      "ok": true
+    },
+    {
+      "label": "premier paiement passé en expired (superseded)",
+      "expected": "expired",
+      "obtained": "expired",
+      "ok": true
+    },
+    {
+      "label": "commande payée par le premier succès",
+      "expected": "paid",
+      "obtained": "paid",
+      "ok": true
+    },
+    {
+      "label": "second succès : 200",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "commande toujours payée, une seule fois",
+      "expected": "1",
+      "obtained": "1",
+      "ok": true
+    },
+    {
+      "label": "stock sorti une seule fois (9/0)",
+      "expected": "9/0",
+      "obtained": "9/0",
+      "ok": true
+    },
+    {
+      "label": "second paiement tracé : succeeded + order_not_payable (à rembourser)",
+      "expected": ["succeeded", "order_not_payable"],
+      "obtained": ["succeeded", "order_not_payable"],
+      "ok": true
+    },
+    {
+      "label": "événement unexpected_success",
+      "expected": "unexpected_success",
+      "obtained": "unexpected_success",
+      "ok": true
+    },
+    {
+      "label": "alerte e-mail payment.unexpected_success créée pour l’équipe",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "transitions paid",
+      "query": "SELECT count(*) FROM order_status_history WHERE order_id='01a1fd1e-f074-78e8-a06d-0064488057ca' AND to_status='paid'",
+      "rows": [["1"]]
+    },
+    {
+      "label": "payments",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd1e-f10b-7d31-a431-07719adc4f11'",
+      "rows": [["succeeded", "order_not_payable"]]
+    }
+  ],
+  "notes": [
+    "Premier paiement en scénario never_approved (getStatus reste pending) : sans cela le filet getStatus (>60 s) confirme le premier paiement et refuse le second, ce qui est le comportement sûr."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "id": "C-EXP-3",
+  "title": "Paiement réussi sur commande expirée : payment.unexpected_success, aucune production",
+  "ok": true,
+  "ms": 58495,
+  "checks": [
+    {
+      "label": "webhook de succès sur commande expirée : 200",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "commande reste expired (jamais payée)",
+      "expected": "expired",
+      "obtained": "expired",
+      "ok": true
+    },
+    {
+      "label": "outcome unexpected_success",
+      "expected": "unexpected_success",
+      "obtained": "unexpected_success",
+      "ok": true
+    },
+    {
+      "label": "paiement tracé succeeded + order_not_payable (remboursement manuel)",
+      "expected": ["succeeded", "order_not_payable"],
+      "obtained": ["succeeded", "order_not_payable"],
+      "ok": true
+    },
+    {
+      "label": "aucune sortie de stock pour A",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    },
+    {
+      "label": "aucun job de production",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    },
+    {
+      "label": "alerte équipe payment.unexpected_success en file / envoyée",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "paiement",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd34-9eb8-7170-9995-5af1d2647a10'",
+      "rows": [["succeeded", "order_not_payable"]]
+    },
+    {
+      "label": "out",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND type='out'",
+      "rows": [["0"]]
+    },
+    {
+      "label": "production",
+      "query": "SELECT count(*) FROM production_jobs WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55'",
+      "rows": [["0"]]
+    }
+  ],
+  "notes": []
+}

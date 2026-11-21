@@ -1,0 +1,42 @@
+{
+  "id": "S-HDR-3",
+  "title": "Fuites d’informations et limites de corps",
+  "ok": true,
+  "ms": 17,
+  "checks": [
+    {
+      "label": "corps de 1,2 Mo : 413 (limite 1 Mo)",
+      "expected": 413,
+      "obtained": 413,
+      "ok": true
+    },
+    {
+      "label": "JSON invalide : 400 sans trace de pile",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "route inconnue : 404 au format { error }",
+      "expected": "NOT_FOUND",
+      "obtained": "NOT_FOUND",
+      "ok": true
+    },
+    {
+      "label": "paramètre invalide : pas de trace SQL / Prisma dans la réponse",
+      "expected": false,
+      "obtained": false,
+      "ok": true
+    },
+    {
+      "label": "/v1/docs désactivable en production",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": [
+    "/v1/docs (Swagger UI) répond 200 sans authentification et sans condition d’environnement : à désactiver ou protéger en production (mineure)."
+  ]
+}

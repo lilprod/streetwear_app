@@ -1,0 +1,95 @@
+{
+  "id": "S-LOGS-1",
+  "title": "Données personnelles et secrets dans les journaux API et worker",
+  "ok": true,
+  "ms": 109,
+  "checks": [
+    {
+      "label": "téléphone E.164 complet (+228 + 8 chiffres) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "téléphone local 8 chiffres (9x…, 7x…) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "code OTP / retrait / remise (« code » suivi de 4 à 8 chiffres) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "jeton JWT (eyJ…) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "en-tête Authorization en clair : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "e-mail d’un client (hors comptes démo équipe) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "coordonnées GPS dans une URL (lat=…&lng=…) : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "mot de passe démo : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "secret TOTP démo : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "valeur d’un secret du .env : occurrences",
+      "expected": 0,
+      "obtained": 0,
+      "ok": true
+    },
+    {
+      "label": "notifications.payload sans code",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    },
+    {
+      "label": "payment_events sans numéro complet",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "notifications.payload contenant un code à 4-8 chiffres",
+      "query": "SELECT count(*) FROM notifications WHERE payload::text ~ '(?i)code[^,}]*[0-9]{4,8}'",
+      "rows": [["0"]]
+    },
+    {
+      "label": "payment_events.raw_body contenant un numéro E.164 complet",
+      "query": "SELECT count(*) FROM payment_events WHERE raw_body ~ '\\+228[0-9]{8}'",
+      "rows": [["0"]]
+    }
+  ],
+  "notes": [
+    "4 fichiers (api-3100.log, api-3101.log, worker-3100.log, worker-3101.log), 1712 lignes analysées"
+  ]
+}

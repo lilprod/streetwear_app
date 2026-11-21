@@ -1,0 +1,28 @@
+{
+  "id": "S-RATE-5",
+  "title": "Connexion admin : plafond par IP (20/min)",
+  "ok": true,
+  "ms": 1240,
+  "checks": [
+    {
+      "label": "25 tentatives : 20 × 401 puis 5 × 429",
+      "expected": {
+        "401": 20,
+        "429": 5
+      },
+      "obtained": {
+        "401": 20,
+        "429": 5
+      },
+      "ok": true
+    },
+    {
+      "label": "code 429",
+      "expected": "RATE_LIMITED",
+      "obtained": "RATE_LIMITED",
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

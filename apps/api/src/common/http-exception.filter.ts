@@ -28,15 +28,31 @@ const MESSAGES: Record<number, string> = {
   503: 'Service momentanément indisponible.',
 };
 
+/** Erreurs de body-parser (corps > limite : 413, JSON illisible : 400), qui ne sont pas des HttpException. */
+function bodyParserStatus(e: unknown): number | undefined {
+  if (!e || typeof e !== 'object' || e instanceof HttpException) return undefined;
+  const { type, status } = e as { type?: unknown; status?: unknown };
+  const isParser = typeof type === 'string' && type.startsWith('entity.');
+  return isParser && typeof status === 'number' && status >= 400 && status < 500
+    ? status
+    : undefined;
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger('Exceptions');
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const res = host.switchToHttp().getResponse<Response>();
-    const status = exception instanceof HttpException ? exception.getStatus() : 500;
-    let code = CODES[status] ?? 'INTERNAL_ERROR';
-    let message = MESSAGES[status] ?? 'Une erreur est survenue. Réessayez plus tard.';
+    const parserStatus = bodyParserStatus(exception);
+    const status =
+      parserStatus ?? (exception instanceof HttpException ? exception.getStatus() : 500);
+    let code = CODES[status] ?? (parserStatus ? 'VALIDATION_FAILED' : 'INTERNAL_ERROR');
+    let message =
+      MESSAGES[status] ??
+      (parserStatus
+        ? 'Corps de requête invalide ou trop volumineux.'
+        : 'Une erreur est survenue. Réessayez plus tard.');
     let details: unknown;
 
     if (status >= 500 && !(exception instanceof HttpException)) {

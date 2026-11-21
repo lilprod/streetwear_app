@@ -1,0 +1,514 @@
+[
+  {
+    "method": "GET",
+    "path": "/admin/audit-logs",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AuditController",
+    "handler": "list"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/auth/login",
+    "roles": null,
+    "public": true,
+    "controller": "AdminAuthController",
+    "handler": "login"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/auth/logout",
+    "roles": null,
+    "public": true,
+    "controller": "AdminAuthController",
+    "handler": "logout"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/auth/refresh",
+    "roles": null,
+    "public": true,
+    "controller": "AdminAuthController",
+    "handler": "refresh"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/auth/totp",
+    "roles": null,
+    "public": true,
+    "controller": "AdminAuthController",
+    "handler": "totp"
+  },
+  {
+    "method": "DELETE",
+    "path": "/admin/banned-words/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "deleteBannedWord"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/banned-words",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "bannedWords"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/banned-words",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createBannedWord"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/colors/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "updateColor"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/colors",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "colors"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/colors",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createColor"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/couriers",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "couriers"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/deliveries/:id/assign",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "assign"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/deliveries",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "deliveries"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/delivery-zones/:id",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "updateZone"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/delivery-zones",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "zones"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/delivery-zones",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "createZone"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/fonts/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "updateFont"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/fonts",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "fonts"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/fonts",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createFont"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/media/upload-signature",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "signature"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/media/upload",
+    "roles": null,
+    "public": true,
+    "controller": "MediaUploadController",
+    "handler": "upload"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/notification-templates",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "NotificationTemplatesController",
+    "handler": "list"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/notification-templates",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "NotificationTemplatesController",
+    "handler": "update"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/operators",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "operators"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/order-items/:id/print-files/regenerate",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "regenerate"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/order-items/:id/print-files",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "printFiles"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/orders/:id/assign-operator",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "assignOperator"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/orders/:id/production-sheet.pdf",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "sheet"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/orders/:id/transitions",
+    "roles": ["order_manager", "production", "logistics", "super_admin"],
+    "public": false,
+    "controller": "AdminOrdersController",
+    "handler": "transition"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/orders/:id",
+    "roles": ["order_manager", "production", "logistics", "super_admin"],
+    "public": false,
+    "controller": "AdminOrdersController",
+    "handler": "get"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/orders/counts",
+    "roles": ["order_manager", "production", "logistics", "super_admin"],
+    "public": false,
+    "controller": "AdminOrdersController",
+    "handler": "counts"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/orders",
+    "roles": ["order_manager", "production", "logistics", "super_admin"],
+    "public": false,
+    "controller": "AdminOrdersController",
+    "handler": "list"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/pattern-categories/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "updateCategory"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/pattern-categories",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "categories"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/pattern-categories",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createCategory"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/patterns/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "updatePattern"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/patterns",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "patterns"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/patterns",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createPattern"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/payments",
+    "roles": ["order_manager", "super_admin"],
+    "public": false,
+    "controller": "AdminPaymentsController",
+    "handler": "list"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/price-rules",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "priceRules"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/price-rules",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "updatePriceRules"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/price-rules",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminCatalogController",
+    "handler": "createPriceRules"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/production/queue",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "ProductionController",
+    "handler": "queue"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/reconciliations",
+    "roles": ["order_manager", "super_admin"],
+    "public": false,
+    "controller": "AdminPaymentsController",
+    "handler": "listReconciliations"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/settings",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "SettingsController",
+    "handler": "list"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/settings",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "SettingsController",
+    "handler": "update"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/stats/summary",
+    "roles": ["order_manager", "super_admin"],
+    "public": false,
+    "controller": "AdminStatsController",
+    "handler": "summary"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/stock/:id",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "StockAdminController",
+    "handler": "threshold"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/stock/movements",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "StockAdminController",
+    "handler": "move"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/stock",
+    "roles": ["production", "super_admin"],
+    "public": false,
+    "controller": "StockAdminController",
+    "handler": "list"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/stores/:id/slots/:slotId",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "updateSlot"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/stores/:id/slots",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "slots"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/stores/:id/slots",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "generate"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/stores/:id",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "updateStore"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/stores",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "stores"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/stores",
+    "roles": ["logistics", "super_admin"],
+    "public": false,
+    "controller": "DeliveryAdminController",
+    "handler": "createStore"
+  },
+  {
+    "method": "PATCH",
+    "path": "/admin/users/:id",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminUsersController",
+    "handler": "update"
+  },
+  {
+    "method": "GET",
+    "path": "/admin/users",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminUsersController",
+    "handler": "list"
+  },
+  {
+    "method": "POST",
+    "path": "/admin/users",
+    "roles": ["super_admin"],
+    "public": false,
+    "controller": "AdminUsersController",
+    "handler": "create"
+  },
+  {
+    "method": "POST",
+    "path": "/courier/deliveries/:id/complete",
+    "roles": ["courier"],
+    "public": false,
+    "controller": "CourierController",
+    "handler": "complete"
+  },
+  {
+    "method": "POST",
+    "path": "/courier/deliveries/:id/fail",
+    "roles": ["courier"],
+    "public": false,
+    "controller": "CourierController",
+    "handler": "fail"
+  },
+  {
+    "method": "POST",
+    "path": "/courier/deliveries/:id/start",
+    "roles": ["courier"],
+    "public": false,
+    "controller": "CourierController",
+    "handler": "start"
+  },
+  {
+    "method": "GET",
+    "path": "/courier/deliveries",
+    "roles": ["courier"],
+    "public": false,
+    "controller": "CourierController",
+    "handler": "list"
+  }
+]

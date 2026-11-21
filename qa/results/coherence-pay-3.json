@@ -1,0 +1,34 @@
+{
+  "id": "C-PAY-3",
+  "title": "Paiement sur commande déjà payée refusé ; clé neuve, même commande",
+  "ok": true,
+  "ms": 520,
+  "checks": [
+    {
+      "label": "409 ORDER_NOT_PAYABLE",
+      "expected": [409, "ORDER_NOT_PAYABLE"],
+      "obtained": [409, "ORDER_NOT_PAYABLE"],
+      "ok": true
+    },
+    {
+      "label": "un seul paiement en base",
+      "expected": "1",
+      "obtained": "1",
+      "ok": true
+    },
+    {
+      "label": "rejeu de la clé d’origine : même réponse (pas de nouveau débit)",
+      "expected": [201, "01a1fd1e-ee33-7132-8f37-073804c22a9e"],
+      "obtained": [201, "01a1fd1e-ee33-7132-8f37-073804c22a9e"],
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "payments",
+      "query": "SELECT count(*) FROM payments WHERE order_id='01a1fd1e-ee16-75d0-9138-8d905255395b'",
+      "rows": [["1"]]
+    }
+  ],
+  "notes": []
+}

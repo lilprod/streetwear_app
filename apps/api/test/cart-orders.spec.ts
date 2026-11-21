@@ -531,6 +531,35 @@ describe('SP04 cart and customer orders', () => {
       ).rejects.toMatchObject({ status: 409 });
     });
 
+    it('keeps expiring the other orders when one order cannot be expired (no head-of-line blocking)', async () => {
+      await t.setStock('col-blanc', 'M', 2);
+      await t.setStock('col-blanc', 'L', 2);
+      const created = new Date(Date.now() - 2 * 60 * 60_000);
+      const make = async (size: 'M' | 'L') => {
+        const s = await t.shopper({ colorId: 'col-blanc', size, quantity: 1 });
+        const slot = await t.slot(1);
+        return orders.create(
+          s.id,
+          {
+            reception: { type: 'pickup', storeId: FIXTURE_STORE.id, slotId: slot.id },
+            paymentMethod: 'tmoney',
+          },
+          uuidv7(),
+          created,
+        );
+      };
+      const poisoned = await make('M');
+      const healthy = await make('L');
+      await t.prisma
+        .$executeRaw`UPDATE stock_items SET reserved = 0 WHERE color_id = 'col-blanc' AND size = 'M'`;
+      const n = await orders.expireDue(new Date(created.getTime() + 30 * 60_000));
+      expect(n).toBeGreaterThanOrEqual(1);
+      const status = async (id: string) =>
+        (await t.prisma.order.findUniqueOrThrow({ where: { id } })).status;
+      expect(await status(poisoned.id)).toBe('pending_payment');
+      expect(await status(healthy.id)).toBe('expired');
+    });
+
     it('also expires failed-payment orders past their deadline, releasing stock and slot', async () => {
       await t.setStock('col-blanc', 'S', 2);
       const s = await t.shopper({ colorId: 'col-blanc', size: 'S', quantity: 2 });

@@ -1,0 +1,131 @@
+{
+  "id": "C-EXP-1",
+  "title": "Commande non payée → expired : stock et créneau libérés",
+  "ok": false,
+  "ms": 58494,
+  "checks": [
+    {
+      "label": "réglage order_expiry_minutes=5 accepté",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "expires_at = création + 5 min (réglage appliqué)",
+      "expected": "5",
+      "obtained": "5",
+      "ok": true
+    },
+    {
+      "label": "avant expiration : stock 1/1",
+      "expected": "1/1",
+      "obtained": "1/1",
+      "ok": true
+    },
+    {
+      "label": "avant expiration : 2e client refusé (OUT_OF_STOCK)",
+      "expected": [409, "OUT_OF_STOCK"],
+      "obtained": [409, "OUT_OF_STOCK"],
+      "ok": true
+    },
+    {
+      "label": "avant expiration : créneau complet pour un autre client (SLOT_FULL)",
+      "expected": [409, "SLOT_FULL"],
+      "obtained": [409, "SLOT_FULL"],
+      "ok": true
+    },
+    {
+      "label": "créneau A réservé (1/1)",
+      "expected": ["1", "1"],
+      "obtained": ["1", "1"],
+      "ok": true
+    },
+    {
+      "label": "A et B passent en expired par le worker (≤ 130 s)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "A : stock libéré (1/0)",
+      "expected": "1/0",
+      "obtained": "1/0",
+      "ok": true
+    },
+    {
+      "label": "A : créneau libéré (0/1)",
+      "expected": ["0", "1"],
+      "obtained": ["0", "1"],
+      "ok": true
+    },
+    {
+      "label": "A : mouvements reserve puis release",
+      "expected": [
+        ["reserve", "1"],
+        ["release", "1"]
+      ],
+      "obtained": [
+        ["reserve", "1"],
+        ["release", "1"]
+      ],
+      "ok": true
+    },
+    {
+      "label": "A : historique par le système",
+      "expected": ["pending_payment", "expired", "system"],
+      "obtained": ["pending_payment", "expired", "system"],
+      "ok": true
+    },
+    {
+      "label": "A : aucun pickup résiduel",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    },
+    {
+      "label": "A : paiement pending → expired",
+      "expected": "expired",
+      "obtained": "pending",
+      "ok": false
+    },
+    {
+      "label": "un nouveau client obtient la dernière unité et le créneau libérés",
+      "expected": 201,
+      "obtained": 201,
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "créneau",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
+      "rows": [["1", "1"]]
+    },
+    {
+      "label": "créneau",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
+      "rows": [["0", "1"]]
+    },
+    {
+      "label": "mouvements A",
+      "query": "SELECT type, sum(quantity) FROM stock_movements WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' GROUP BY type ORDER BY min(created_at)",
+      "rows": [
+        ["reserve", "1"],
+        ["release", "1"]
+      ]
+    },
+    {
+      "label": "historique A",
+      "query": "SELECT from_status, to_status, actor_type FROM order_status_history WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND to_status='expired'",
+      "rows": [["pending_payment", "expired", "system"]]
+    },
+    {
+      "label": "pickups",
+      "query": "SELECT count(*) FROM pickups p WHERE p.order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND p.slot_id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
+      "rows": [["0"]]
+    }
+  ],
+  "notes": [
+    "Accélération de test : expires_at avancé en SQL (l’échéance à +5 min a été vérifiée juste avant)."
+  ]
+}

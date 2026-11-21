@@ -1,0 +1,14 @@
+{
+  "name": "streetwear-qa",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Scripts de recette SP12 partie B (cohérence, sécurité, performance) contre l'API compilée. Hors workspace pnpm : aucune dépendance, Node 22 seulement.",
+  "scripts": {
+    "stack:start": "bash stack.sh start",
+    "stack:stop": "bash stack.sh stop",
+    "coherence": "node coherence/run.mjs",
+    "security": "node security/run.mjs",
+    "perf": "bash perf/run.sh"
+  }
+}

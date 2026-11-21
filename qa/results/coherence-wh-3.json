@@ -1,0 +1,169 @@
+{
+  "id": "C-WH-3",
+  "title": "Webhooks falsifiés : signature, corps modifié, montant, fournisseur, JSON",
+  "ok": true,
+  "ms": 3346,
+  "checks": [
+    {
+      "label": "mauvais secret : 401 UNAUTHENTICATED",
+      "expected": [401, "UNAUTHENTICATED"],
+      "obtained": [401, "UNAUTHENTICATED"],
+      "ok": true
+    },
+    {
+      "label": "corps modifié après signature : 401",
+      "expected": 401,
+      "obtained": 401,
+      "ok": true
+    },
+    {
+      "label": "signature absente : 401",
+      "expected": 401,
+      "obtained": 401,
+      "ok": true
+    },
+    {
+      "label": "signature mal formée : 401",
+      "expected": 401,
+      "obtained": 401,
+      "ok": true
+    },
+    {
+      "label": "agrégateur inconnu : 404",
+      "expected": 404,
+      "obtained": 404,
+      "ok": true
+    },
+    {
+      "label": "commande toujours en attente après 5 rejets",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "aucune sortie de stock",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    },
+    {
+      "label": "les 4 rejets portant la référence sont conservés (rejected, signature invalide) ; le 5e (agrégateur inconnu) l’est sans référence",
+      "expected": [
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"]
+      ],
+      "obtained": [
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"]
+      ],
+      "ok": true
+    },
+    {
+      "label": "montant 1 XOF signé : 200 (accusé) mais non crédité",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "commande NON payée",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "paiement échoué pour amount_mismatch",
+      "expected": ["failed", "amount_mismatch"],
+      "obtained": ["failed", "amount_mismatch"],
+      "ok": true
+    },
+    {
+      "label": "événement amount_mismatch enregistré",
+      "expected": "amount_mismatch",
+      "obtained": "amount_mismatch",
+      "ok": true
+    },
+    {
+      "label": "alerte équipe créée (payment.amount_mismatch)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "montant supérieur : commande NON payée",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "référence inconnue : 200 et ignorée",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "outcome unknown_payment",
+      "expected": "unknown_payment",
+      "obtained": "unknown_payment",
+      "ok": true
+    },
+    {
+      "label": "devise EUR : commande NON payée",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "JSON invalide mais signé : 200 sans effet (malformed)",
+      "expected": 200,
+      "obtained": 200,
+      "ok": true
+    },
+    {
+      "label": "outcome malformed",
+      "expected": "malformed",
+      "obtained": "malformed",
+      "ok": true
+    },
+    {
+      "label": "échec fournisseur : commande payment_failed",
+      "expected": "payment_failed",
+      "obtained": "payment_failed",
+      "ok": true
+    },
+    {
+      "label": "succès tardif sur paiement déjà échoué : ignoré (duplicate), commande reste payment_failed",
+      "expected": "payment_failed",
+      "obtained": "payment_failed",
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "out",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd35-bc31-7100-9a6c-5f194c1cbbb6' AND type='out'",
+      "rows": [["0"]]
+    },
+    {
+      "label": "événements rejetés",
+      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_49b71d05056f439d934142edeca2ed6a' ORDER BY received_at",
+      "rows": [
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"],
+        ["rejected", "f"]
+      ]
+    },
+    {
+      "label": "paiement",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd35-bc52-79e7-9206-c4c23ac84645'",
+      "rows": [["failed", "amount_mismatch"]]
+    }
+  ],
+  "notes": [
+    "Succès tardif après échec : le paiement terminal « failed » n’est pas rouvert ; si le client a réellement été débité, seul le rapprochement quotidien (reconciliation.mismatch) le révèle."
+  ]
+}

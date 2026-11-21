@@ -1,0 +1,68 @@
+{
+  "id": "C-WH-2",
+  "title": "10 webhooks identiques simultanés : un seul traité",
+  "ok": true,
+  "ms": 671,
+  "checks": [
+    {
+      "label": "10 réponses 200",
+      "expected": 10,
+      "obtained": 10,
+      "ok": true
+    },
+    {
+      "label": "1 processed + 9 duplicate",
+      "expected": {
+        "processed": 1,
+        "duplicate": 9
+      },
+      "obtained": {
+        "processed": 1,
+        "duplicate": 9
+      },
+      "ok": true
+    },
+    {
+      "label": "commande payée",
+      "expected": "paid",
+      "obtained": "paid",
+      "ok": true
+    },
+    {
+      "label": "stock 9/0",
+      "expected": "9/0",
+      "obtained": "9/0",
+      "ok": true
+    },
+    {
+      "label": "un seul mouvement out",
+      "expected": "1",
+      "obtained": "1",
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "payment_events",
+      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_4467a966462549da956b2a233ddfc1eb' ORDER BY received_at",
+      "rows": [
+        ["processed", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"],
+        ["duplicate", "t"]
+      ]
+    },
+    {
+      "label": "out",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd35-b977-739c-8ded-36b71063f0e0' AND type='out'",
+      "rows": [["1"]]
+    }
+  ],
+  "notes": []
+}
