@@ -2,7 +2,7 @@
   "id": "S-RATE-3",
   "title": "OTP : plafond par IP (10/min) et dépendance au proxy inverse",
   "ok": true,
-  "ms": 74,
+  "ms": 99,
   "checks": [
     {
       "label": "12 demandes de 12 numéros distincts, 12 X-Forwarded-For distincts : 10 × 204 puis 429",

@@ -9,7 +9,7 @@ const LOGS = join(QA_DIR, 'results/logs');
 
 const PATTERNS = {
   'téléphone E.164 complet (+228 + 8 chiffres)': /\+228\s?\d{8}\b/g,
-  'téléphone local 8 chiffres (9x…, 7x…)': /(?<![\d.])[79]\d{7}(?![\d.])/g,
+  'téléphone local 8 chiffres (9x…, 7x…)': /(?<![0-9a-fA-F.-])[79]\d{7}(?![0-9a-fA-F.-])/g,
   'code OTP / retrait / remise (« code » suivi de 4 à 8 chiffres)':
     /code[^\n"]{0,20}?(?<![\d.])\d{4,8}(?![\d.])/gi,
   'jeton JWT (eyJ…)': /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g,

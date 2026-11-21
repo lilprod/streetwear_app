@@ -2,7 +2,7 @@
   "id": "S-HDR-1",
   "title": "En-têtes de sécurité portés par l’API (helmet ou équivalent)",
   "ok": true,
-  "ms": 66,
+  "ms": 12,
   "checks": [
     {
       "label": "GET /health (200) : X-Content-Type-Options",

@@ -1,8 +1,8 @@
-date: 2026-11-21T03:15:14Z
+date: 2026-11-21T07:52:04Z
 nproc: 4
 model name	: Intel(R) Xeon(R) Processor @ 2.10GHz
                total        used        free      shared  buff/cache   available
-Mem:           16087        2202        6531         100        7779       13885
+Mem:           16087        5142       10024          34        1232       10945
 node: v22.23.5
 k6: k6 v0.54.0 (commit/baba871c8a, go1.23.1, linux/amd64)
 postgres: psql (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)

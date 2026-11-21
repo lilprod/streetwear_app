@@ -57,7 +57,7 @@ const PUBLIC = [
 
 export default function () {
   if (SCENARIO === 'orders') {
-    const i = exec.scenario.iterationInTest % fx.tokens.length;
+    const i = (Number(__ENV.OFFSET || 0) + exec.scenario.iterationInTest) % fx.tokens.length;
     const res = http.post(
       `${BASE}/orders`,
       JSON.stringify({

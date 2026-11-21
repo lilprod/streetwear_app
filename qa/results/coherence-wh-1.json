@@ -2,7 +2,7 @@
   "id": "C-WH-1",
   "title": "Webhook de succès rejoué 3 fois : une seule transition, un seul mouvement de stock",
   "ok": true,
-  "ms": 3426,
+  "ms": 3362,
   "checks": [
     {
       "label": "3 réponses 200",
@@ -70,7 +70,7 @@
   "sql": [
     {
       "label": "payment_events",
-      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_c759705a50154fd2aa29536cc2fdfefb' ORDER BY received_at",
+      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_3c0b78dff25c4a67828039f8eb95bcbb' ORDER BY received_at",
       "rows": [
         ["processed", "t"],
         ["duplicate", "t"],
@@ -79,7 +79,7 @@
     },
     {
       "label": "mouvements",
-      "query": "SELECT type, sum(quantity) FROM stock_movements WHERE order_id='01a1fc0b-121e-7d16-aa19-7802cfa758f0' GROUP BY type ORDER BY type",
+      "query": "SELECT type, sum(quantity) FROM stock_movements WHERE order_id='01a1fd35-acb0-7e05-b452-ec74cac5f2c2' GROUP BY type ORDER BY type",
       "rows": [
         ["reserve", "1"],
         ["out", "1"]
@@ -87,17 +87,17 @@
     },
     {
       "label": "historique",
-      "query": "SELECT count(*) FROM order_status_history WHERE order_id='01a1fc0b-121e-7d16-aa19-7802cfa758f0' AND to_status='paid'",
+      "query": "SELECT count(*) FROM order_status_history WHERE order_id='01a1fd35-acb0-7e05-b452-ec74cac5f2c2' AND to_status='paid'",
       "rows": [["1"]]
     },
     {
       "label": "production_jobs",
-      "query": "SELECT count(*) FROM production_jobs WHERE order_id='01a1fc0b-121e-7d16-aa19-7802cfa758f0'",
+      "query": "SELECT count(*) FROM production_jobs WHERE order_id='01a1fd35-acb0-7e05-b452-ec74cac5f2c2'",
       "rows": [["1"]]
     },
     {
       "label": "payments",
-      "query": "SELECT status, count(*) FROM payments WHERE order_id='01a1fc0b-121e-7d16-aa19-7802cfa758f0' GROUP BY status",
+      "query": "SELECT status, count(*) FROM payments WHERE order_id='01a1fd35-acb0-7e05-b452-ec74cac5f2c2' GROUP BY status",
       "rows": [["succeeded", "1"]]
     }
   ],

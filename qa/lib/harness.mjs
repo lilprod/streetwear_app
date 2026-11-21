@@ -259,6 +259,15 @@ export function makeSlot(capacity) {
 }
 
 // ---- Compte rendu de scénario -------------------------------------------------------------------
+/** JSON à clés triées : l'ordre des clés d'un objet n'a pas de sens. */
+function stable(v) {
+  return JSON.stringify(v, (_k, x) =>
+    x && typeof x === 'object' && !Array.isArray(x)
+      ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b)))
+      : x,
+  );
+}
+
 export class Scenario {
   constructor(id, title) {
     this.id = id;
@@ -270,7 +279,7 @@ export class Scenario {
   }
   /** Compare attendu et obtenu (JSON) ; une anomalie ne masque pas la suite. */
   expect(label, expected, obtained) {
-    const ok = JSON.stringify(expected) === JSON.stringify(obtained);
+    const ok = stable(expected) === stable(obtained);
     this.checks.push({ label, expected, obtained, ok });
     console.log(
       `  ${ok ? 'OK ' : 'KO '} ${label} — attendu ${JSON.stringify(expected)}, obtenu ${JSON.stringify(obtained)}`,

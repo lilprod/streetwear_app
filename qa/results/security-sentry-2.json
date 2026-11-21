@@ -2,7 +2,7 @@
   "id": "S-SENTRY-2",
   "title": "De bout en bout : enveloppe réellement envoyée à Sentry (DSN local)",
   "ok": true,
-  "ms": 361,
+  "ms": 364,
   "checks": [
     {
       "label": "une enveloppe a été émise",

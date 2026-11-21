@@ -1,5 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma, type OrderActorType } from '@prisma/client';
 import {
@@ -312,6 +312,8 @@ export class OrdersService {
   // ---- Expiration (file orders-expire) ----
 
   /** Expire les commandes non payées échues à `now` ; renvoie le nombre expiré. */
+  private readonly expiryLogger = new Logger('OrdersExpiry');
+
   async expireDue(now: Date = new Date(), limit = 200): Promise<number> {
     const due = await this.prisma.order.findMany({
       where: { status: { in: ['pending_payment', 'payment_failed'] }, expiresAt: { lte: now } },
@@ -325,7 +327,11 @@ export class OrdersService {
         await this.transition(id, 'expired', { type: 'system' }, 'Délai de paiement dépassé');
         expired++;
       } catch (e) {
-        if (!(e instanceof ApiException && e.getStatus() === 409)) throw e;
+        if (e instanceof ApiException && e.getStatus() === 409) continue;
+        // Une commande incohérente ne doit pas bloquer l'expiration des autres (le job serait rejoué sur elle indéfiniment).
+        this.expiryLogger.error(
+          `Expiration impossible pour la commande ${id} : ${e instanceof Error ? e.name : 'erreur inconnue'}`,
+        );
       }
     }
     return expired;

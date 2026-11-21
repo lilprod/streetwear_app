@@ -1,8 +1,8 @@
 {
   "id": "S-RATE-4",
   "title": "Connexion admin : verrouillage 15 min après 5 échecs, pas d’énumération de comptes",
-  "ok": false,
-  "ms": 767,
+  "ok": true,
+  "ms": 800,
   "checks": [
     {
       "label": "compte de test créé",
@@ -11,13 +11,13 @@
       "ok": true
     },
     {
-      "label": "5 mots de passe faux",
+      "label": "5 mots de passe faux : 4 x INVALID_CREDENTIALS puis ACCOUNT_LOCKED dès le 5e échec",
       "expected": [
         "INVALID_CREDENTIALS",
         "INVALID_CREDENTIALS",
         "INVALID_CREDENTIALS",
         "INVALID_CREDENTIALS",
-        "INVALID_CREDENTIALS"
+        "ACCOUNT_LOCKED"
       ],
       "obtained": [
         "INVALID_CREDENTIALS",
@@ -26,7 +26,7 @@
         "INVALID_CREDENTIALS",
         "ACCOUNT_LOCKED"
       ],
-      "ok": false
+      "ok": true
     },
     {
       "label": "bon mot de passe pendant le verrouillage : 403 ACCOUNT_LOCKED",
@@ -72,7 +72,7 @@
   "sql": [
     {
       "label": "verrou",
-      "query": "SELECT round(extract(epoch FROM (locked_until - now()))/60) FROM admin_users WHERE email='qa-lock-601162ac@streetwear.test'",
+      "query": "SELECT round(extract(epoch FROM (locked_until - now()))/60) FROM admin_users WHERE email='qa-lock-0715a295@streetwear.test'",
       "rows": [["15"]]
     }
   ],

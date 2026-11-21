@@ -27,5 +27,5 @@ SCENARIO=public RATE=200 DURATION=30s "$K6" run --quiet --summary-export "$OUT/p
 echo "== mixte : public 50 req/s + commandes 50 req/s simultanés, 20 s (100 req/s au total)"
 SCENARIO=public RATE=50 DURATION=20s "$K6" run --quiet --summary-export "$OUT/perf-mixed-public.json" qa/perf/perf.js &
 PUB=$!
-SCENARIO=orders RATE=50 DURATION=20s "$K6" run --quiet --summary-export "$OUT/perf-mixed-orders.json" qa/perf/perf.js || true
+OFFSET=1100 SCENARIO=orders RATE=50 DURATION=20s "$K6" run --quiet --summary-export "$OUT/perf-mixed-orders.json" qa/perf/perf.js || true
 wait "$PUB" || true

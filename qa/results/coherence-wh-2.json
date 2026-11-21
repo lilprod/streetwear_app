@@ -2,7 +2,7 @@
   "id": "C-WH-2",
   "title": "10 webhooks identiques simultanés : un seul traité",
   "ok": true,
-  "ms": 826,
+  "ms": 671,
   "checks": [
     {
       "label": "10 réponses 200",
@@ -44,7 +44,7 @@
   "sql": [
     {
       "label": "payment_events",
-      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_806f51bf3c194d5ba8fa7e57d2b50dae' ORDER BY received_at",
+      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_4467a966462549da956b2a233ddfc1eb' ORDER BY received_at",
       "rows": [
         ["processed", "t"],
         ["duplicate", "t"],
@@ -60,7 +60,7 @@
     },
     {
       "label": "out",
-      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fc0b-1f63-7c73-b878-327c0636aafd' AND type='out'",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd35-b977-739c-8ded-36b71063f0e0' AND type='out'",
       "rows": [["1"]]
     }
   ],

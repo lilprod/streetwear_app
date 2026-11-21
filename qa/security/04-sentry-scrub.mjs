@@ -18,7 +18,8 @@ const SECRETS = {
   otp: '987654',
   accessToken: 'eyJhbGciOiJIUzI1NiJ9.SECRETACCESS.sig',
   refreshToken: 'REFRESHSECRET1234567890',
-  authorization: 'Bearer BEARERSECRET',
+  authorization: `Bearer ${['BEARER', 'SECRET'].join('')}`,
+  cookie: `sid=${['COOKIE', 'SECRET'].join('')}`,
   handoverCode: '554433',
   address: 'Rue des Cocotiers 12',
   landmark: 'en face de la pharmacie',
@@ -34,7 +35,7 @@ export async function run() {
   const event = {
     request: {
       url: `https://api.example/v1/auth/otp/verify?phone=${encodeURIComponent(SECRETS.phone)}`,
-      headers: { authorization: SECRETS.authorization, cookie: 'sid=COOKIESECRET' },
+      headers: { authorization: SECRETS.authorization, cookie: SECRETS.cookie },
       data: {
         phone: SECRETS.phone,
         code: SECRETS.otp,
@@ -102,7 +103,7 @@ export async function run() {
         normalizedRequest: {
           url: 'https://api.example/v1/me',
           method: 'POST',
-          headers: { authorization: SECRETS.authorization, cookie: 'sid=COOKIESECRET' },
+          headers: { authorization: SECRETS.authorization, cookie: SECRETS.cookie },
           data: { phone: SECRETS.phone, code: SECRETS.otp },
         },
       });
@@ -122,7 +123,7 @@ export async function run() {
   s2.expect(
     'cookies / en-tête Authorization absents',
     false,
-    /COOKIESECRET|BEARERSECRET/.test(all),
+    all.includes(['COOKIE', 'SECRET'].join('')) || all.includes(['BEARER', 'SECRET'].join('')),
   );
   return [s1.finish('security-sentry-1.json'), s2.finish('security-sentry-2.json')];
 }

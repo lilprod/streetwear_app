@@ -2,7 +2,7 @@
   "id": "C-PAY-2",
   "title": "Clés différentes ×5 en parallèle : un seul paiement en cours (anti double débit)",
   "ok": true,
-  "ms": 348,
+  "ms": 387,
   "checks": [
     {
       "label": "1 créé, 4 refusés",
@@ -32,7 +32,7 @@
   "sql": [
     {
       "label": "payments",
-      "query": "SELECT status, count(*) FROM payments WHERE order_id='01a1fc0b-b609-73ab-ac30-e8d9a64a5eb5' GROUP BY status",
+      "query": "SELECT status, count(*) FROM payments WHERE order_id='01a1fd1e-ecc5-76a1-8698-ec87e2cc5c77' GROUP BY status",
       "rows": [["pending", "1"]]
     }
   ],

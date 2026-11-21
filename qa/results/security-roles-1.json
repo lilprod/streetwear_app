@@ -2,7 +2,7 @@
   "id": "S-ROLES-1",
   "title": "Matrice des rôles sur toutes les routes /admin/* et /courier/*",
   "ok": true,
-  "ms": 2774,
+  "ms": 2125,
   "checks": [
     {
       "label": "routes présentes dans le code mais absentes du contrat",

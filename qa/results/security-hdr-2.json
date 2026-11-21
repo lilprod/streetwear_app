@@ -2,7 +2,7 @@
   "id": "S-HDR-2",
   "title": "CORS absent (décision du lead : même origine)",
   "ok": true,
-  "ms": 11,
+  "ms": 7,
   "checks": [
     {
       "label": "GET avec Origin étrangère : pas de Access-Control-Allow-Origin",

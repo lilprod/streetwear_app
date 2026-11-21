@@ -2,7 +2,7 @@
   "id": "C-STOCK-2",
   "title": "12 clients (quantités 1 à 3) pour 5 unités (indigo, XL)",
   "ok": true,
-  "ms": 1041,
+  "ms": 1261,
   "checks": [
     {
       "label": "somme des quantités acceptées <= 5",
@@ -49,7 +49,7 @@
     },
     {
       "label": "lignes",
-      "query": "SELECT coalesce(sum(oi.quantity),0) FROM order_items oi JOIN orders o ON o.id=oi.order_id WHERE o.user_id IN ('4f95f534-04e0-4c8a-b9fc-0d6ac7be1397','8605683a-9ae7-47f3-b1a1-63409fc663cc','4876ffe5-52d1-4310-be93-571cde719f3c','9f7d8a49-07e4-4683-9148-933f24c97b04','a18837ff-5b57-4011-8812-97294c116026','06079125-94c5-426a-bcb8-04ec42e6a67b','823ec247-88fe-4040-8810-e05ac8224411','54ffe65a-cba1-4c14-888c-4fd51b379213','cdd6cf2c-83a0-4420-8388-274ea2f41cb0','c5582b7e-f7d8-4e85-a16d-3ece0f8bc5c9','83cbcb9d-8ba1-4c1b-a074-c4700be9e48f','b7297739-d443-4b49-9295-4e141f36aaf7')",
+      "query": "SELECT coalesce(sum(oi.quantity),0) FROM order_items oi JOIN orders o ON o.id=oi.order_id WHERE o.user_id IN ('096d9915-d704-4f56-8b2e-6ee95e8e927d','3b066aea-c1f3-4231-b1f0-facfe9e93fc3','ec09aeb5-bfa6-4a6a-90dc-4eddc87c3311','79f7e00b-8069-4d14-ac18-ae31234ea9f1','6bca34e2-89e5-4575-a1cb-c101e695f651','cdec24e3-ff54-4ea5-bcd8-ad9a05beb04a','3111399d-80b2-4655-b4ad-c5dbb823f04d','afea2bae-a857-4b92-87c6-63a32c5099bb','b5b740f8-f066-4f00-93e8-9c99eac3cb6a','ca7b99bd-1f9a-453e-ab5b-5795c95673c5','7cdaecef-1eb2-48ad-bb0c-ba6c5daee8e8','231a7cbb-fd4a-4e28-a3b0-215d2613dc3a')",
       "rows": [["5"]]
     },
     {

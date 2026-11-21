@@ -2,7 +2,7 @@
   "id": "C-EXP-1",
   "title": "Commande non payée → expired : stock et créneau libérés",
   "ok": false,
-  "ms": 11069,
+  "ms": 58494,
   "checks": [
     {
       "label": "réglage order_expiry_minutes=5 accepté",
@@ -98,17 +98,17 @@
   "sql": [
     {
       "label": "créneau",
-      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='dc4be980-0a75-442d-9c81-5aab425bf833'",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
       "rows": [["1", "1"]]
     },
     {
       "label": "créneau",
-      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='dc4be980-0a75-442d-9c81-5aab425bf833'",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
       "rows": [["0", "1"]]
     },
     {
       "label": "mouvements A",
-      "query": "SELECT type, sum(quantity) FROM stock_movements WHERE order_id='01a1fc0c-2adb-744d-b63c-3da2dece5f5b' GROUP BY type ORDER BY min(created_at)",
+      "query": "SELECT type, sum(quantity) FROM stock_movements WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' GROUP BY type ORDER BY min(created_at)",
       "rows": [
         ["reserve", "1"],
         ["release", "1"]
@@ -116,12 +116,12 @@
     },
     {
       "label": "historique A",
-      "query": "SELECT from_status, to_status, actor_type FROM order_status_history WHERE order_id='01a1fc0c-2adb-744d-b63c-3da2dece5f5b' AND to_status='expired'",
+      "query": "SELECT from_status, to_status, actor_type FROM order_status_history WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND to_status='expired'",
       "rows": [["pending_payment", "expired", "system"]]
     },
     {
       "label": "pickups",
-      "query": "SELECT count(*) FROM pickups p WHERE p.order_id='01a1fc0c-2adb-744d-b63c-3da2dece5f5b' AND p.slot_id='dc4be980-0a75-442d-9c81-5aab425bf833'",
+      "query": "SELECT count(*) FROM pickups p WHERE p.order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND p.slot_id='5ccdc8d0-5053-46b2-b53e-e3200378d276'",
       "rows": [["0"]]
     }
   ],

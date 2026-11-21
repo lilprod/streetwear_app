@@ -2,7 +2,7 @@
   "id": "C-EXP-2",
   "title": "Commande payment_failed → expired ; paiement en attente → expired",
   "ok": true,
-  "ms": 11069,
+  "ms": 58495,
   "checks": [
     {
       "label": "B est payment_failed",

@@ -2,7 +2,7 @@
   "id": "S-RATE-6",
   "title": "Limite globale (contrat : 100 req/min par IP)",
   "ok": false,
-  "ms": 284,
+  "ms": 267,
   "checks": [
     {
       "label": "105 requêtes sur une route : 100 × 200 puis 5 × 429",
