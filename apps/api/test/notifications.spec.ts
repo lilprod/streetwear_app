@@ -685,7 +685,7 @@ describe('SP07 notifications', () => {
         variables: ['brand', 'orderNumber', 'status'],
       });
       expect(paid.smsMaxLength).toBeLessThanOrEqual(160);
-      expect(res.body.items).toHaveLength(15);
+      expect(res.body.items).toHaveLength(16);
       const pickup = res.body.items.find(
         (i: { key: string; channel: string }) =>
           i.key === 'order.ready_for_pickup' && i.channel === 'push',

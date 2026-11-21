@@ -1,7 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { createApp } from './helpers';
-import { nextPhone, uniqueIp, withEnv } from './with-env';
+import { clearThrottleKeys, nextPhone, uniqueIp, withEnv } from './with-env';
 
 describe('rate limits per real client (AN-002)', () => {
   const otp = (app: INestApplication, ip: string) =>
@@ -27,6 +27,7 @@ describe('rate limits per real client (AN-002)', () => {
   }, 30_000);
 
   it('shares one counter and ignores X-Forwarded-For when TRUST_PROXY is unset', async () => {
+    await clearThrottleKeys();
     await withEnv({ RATE_LIMIT_OTP_PER_MINUTE: '2', TRUST_PROXY: '' }, async () => {
       const { app } = await createApp();
       try {

@@ -1,9 +1,9 @@
 /** Environnement des tests : fixé ici, jamais lu depuis apps/api/.env ni le shell (hors bases de test). */
 const fixed: Record<string, string> = {
   NODE_ENV: 'test',
-  RATE_LIMIT_PER_MINUTE: '1000',
-  RATE_LIMIT_OTP_PER_MINUTE: '1000',
-  RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE: '1000',
+  RATE_LIMIT_PER_MINUTE: '1000000',
+  RATE_LIMIT_OTP_PER_MINUTE: '1000000',
+  RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE: '1000000',
   JWT_SECRET: 'test-only-secret-not-for-production-use',
   PAYMENT_PROVIDER: 'fake',
   FAKE_PAYMENT_WEBHOOK_SECRET: 'test-only-fake-payment-webhook-secret-0000',
