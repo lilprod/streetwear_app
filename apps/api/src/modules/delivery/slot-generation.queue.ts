@@ -1,6 +1,7 @@
 import type { INestApplicationContext } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 import { SlotsService } from './slots.service';
+import { logFailedJobs } from '../../common/worker-logging';
 
 export const SLOT_GENERATION_QUEUE = 'slot-generation';
 
@@ -16,7 +17,9 @@ export function startSlotGeneration(app: INestApplicationContext, redisUrl: stri
   };
   const queue = new Queue(SLOT_GENERATION_QUEUE, { connection });
   void queue.upsertJobScheduler('daily', { pattern: '0 2 * * *', tz: 'UTC' }, { name: 'generate' });
-  new Worker(SLOT_GENERATION_QUEUE, async () => app.get(SlotsService).generateAll({ days: 14 }), {
-    connection,
-  });
+  logFailedJobs(
+    new Worker(SLOT_GENERATION_QUEUE, async () => app.get(SlotsService).generateAll({ days: 14 }), {
+      connection,
+    }),
+  );
 }

@@ -2,7 +2,7 @@
   "id": "S-RATE-2",
   "title": "OTP : 5 mauvais codes bloquent le code (même le bon)",
   "ok": true,
-  "ms": 93,
+  "ms": 94,
   "checks": [
     {
       "label": "5 essais faux : OTP_INVALID ×4 puis OTP_ATTEMPTS_EXCEEDED",

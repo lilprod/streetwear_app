@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { SensitiveThrottle } from '../../common/rate-limit';
 import {
   OAuthInputSchema,
   OtpRequestInputSchema,
@@ -14,9 +14,7 @@ import {
 import { ZodPipe } from '../../common/zod.pipe';
 import { CustomerAuthService } from './customer-auth.service';
 
-const otpThrottle = {
-  default: { limit: () => (process.env.NODE_ENV === 'test' ? 1000 : 10), ttl: 60_000 },
-};
+const otpThrottle = () => Number(process.env.RATE_LIMIT_OTP_PER_MINUTE) || 10;
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,14 +23,14 @@ export class CustomerAuthController {
 
   @Post('otp/request')
   @HttpCode(204)
-  @Throttle(otpThrottle)
+  @SensitiveThrottle(otpThrottle)
   async requestOtp(@Body(new ZodPipe(OtpRequestInputSchema)) body: OtpRequestInput): Promise<void> {
     await this.auth.requestOtp(body.phone);
   }
 
   @Post('otp/verify')
   @HttpCode(200)
-  @Throttle(otpThrottle)
+  @SensitiveThrottle(otpThrottle)
   verifyOtp(@Body(new ZodPipe(OtpVerifyInputSchema)) body: OtpVerifyInput) {
     return this.auth.verifyOtp(body.phone, body.code);
   }

@@ -2,7 +2,7 @@
   "id": "C-SLOT-1",
   "title": "15 clients se disputent un créneau de capacité 3",
   "ok": true,
-  "ms": 1342,
+  "ms": 1288,
   "checks": [
     {
       "label": "3 commandes créées",
@@ -56,22 +56,22 @@
   "sql": [
     {
       "label": "créneau",
-      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='96351fdb-b185-4b99-9381-d157b9a68baa'",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='6616c8b0-ef17-4404-a103-72cf0b9b849c'",
       "rows": [["3", "3"]]
     },
     {
       "label": "pickups",
-      "query": "SELECT count(*) FROM pickups WHERE slot_id='96351fdb-b185-4b99-9381-d157b9a68baa'",
+      "query": "SELECT count(*) FROM pickups WHERE slot_id='6616c8b0-ef17-4404-a103-72cf0b9b849c'",
       "rows": [["3"]]
     },
     {
       "label": "réservé",
-      "query": "SELECT coalesce(sum(m.quantity),0) FROM stock_movements m JOIN orders o ON o.id=m.order_id WHERE m.type='reserve' AND o.user_id IN ('a331d3d2-265a-4c2c-a376-e850a6de90b2','c8df36b3-3710-4530-b746-e43cfee10663','dc6b1450-91b5-43c7-aa9f-a050d600a675','be562117-c578-47d5-ac7c-a3e386d66752','54474b88-99a3-46c8-a466-f17ba6ed1c9f','a31c67c5-9a4e-4bde-9ca4-6df2fe4eb470','670d59f4-e8a9-40c0-ad88-46d850abe30c','75cb3d88-e205-4b41-97e1-4ca271367da6','45b2374a-77a9-420f-b964-85d11525233e','79b4f9a4-a308-4897-9f56-8d0a7aad2c0f','07fe4dbb-e64d-480c-aa94-d4b8e84cf840','8e2592e9-39fb-4110-b3e6-c0392864324d','3a0461ad-315b-42a4-a6d9-8fd180999e43','a21654ad-6d1d-42fb-bd8a-9989ebae159c','c1edc278-4a60-4c37-9de3-c15450a05c2d')",
+      "query": "SELECT coalesce(sum(m.quantity),0) FROM stock_movements m JOIN orders o ON o.id=m.order_id WHERE m.type='reserve' AND o.user_id IN ('591bc503-c21f-4d6a-bb65-a70db7690d09','f80d42a2-14aa-4fb2-8104-303340070f1f','0f5c17b3-1942-493d-9cc0-2aa820c89c27','354f6468-0987-4aa4-9ab8-e45a7056c2a6','d43f2efa-25dc-4e71-abd7-8926a15d94a1','8701a404-3810-4988-99df-dd500af6510e','c84596d3-0e45-412c-97ef-f4ed82ffa134','aee47cdb-1dfb-4369-ba83-6af357083ae2','ef24ffe4-ff1c-40d2-9876-c3c9dcc4f58c','2483a851-ddd3-420b-9523-c99504160e33','89106f59-51b1-4d82-9979-1900711badc3','7b4cc998-7b5b-43f8-8401-fe9ca999d953','b1545e68-c719-4201-9d73-2e00c3b318eb','9e4a46b5-fe28-405e-a12f-6aa292ce3001','385c9cf6-aeb4-47e0-9c8c-191cf006ec1f')",
       "rows": [["3"]]
     },
     {
       "label": "commandes",
-      "query": "SELECT count(*) FROM orders WHERE user_id IN ('a331d3d2-265a-4c2c-a376-e850a6de90b2','c8df36b3-3710-4530-b746-e43cfee10663','dc6b1450-91b5-43c7-aa9f-a050d600a675','be562117-c578-47d5-ac7c-a3e386d66752','54474b88-99a3-46c8-a466-f17ba6ed1c9f','a31c67c5-9a4e-4bde-9ca4-6df2fe4eb470','670d59f4-e8a9-40c0-ad88-46d850abe30c','75cb3d88-e205-4b41-97e1-4ca271367da6','45b2374a-77a9-420f-b964-85d11525233e','79b4f9a4-a308-4897-9f56-8d0a7aad2c0f','07fe4dbb-e64d-480c-aa94-d4b8e84cf840','8e2592e9-39fb-4110-b3e6-c0392864324d','3a0461ad-315b-42a4-a6d9-8fd180999e43','a21654ad-6d1d-42fb-bd8a-9989ebae159c','c1edc278-4a60-4c37-9de3-c15450a05c2d')",
+      "query": "SELECT count(*) FROM orders WHERE user_id IN ('591bc503-c21f-4d6a-bb65-a70db7690d09','f80d42a2-14aa-4fb2-8104-303340070f1f','0f5c17b3-1942-493d-9cc0-2aa820c89c27','354f6468-0987-4aa4-9ab8-e45a7056c2a6','d43f2efa-25dc-4e71-abd7-8926a15d94a1','8701a404-3810-4988-99df-dd500af6510e','c84596d3-0e45-412c-97ef-f4ed82ffa134','aee47cdb-1dfb-4369-ba83-6af357083ae2','ef24ffe4-ff1c-40d2-9876-c3c9dcc4f58c','2483a851-ddd3-420b-9523-c99504160e33','89106f59-51b1-4d82-9979-1900711badc3','7b4cc998-7b5b-43f8-8401-fe9ca999d953','b1545e68-c719-4201-9d73-2e00c3b318eb','9e4a46b5-fe28-405e-a12f-6aa292ce3001','385c9cf6-aeb4-47e0-9c8c-191cf006ec1f')",
       "rows": [["3"]]
     },
     {

@@ -56,6 +56,8 @@ export const PAYMENT_EVENTS = {
   amountMismatch: 'payment.amount_mismatch',
   /** Succès reçu pour une commande qui n'est plus payable (expirée, annulée, déjà payée) : remboursement manuel. */
   unexpectedSuccess: 'payment.unexpected_success',
+  /** Succès reçu pour un paiement déjà `failed` (refus ou écart de montant) : ni production ni passage à payée, vérification et remboursement manuels. */
+  lateSuccess: 'payment.late_success',
   /** Rapport quotidien avec au moins un écart. */
   reconciliationMismatch: 'reconciliation.mismatch',
 } as const;
@@ -75,6 +77,17 @@ export interface PaymentUnexpectedSuccessEvent {
   orderNumber: string;
   provider: string;
   amountXof: number;
+  orderStatus: OrderStatus;
+}
+
+export interface PaymentLateSuccessEvent {
+  paymentId: string;
+  orderId: string;
+  orderNumber: string;
+  provider: string;
+  amountXof: number;
+  /** Motif de l'échec initial du paiement. */
+  failureReason: 'declined' | 'amount_mismatch';
   orderStatus: OrderStatus;
 }
 

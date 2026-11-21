@@ -1,11 +1,21 @@
 {
   "id": "S-RATE-3",
-  "title": "OTP : plafond par IP (10/min) et dépendance au proxy inverse",
+  "title": "OTP : plafond par client réel (10/min) derrière un proxy de confiance (TRUST_PROXY=1)",
   "ok": true,
-  "ms": 99,
+  "ms": 185,
   "checks": [
     {
-      "label": "12 demandes de 12 numéros distincts, 12 X-Forwarded-For distincts : 10 × 204 puis 429",
+      "label": "12 demandes de 12 X-Forwarded-For distincts : 12 × 204 (un compteur par client)",
+      "expected": {
+        "204": 12
+      },
+      "obtained": {
+        "204": 12
+      },
+      "ok": true
+    },
+    {
+      "label": "12 demandes du même client : 10 × 204 puis 2 × 429",
       "expected": {
         "204": 10,
         "429": 2
@@ -19,6 +29,6 @@
   ],
   "sql": [],
   "notes": [
-    "X-Forwarded-For est ignoré (pas de « trust proxy » dans apps/api/src) : derrière le reverse proxy de recette/production, tous les clients partagent le compteur de l’IP du proxy."
+    "API lancée avec TRUST_PROXY=1 (un proxy de confiance). Sans TRUST_PROXY, X-Forwarded-For est ignoré et tous les clients partagent un compteur : couvert par apps/api/test/rate-limits.spec.ts."
   ]
 }

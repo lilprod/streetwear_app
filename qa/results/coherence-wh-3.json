@@ -2,7 +2,7 @@
   "id": "C-WH-3",
   "title": "Webhooks falsifiés : signature, corps modifié, montant, fournisseur, JSON",
   "ok": true,
-  "ms": 3346,
+  "ms": 3285,
   "checks": [
     {
       "label": "mauvais secret : 401 UNAUTHENTICATED",
@@ -135,7 +135,7 @@
       "ok": true
     },
     {
-      "label": "succès tardif sur paiement déjà échoué : ignoré (duplicate), commande reste payment_failed",
+      "label": "succès tardif sur paiement déjà échoué : alerte payment.late_success, commande reste payment_failed",
       "expected": "payment_failed",
       "obtained": "payment_failed",
       "ok": true
@@ -144,12 +144,12 @@
   "sql": [
     {
       "label": "out",
-      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd35-bc31-7100-9a6c-5f194c1cbbb6' AND type='out'",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd5a-0110-754e-accd-95182661a758' AND type='out'",
       "rows": [["0"]]
     },
     {
       "label": "événements rejetés",
-      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_49b71d05056f439d934142edeca2ed6a' ORDER BY received_at",
+      "query": "SELECT outcome, signature_valid FROM payment_events WHERE provider_ref='fk_f0fd4a762c894be9878e532f10eb702a' ORDER BY received_at",
       "rows": [
         ["rejected", "f"],
         ["rejected", "f"],
@@ -159,11 +159,11 @@
     },
     {
       "label": "paiement",
-      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd35-bc52-79e7-9206-c4c23ac84645'",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd5a-012b-7022-afd8-258dc8b91e27'",
       "rows": [["failed", "amount_mismatch"]]
     }
   ],
   "notes": [
-    "Succès tardif après échec : le paiement terminal « failed » n’est pas rouvert ; si le client a réellement été débité, seul le rapprochement quotidien (reconciliation.mismatch) le révèle."
+    "Succès tardif après échec : le paiement terminal « failed » n’est pas rouvert ni la commande payée ; une alerte payment.late_success est envoyée à l’équipe (remboursement ou relance manuels)."
   ]
 }

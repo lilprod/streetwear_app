@@ -1,4 +1,5 @@
 import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
@@ -7,6 +8,7 @@ type Probe = 'ok' | 'error';
 
 @ApiTags('health')
 @Controller('health')
+@SkipThrottle({ global: true, sensitive: true })
 export class HealthController {
   constructor(
     private readonly prisma: PrismaService,

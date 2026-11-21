@@ -2,7 +2,7 @@
   "id": "S-ROLES-2",
   "title": "Transitions de statut : aucun rôle ne peut franchir une transition qui ne lui est pas réservée",
   "ok": true,
-  "ms": 4230,
+  "ms": 4810,
   "checks": [
     {
       "label": "commande en attente, rôle production : aucune transition (hors cancelled non plus)",

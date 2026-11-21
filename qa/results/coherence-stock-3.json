@@ -2,7 +2,7 @@
   "id": "C-STOCK-3",
   "title": "Même Idempotency-Key ×5 en parallèle : une commande, une réservation",
   "ok": true,
-  "ms": 646,
+  "ms": 573,
   "checks": [
     {
       "label": "statuts",
@@ -37,7 +37,7 @@
     },
     {
       "label": "créneau",
-      "query": "SELECT booked FROM pickup_slots WHERE id='94b0fb24-3eef-4011-bc61-a5c767e387d6'",
+      "query": "SELECT booked FROM pickup_slots WHERE id='a44c166a-0eaa-4ef0-820f-3d31ba4e4d96'",
       "rows": [["1"]]
     }
   ],

@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { throttlerOptions } from './common/rate-limit';
 import { LoggerModule } from 'nestjs-pino';
 import { AdminCatalogModule } from './admin-catalog/admin-catalog.module';
 import { CatalogModule } from './catalog/catalog.module';
@@ -39,7 +40,7 @@ import { RedisService } from './redis/redis.service';
       },
     }),
     ThrottlerModule.forRootAsync({
-      useFactory: () => [{ ttl: 60_000, limit: parseEnv(process.env).RATE_LIMIT_PER_MINUTE }],
+      useFactory: () => throttlerOptions(parseEnv(process.env)),
     }),
     EventEmitterModule.forRoot(),
     SmsModule,

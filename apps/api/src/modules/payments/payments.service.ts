@@ -16,6 +16,7 @@ import { sha256 } from '../../common/crypto';
 import {
   PAYMENT_EVENTS,
   type PaymentAmountMismatchEvent,
+  type PaymentLateSuccessEvent,
   type PaymentUnexpectedSuccessEvent,
   type PendingEvent,
 } from '../../common/events';
@@ -50,6 +51,7 @@ export type Outcome =
   | 'duplicate'
   | 'amount_mismatch'
   | 'unexpected_success'
+  | 'late_success'
   | 'unknown_payment'
   | 'ignored';
 
@@ -399,6 +401,28 @@ export class PaymentsService {
       const [locked] = await tx.$queryRaw<{ status: string }[]>`
         SELECT status::text AS status FROM payments WHERE id = ${found.id}::uuid FOR UPDATE`;
       if (!locked || (locked.status !== 'pending' && locked.status !== 'expired')) {
+        if (locked?.status === 'failed' && o.status === 'succeeded') {
+          const failed = await tx.payment.findUniqueOrThrow({
+            where: { id: found.id },
+            select: { id: true, orderId: true, failureReason: true },
+          });
+          const late = await tx.order.findUniqueOrThrow({
+            where: { id: failed.orderId },
+            select: { number: true, status: true },
+          });
+          const lateEvent: PaymentLateSuccessEvent = {
+            paymentId: failed.id,
+            orderId: failed.orderId,
+            orderNumber: late.number,
+            provider: providerName,
+            amountXof: o.amountXof,
+            failureReason:
+              failed.failureReason === 'amount_mismatch' ? 'amount_mismatch' : 'declined',
+            orderStatus: late.status,
+          };
+          alerts.push({ name: PAYMENT_EVENTS.lateSuccess, payload: lateEvent });
+          return 'late_success';
+        }
         return 'duplicate';
       }
       if (o.status === 'pending') return 'ignored';

@@ -2,7 +2,7 @@
   "id": "C-EXP-3",
   "title": "Paiement réussi sur commande expirée : payment.unexpected_success, aucune production",
   "ok": true,
-  "ms": 58495,
+  "ms": 48007,
   "checks": [
     {
       "label": "webhook de succès sur commande expirée : 200",
@@ -50,17 +50,17 @@
   "sql": [
     {
       "label": "paiement",
-      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd34-9eb8-7170-9995-5af1d2647a10'",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd5a-1ef5-75f6-972b-a3e8d402b256'",
       "rows": [["succeeded", "order_not_payable"]]
     },
     {
       "label": "out",
-      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55' AND type='out'",
+      "query": "SELECT count(*) FROM stock_movements WHERE order_id='01a1fd5a-1ed8-77a4-b844-f4efaeb184fd' AND type='out'",
       "rows": [["0"]]
     },
     {
       "label": "production",
-      "query": "SELECT count(*) FROM production_jobs WHERE order_id='01a1fd34-9e96-7dd8-b8d1-975d491ced55'",
+      "query": "SELECT count(*) FROM production_jobs WHERE order_id='01a1fd5a-1ed8-77a4-b844-f4efaeb184fd'",
       "rows": [["0"]]
     }
   ],

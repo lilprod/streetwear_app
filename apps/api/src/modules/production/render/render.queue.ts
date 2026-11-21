@@ -1,6 +1,7 @@
 import type { INestApplicationContext } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 import { PrintFilesService } from './print-files.service';
+import { logFailedJobs } from '../../../common/worker-logging';
 
 export const RENDER_QUEUE_NAME = 'render-print-files';
 
@@ -49,10 +50,12 @@ export function startRenderWorker(
   redisUrl: string,
   concurrency = 1,
 ): Worker {
-  return new Worker(
-    RENDER_QUEUE_NAME,
-    async (job) =>
-      app.get(PrintFilesService).process((job.data as { orderItemId: string }).orderItemId),
-    { connection: redisConnection(redisUrl), concurrency },
+  return logFailedJobs(
+    new Worker(
+      RENDER_QUEUE_NAME,
+      async (job) =>
+        app.get(PrintFilesService).process((job.data as { orderItemId: string }).orderItemId),
+      { connection: redisConnection(redisUrl), concurrency },
+    ),
   );
 }

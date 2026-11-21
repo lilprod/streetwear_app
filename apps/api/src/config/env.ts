@@ -12,6 +12,9 @@ export const envSchema = z
     JWT_SECRET: z.string().min(32),
     SENTRY_DSN: z.string().default(''),
     RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(100),
+    RATE_LIMIT_OTP_PER_MINUTE: z.coerce.number().int().positive().default(10),
+    RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE: z.coerce.number().int().positive().default(20),
+    TRUST_PROXY: z.string().trim().default(''),
     GOOGLE_CLIENT_ID: z.string().default(''),
     APPLE_CLIENT_ID: z.string().default(''),
     SEED_ADMIN_EMAIL: z.string().default(''),
@@ -65,6 +68,14 @@ export const envSchema = z
       need(env.EMAIL_FROM !== '', 'EMAIL_FROM', 'requis avec EMAIL_PROVIDER=smtp');
     }
   });
+
+/** `TRUST_PROXY` : vide/0/false = désactivé ; entier = nombre de proxys de confiance ; sinon liste de sous-réseaux ou mots-clés Express. */
+export function parseTrustProxy(raw: string): boolean | number | string {
+  const v = raw.trim();
+  if (v === '' || v === '0' || v.toLowerCase() === 'false') return false;
+  if (/^\d+$/.test(v)) return Number(v);
+  return v;
+}
 
 export type Env = z.infer<typeof envSchema>;
 

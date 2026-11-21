@@ -1,6 +1,7 @@
 import type { INestApplicationContext } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
 import { OrdersService } from './orders.service';
+import { logFailedJobs } from '../../common/worker-logging';
 
 export const ORDERS_EXPIRE_QUEUE = 'orders-expire';
 
@@ -16,7 +17,9 @@ export function startOrdersExpiry(app: INestApplicationContext, redisUrl: string
   };
   const queue = new Queue(ORDERS_EXPIRE_QUEUE, { connection });
   void queue.upsertJobScheduler('every-minute', { every: 60_000 }, { name: 'expire' });
-  new Worker(ORDERS_EXPIRE_QUEUE, async () => app.get(OrdersService).expireDue(new Date()), {
-    connection,
-  });
+  logFailedJobs(
+    new Worker(ORDERS_EXPIRE_QUEUE, async () => app.get(OrdersService).expireDue(new Date()), {
+      connection,
+    }),
+  );
 }

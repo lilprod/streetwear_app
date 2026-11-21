@@ -2,7 +2,7 @@
   "id": "S-SENTRY-1",
   "title": "Fonction scrub : champs personnels masqués dans un événement type",
   "ok": true,
-  "ms": 584,
+  "ms": 582,
   "checks": [
     {
       "label": "valeurs personnelles encore présentes après scrub",

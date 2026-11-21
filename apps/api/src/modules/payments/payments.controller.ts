@@ -64,7 +64,7 @@ export class PaymentsController {
 /** Public, signé par l'agrégateur ; corps brut fourni par `rawBodyMiddleware`. */
 @ApiTags('webhooks')
 @Controller('webhooks/payments')
-@SkipThrottle()
+@SkipThrottle({ global: true, sensitive: true })
 export class PaymentWebhooksController {
   constructor(private readonly payments: PaymentsService) {}
 

@@ -17,7 +17,7 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | Dates | ISO 8601 UTC (`2026-11-23T14:02:00Z`) |
 | Téléphone | E.164 (`+22890123456`) |
 | Erreurs | `{ "error": { "code", "message", "details"? } }`, `message` en français |
-| Limitation | 100 req/min par IP ; OTP : 3 envois/h par numéro → `429 RATE_LIMITED` |
+| Limitation | 100 req/min par client, toutes routes confondues, compteur partagé entre instances (Redis) ; OTP : 3 envois/h par numéro et `RATE_LIMIT_OTP_PER_MINUTE` (10) par client ; connexion admin : `RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE` (20) par client → `429 RATE_LIMITED`. Webhooks de paiement et `/v1/health` exclus. Derrière un reverse proxy, `TRUST_PROXY` (nombre de proxys ou sous-réseaux de confiance) doit être renseigné, sinon tous les clients partagent l'IP du proxy |
 | Version | Préfixe `/v1` ; champ ajouté = compatible ; champ retiré ou renommé = `/v2` |
 
 ## Codes d'erreur communs
@@ -53,6 +53,8 @@ avancent en parallèle. Le lead technique en est le seul éditeur. L'OpenAPI gé
 | 429 | `RATE_LIMITED` | Trop de requêtes ; envoi d'OTP ou connexion admin : `details.retryAfterMinutes` |
 | 502 | `PROVIDER_UNAVAILABLE` | Agrégateur ou fournisseur SMS indisponible |
 | 503 | `SERVICE_UNAVAILABLE` | `GET /health` : base ou Redis indisponible ; `details` = `{ db, redis }` |
+
+Documentation OpenAPI `/v1/docs` : désactivée (404) quand `NODE_ENV=production`.
 
 `GET /v1/health` (public) → `200 { status: "ok", db: "ok", redis: "ok" }` ou `503 SERVICE_UNAVAILABLE`.
 
@@ -196,7 +198,7 @@ doit être le moyen choisi à la commande. `ORDER_NOT_PAYABLE` porte `details.re
 `nothing_due`. Un paiement `pending` depuis plus de 60 s est vérifié auprès de l'agrégateur lors de
 `GET /payments/:id` (au plus toutes les 15 s) : c'est une confirmation de l'agrégateur, comme le webhook.
 
-Événements internes émis (consommés par SP07) : `payment.amount_mismatch`,
+Événements internes émis (consommés par SP07) : `payment.late_success` (succès fournisseur reçu après un échec ou un écart de montant : ni paiement ni commande modifiés, alerte au responsable des commandes), `payment.amount_mismatch`,
 `payment.unexpected_success` (succès sur commande expirée, annulée ou déjà payée : remboursement
 manuel), `reconciliation.mismatch`.
 

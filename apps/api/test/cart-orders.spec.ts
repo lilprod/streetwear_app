@@ -22,6 +22,11 @@ const PRICE = computeUnitPriceXof(
   FIXTURE_PATTERNS_BY_ID,
 );
 
+// The concurrency case creates 20 shoppers then 20 orders in parallel: under a full parallel
+// Turborepo run (lint, typecheck, build and the other suites) it can exceed Jest's 5 s default,
+// and a timed-out test keeps writing while the next ones (expiry) run, which then fail too.
+jest.setTimeout(30_000);
+
 describe('SP04 cart and customer orders', () => {
   let t: OrdersCtx;
   let orders: OrdersService;

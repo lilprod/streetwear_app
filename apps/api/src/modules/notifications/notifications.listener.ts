@@ -8,6 +8,7 @@ import {
   type OrderExpiredEvent,
   type OrderStatusChangedEvent,
   type PaymentAmountMismatchEvent,
+  type PaymentLateSuccessEvent,
   type PaymentUnexpectedSuccessEvent,
   type ReconciliationMismatchEvent,
   type StockBelowThresholdEvent,
@@ -131,6 +132,19 @@ export class NotificationsListener implements OnModuleDestroy {
         orderNumber: e.orderNumber,
         provider: e.provider,
         amountXof: formatXof(e.amountXof),
+        orderStatus: STATUS_LABEL[e.orderStatus] ?? e.orderStatus,
+      }),
+    );
+  }
+
+  @OnEvent(PAYMENT_EVENTS.lateSuccess)
+  onLateSuccess(e: PaymentLateSuccessEvent): Promise<void> {
+    return this.enqueue(PAYMENT_EVENTS.lateSuccess, () =>
+      this.alert('payment.late_success', ['order_manager'], {
+        orderNumber: e.orderNumber,
+        provider: e.provider,
+        amountXof: formatXof(e.amountXof),
+        reason: e.failureReason === 'amount_mismatch' ? 'écart de montant' : 'refus du paiement',
         orderStatus: STATUS_LABEL[e.orderStatus] ?? e.orderStatus,
       }),
     );

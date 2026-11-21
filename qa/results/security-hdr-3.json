@@ -2,7 +2,7 @@
   "id": "S-HDR-3",
   "title": "Fuites d’informations et limites de corps",
   "ok": true,
-  "ms": 17,
+  "ms": 18,
   "checks": [
     {
       "label": "corps de 1,2 Mo : 413 (limite 1 Mo)",
