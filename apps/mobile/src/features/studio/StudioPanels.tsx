@@ -76,6 +76,7 @@ export function PatternsPanel({
           const selected = current?.patternId === item.id;
           return (
             <Pressable
+              testID={`pattern-${item.id}`}
               accessibilityRole="button"
               accessibilityLabel={t('studio.patterns.pick', { name: item.name })}
               accessibilityState={{ selected }}
@@ -139,6 +140,7 @@ export function ColorPanel({
         {list.map((c) => (
           <Swatch
             key={c.id}
+            testID={`color-${c.id}`}
             hex={c.hex}
             label={t('studio.color.pick', { name: c.name })}
             selected={c.id === colorId}

@@ -190,8 +190,12 @@ export function ReceptionScreen() {
             value={mode}
             onChange={setMode}
             options={[
-              { value: 'home', label: t('reception.mode.home') },
-              { value: 'pickup', label: t('reception.mode.pickup') },
+              { value: 'home', label: t('reception.mode.home'), testID: 'reception-mode-home' },
+              {
+                value: 'pickup',
+                label: t('reception.mode.pickup'),
+                testID: 'reception-mode-pickup',
+              },
             ]}
           />
           {failure ? <Banner tone="danger" text={failure} /> : null}
@@ -243,6 +247,7 @@ export function ReceptionScreen() {
         </ScrollView>
         <BottomBar>
           <PrimaryButton
+            testID="reception-continue"
             label={t('reception.continue')}
             loading={busy}
             disabled={homeBlocked || pickupBlocked}
@@ -298,6 +303,7 @@ function PickupSection(props: {
         {props.days.map((d) => (
           <Chip
             key={d.date}
+            testID={`pickup-day-${d.date}`}
             label={d.label}
             selected={props.date === d.date}
             onPress={() => props.onDate(d.date)}
@@ -321,6 +327,7 @@ function PickupSection(props: {
           {slots.data.map((s) => (
             <Chip
               key={s.id}
+              testID={`pickup-slot-${s.id}`}
               label={`${slotTimeLabel(s)} · ${remainingLabel(s.remaining)}`}
               selected={props.slotId === s.id}
               onPress={() => props.onSlot(s.id)}

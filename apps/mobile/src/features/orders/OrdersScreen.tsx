@@ -94,6 +94,7 @@ export function OrdersScreen() {
         {state.items.map((o) => (
           <Pressable
             key={o.id}
+            testID={`order-row-${o.number}`}
             accessibilityRole="button"
             accessibilityLabel={t('orders.row', {
               number: o.number,

@@ -177,7 +177,7 @@ export function OrderScreen({ variant }: { variant: 'tracking' | 'confirmation' 
       <ScrollView contentContainerStyle={styles.body}>
         {notice ? <Banner tone="danger" text={notice} /> : null}
         <View style={styles.head}>
-          <Label accessibilityRole="header" style={styles.number}>
+          <Label testID="order-number" accessibilityRole="header" style={styles.number}>
             {t('confirmation.number', { number: o.number })}
           </Label>
           <StatusBadge status={o.status} />
@@ -314,6 +314,7 @@ export function OrderScreen({ variant }: { variant: 'tracking' | 'confirmation' 
           ) : null}
           {whatsapp ? <SecondaryButton label={t('order.contact')} onPress={contact} /> : null}
           <SecondaryButton
+            testID="order-reorder"
             label={t('order.reorder')}
             disabled={busy !== null}
             onPress={() => void reorder()}
@@ -321,6 +322,7 @@ export function OrderScreen({ variant }: { variant: 'tracking' | 'confirmation' 
           <SecondaryButton label={t('order.refresh')} onPress={() => void load()} />
           {variant === 'confirmation' ? (
             <PrimaryButton
+              testID="confirmation-orders"
               label={t('confirmation.cta.orders')}
               onPress={() => router.replace('/orders')}
             />

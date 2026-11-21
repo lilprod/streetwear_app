@@ -34,6 +34,7 @@ export function TabBar({
         return (
           <Pressable
             key={item.name}
+            testID={`tab-${item.name}`}
             accessibilityRole="tab"
             accessibilityLabel={item.label}
             accessibilityState={{ selected: active }}

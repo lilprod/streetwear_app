@@ -294,6 +294,7 @@ function StudioReady({
         </View>
         {onContinue ? (
           <PrimaryButton
+            testID="studio-continue"
             label={t('studio.continue')}
             disabled={!spec || banned}
             onPress={() => {

@@ -53,6 +53,7 @@ export function Stepper({
   incrementLabel,
   valueLabel,
   disabled,
+  testID,
 }: {
   value: number;
   min: number;
@@ -62,12 +63,14 @@ export function Stepper({
   incrementLabel: string;
   valueLabel: string;
   disabled?: boolean;
+  testID?: string;
 }) {
   const atMin = value <= min;
   const atMax = value >= max;
   return (
     <View style={styles.stepper}>
       <Pressable
+        testID={testID ? `${testID}-dec` : undefined}
         accessibilityRole="button"
         accessibilityLabel={decrementLabel}
         accessibilityState={{ disabled: disabled || atMin }}
@@ -81,6 +84,7 @@ export function Stepper({
       </Pressable>
       <Label
         mono
+        testID={testID ? `${testID}-value` : undefined}
         accessibilityLiveRegion="polite"
         accessibilityLabel={valueLabel}
         style={styles.stepValue}
@@ -88,6 +92,7 @@ export function Stepper({
         {value}
       </Label>
       <Pressable
+        testID={testID ? `${testID}-inc` : undefined}
         accessibilityRole="button"
         accessibilityLabel={incrementLabel}
         accessibilityState={{ disabled: disabled || atMax }}
@@ -119,6 +124,7 @@ export function SizePicker({
         return (
           <View key={size} style={styles.sizeCell}>
             <Pressable
+              testID={`size-${size}`}
               accessibilityRole="button"
               accessibilityLabel={
                 available
@@ -172,6 +178,7 @@ export function StatusBadge({ status }: { status: OrderStatus }) {
   const label = ORDER_STATUS_LABELS_FR[status];
   return (
     <View
+      testID="order-status"
       accessible
       accessibilityLabel={t('status.badge', { label })}
       style={[styles.badge, { backgroundColor: tone.bg }]}
@@ -244,15 +251,18 @@ export function PatternTile({
   badge,
   label,
   onPress,
+  testID,
 }: {
   name: string;
   imageUrl: string;
   badge?: string;
   label: string;
   onPress: () => void;
+  testID?: string;
 }) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}

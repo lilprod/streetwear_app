@@ -157,6 +157,7 @@ export function SizeScreen() {
             {t('purchase.size.quantity')}
           </Label>
           <Stepper
+            testID="quantity"
             value={quantity}
             min={CART_LINE_MIN_QUANTITY}
             max={CART_LINE_MAX_QUANTITY}
@@ -181,6 +182,7 @@ export function SizeScreen() {
           {error ? <Banner tone="danger" text={error} /> : null}
           {size === null ? <Label style={styles.hint}>{t('purchase.size.pickFirst')}</Label> : null}
           <PrimaryButton
+            testID="size-add-to-cart"
             label={t('purchase.size.add')}
             disabled={size === null || selectedGone || price === null}
             loading={busy}

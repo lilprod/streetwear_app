@@ -35,11 +35,13 @@ type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
+  testID?: string;
 };
 
-export function PrimaryButton({ label, onPress, disabled, loading, style }: ButtonProps) {
+export function PrimaryButton({ label, onPress, disabled, loading, style, testID }: ButtonProps) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled, busy: !!loading }}
@@ -56,9 +58,10 @@ export function PrimaryButton({ label, onPress, disabled, loading, style }: Butt
   );
 }
 
-export function SecondaryButton({ label, onPress, disabled, style }: ButtonProps) {
+export function SecondaryButton({ label, onPress, disabled, style, testID }: ButtonProps) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
@@ -76,14 +79,17 @@ export function IconButton({
   label,
   onPress,
   disabled,
+  testID,
 }: {
   glyph: string;
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  testID?: string;
 }) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
@@ -105,7 +111,7 @@ export function Segmented<T extends string>({
   onChange,
   label,
 }: {
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; testID?: string }[];
   value: T;
   onChange: (v: T) => void;
   label: string;
@@ -117,6 +123,7 @@ export function Segmented<T extends string>({
         return (
           <Pressable
             key={o.value}
+            testID={o.testID}
             accessibilityRole="tab"
             accessibilityLabel={o.label}
             accessibilityState={{ selected: active }}
@@ -176,14 +183,17 @@ export function Swatch({
   label,
   selected,
   onPress,
+  testID,
 }: {
   hex: string;
   label: string;
   selected: boolean;
   onPress: () => void;
+  testID?: string;
 }) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
@@ -206,14 +216,17 @@ export function Chip({
   selected,
   onPress,
   fontFamily,
+  testID,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
   fontFamily?: string;
+  testID?: string;
 }) {
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
@@ -261,9 +274,18 @@ export function StateView({
   );
 }
 
-export function Banner({ text, tone }: { text: string; tone: 'info' | 'danger' }) {
+export function Banner({
+  text,
+  tone,
+  testID,
+}: {
+  text: string;
+  tone: 'info' | 'danger';
+  testID?: string;
+}) {
   return (
     <View
+      testID={testID}
       accessibilityRole="alert"
       style={[styles.banner, tone === 'danger' && { backgroundColor: colors.dangerBg }]}
     >
