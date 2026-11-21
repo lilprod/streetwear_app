@@ -203,3 +203,10 @@
 {"level":30,"time":1795230026255,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000088 »"}
 {"level":30,"time":1795230026260,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000088 »"}
 {"level":30,"time":1795230026261,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.unexpected_success traitée (2 destinataire(s))"}
+{"level":30,"time":1795230141191,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
+{"level":30,"time":1795230141192,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***28"}
+{"level":30,"time":1795230141193,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 28"}
+{"level":50,"time":1795230141198,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000094, PATTERN_ASSET_MISSING)"}
+{"level":30,"time":1795230141205,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000094 »"}
+{"level":30,"time":1795230141213,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000094 »"}
+{"level":30,"time":1795230141215,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}

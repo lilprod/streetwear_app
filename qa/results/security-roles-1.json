@@ -1,0 +1,82 @@
+{
+  "id": "S-ROLES-1",
+  "title": "Matrice des rôles sur toutes les routes /admin/* et /courier/*",
+  "ok": true,
+  "ms": 2774,
+  "checks": [
+    {
+      "label": "routes présentes dans le code mais absentes du contrat",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "routes présentes dans le contrat mais absentes du code",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "accès non autorisés (rôle hors contrat ou jeton client)",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "accès refusés à tort (rôle autorisé par le contrat)",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "routes protégées sans jeton répondant autre chose que 401",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "routes du code sans rôle déclaré et non publiques",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "jeton équipe sur 8 routes client (attendu 401 partout)",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "jetons forgés / expirés / défi TOTP sur GET /admin/users",
+      "expected": {
+        "alg=none": 401,
+        "mauvais secret": 401,
+        "expiré": 401,
+        "jeton client signé typ=admin": 401,
+        "défi TOTP (admin_challenge)": 401
+      },
+      "obtained": {
+        "alg=none": 401,
+        "mauvais secret": 401,
+        "expiré": 401,
+        "jeton client signé typ=admin": 401,
+        "défi TOTP (admin_challenge)": 401
+      },
+      "ok": true
+    },
+    {
+      "label": "claim role=super_admin dans un jeton valide du livreur : 403 (rôle lu en base)",
+      "expected": 403,
+      "obtained": 403,
+      "ok": true
+    },
+    {
+      "label": "jeton d’un compte désactivé : 401 immédiat",
+      "expected": 401,
+      "obtained": 401,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": ["413 requêtes : 59 routes protégées × 7 identités"]
+}

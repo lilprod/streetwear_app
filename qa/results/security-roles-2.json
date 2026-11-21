@@ -1,0 +1,70 @@
+{
+  "id": "S-ROLES-2",
+  "title": "Transitions de statut : aucun rôle ne peut franchir une transition qui ne lui est pas réservée",
+  "ok": true,
+  "ms": 4837,
+  "checks": [
+    {
+      "label": "commande en attente, rôle production : aucune transition (hors cancelled non plus)",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "commande en attente, rôle logistics : aucune transition",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "commande en attente, rôle courier : aucune transition",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "commande toujours pending_payment",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "order_manager : aucune transition sauf cancelled",
+      "expected": ["order_manager → cancelled (200)"],
+      "obtained": ["order_manager → cancelled (200)"],
+      "ok": true
+    },
+    {
+      "label": "super_admin ne peut pas déclarer payée/échouée/expirée une commande (réservé fournisseur/système)",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "commande toujours pending_payment après ces tentatives",
+      "expected": "pending_payment",
+      "obtained": "pending_payment",
+      "ok": true
+    },
+    {
+      "label": "paid → in_production par order_manager/logistics/courier refusé",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "paid → in_production par production sans opérateur affecté refusé",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "commande toujours paid",
+      "expected": "paid",
+      "obtained": "paid",
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

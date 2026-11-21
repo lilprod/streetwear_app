@@ -1,0 +1,899 @@
+{
+  "identities": [
+    "sans_jeton",
+    "client",
+    "super_admin",
+    "order_manager",
+    "production",
+    "logistics",
+    "courier"
+  ],
+  "calls": 413,
+  "matrix": [
+    {
+      "method": "GET",
+      "path": "/admin/audit-logs",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/admin/banned-words/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/banned-words",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/banned-words",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/colors/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/colors",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/colors",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/couriers",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/deliveries/:id/assign",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 400,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/deliveries",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/delivery-zones/:id",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 404,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/delivery-zones",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/delivery-zones",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 400,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/fonts/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/fonts",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/fonts",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/media/upload-signature",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/notification-templates",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/notification-templates",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/operators",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 200,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/order-items/:id/print-files/regenerate",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 404,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/order-items/:id/print-files",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 404,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/orders/:id/assign-operator",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 400,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/orders/:id/production-sheet.pdf",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 404,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/orders/:id/transitions",
+      "codeRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "contractRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 400,
+        "production": 400,
+        "logistics": 400,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/orders/:id",
+      "codeRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "contractRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 404,
+        "production": 404,
+        "logistics": 404,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/orders/counts",
+      "codeRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "contractRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 200,
+        "production": 200,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/orders",
+      "codeRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "contractRoles": ["order_manager", "production", "logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 200,
+        "production": 200,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/pattern-categories/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/pattern-categories",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/pattern-categories",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/patterns/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/patterns",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/patterns",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/payments",
+      "codeRoles": ["order_manager", "super_admin"],
+      "contractRoles": ["order_manager", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 200,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/price-rules",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/price-rules",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/price-rules",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/production/queue",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 400,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/reconciliations",
+      "codeRoles": ["order_manager", "super_admin"],
+      "contractRoles": ["order_manager", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 200,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/settings",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/settings",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/stats/summary",
+      "codeRoles": ["order_manager", "super_admin"],
+      "contractRoles": ["order_manager", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 200,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/stock/:id",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 400,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/stock/movements",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 400,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/stock",
+      "codeRoles": ["production", "super_admin"],
+      "contractRoles": ["production", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 200,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/stores/:id/slots/:slotId",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 400,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/stores/:id/slots",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 404,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/stores/:id/slots",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 404,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/stores/:id",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 404,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/stores",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 200,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/stores",
+      "codeRoles": ["logistics", "super_admin"],
+      "contractRoles": ["logistics", "super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 400,
+        "courier": 403
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/admin/users/:id",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 404,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/admin/users",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 200,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/admin/users",
+      "codeRoles": ["super_admin"],
+      "contractRoles": ["super_admin"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 400,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 403
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/courier/deliveries/:id/complete",
+      "codeRoles": ["courier"],
+      "contractRoles": ["courier"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 403,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 400
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/courier/deliveries/:id/fail",
+      "codeRoles": ["courier"],
+      "contractRoles": ["courier"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 403,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 400
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/courier/deliveries/:id/start",
+      "codeRoles": ["courier"],
+      "contractRoles": ["courier"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 403,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 404
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/courier/deliveries",
+      "codeRoles": ["courier"],
+      "contractRoles": ["courier"],
+      "results": {
+        "sans_jeton": 401,
+        "client": 401,
+        "super_admin": 403,
+        "order_manager": 403,
+        "production": 403,
+        "logistics": 403,
+        "courier": 200
+      }
+    }
+  ]
+}
