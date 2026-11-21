@@ -66,7 +66,12 @@ export function CartScreen() {
           <PriceRow label={t('cart.delivery')} note={t('cart.delivery.later')} />
           {blocked ? <Banner tone="danger" text={t('cart.blocked')} /> : null}
           {authed ? null : <Label style={styles.hint}>{t('cart.guest.hint')}</Label>}
-          <PrimaryButton label={t('cart.continue')} disabled={blocked} onPress={next} />
+          <PrimaryButton
+            testID="cart-continue"
+            label={t('cart.continue')}
+            disabled={blocked}
+            onPress={next}
+          />
         </BottomBar>
       </>
     );

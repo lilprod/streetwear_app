@@ -156,13 +156,14 @@ export function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          {error ? <Banner tone="danger" text={error} /> : null}
+          {error ? <Banner testID="login-error" tone="danger" text={error} /> : null}
           {notice ? <Banner tone="info" text={notice} /> : null}
 
           {step === 'phone' ? (
             <>
               <Label style={styles.lead}>{t('login.subtitle')}</Label>
               <TextField
+                testID="login-phone"
                 label={t('login.phone.label')}
                 prefix={t('login.phone.prefix')}
                 mono
@@ -176,6 +177,7 @@ export function LoginScreen() {
                 onSubmitEditing={() => void onSendCode()}
               />
               <PrimaryButton
+                testID="login-send"
                 label={t('login.send')}
                 loading={busy}
                 onPress={() => void onSendCode()}
@@ -207,6 +209,7 @@ export function LoginScreen() {
               </Label>
               <Label style={styles.lead}>{t('login.code.subtitle', { phone: phoneLabel })}</Label>
               <TextField
+                testID="login-code"
                 label={t('login.code.label')}
                 mono
                 value={code}
@@ -220,6 +223,7 @@ export function LoginScreen() {
                 autoFocus
               />
               <PrimaryButton
+                testID="login-verify"
                 label={t('login.code.verify')}
                 loading={busy}
                 disabled={code.length !== 6}

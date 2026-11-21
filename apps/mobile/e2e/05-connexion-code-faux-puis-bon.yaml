@@ -1,0 +1,58 @@
+appId: com.streetwear.app
+name: Connexion par SMS avec un code faux puis le bon code
+tags:
+  - critique
+# Client de démonstration +228 90 00 00 01. Le code est vérifié automatiquement à la saisie du 6e chiffre.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: 'Autoriser'
+    optional: true
+- tapOn:
+    id: 'tab-account'
+- tapOn:
+    id: 'account-login'
+- extendedWaitUntil:
+    visible:
+      id: 'login-phone'
+    timeout: 15000
+- tapOn:
+    id: 'login-phone'
+- inputText: '90000001'
+- hideKeyboard
+- tapOn:
+    id: 'login-send'
+- extendedWaitUntil:
+    visible:
+      id: 'login-code'
+    timeout: 15000
+# Code faux : 6 chiffres qui ne peuvent pas être le code reçu pour ce test (le code réel est lu ensuite).
+- runScript:
+    file: scripts/wrong-code.js
+    env:
+      PHONE: '+22890000001'
+- tapOn:
+    id: 'login-code'
+- inputText: ${output.wrong}
+- extendedWaitUntil:
+    visible:
+      id: 'login-error'
+    timeout: 15000
+- assertVisible: 'Code incorrect ou expiré.'
+- runScript:
+    file: scripts/fetch-otp.js
+    env:
+      PHONE: '+22890000001'
+- tapOn:
+    id: 'login-code'
+- inputText: ${output.otp}
+- tapOn:
+    id: 'tab-account'
+- extendedWaitUntil:
+    visible:
+      id: 'account-who'
+    timeout: 20000
+- assertVisible:
+    id: 'account-who'
+    text: 'Connecté.*'

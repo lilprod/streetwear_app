@@ -1,0 +1,24 @@
+appId: com.streetwear.app
+# Paramètre : PHONE_LOCAL (8 chiffres, sans +228). Connexion par code SMS ; le code est lu dans l'outbox SMS de l'API.
+---
+- extendedWaitUntil:
+    visible:
+      id: 'login-phone'
+    timeout: 15000
+- tapOn:
+    id: 'login-phone'
+- inputText: ${PHONE_LOCAL}
+- hideKeyboard
+- tapOn:
+    id: 'login-send'
+- extendedWaitUntil:
+    visible:
+      id: 'login-code'
+    timeout: 15000
+- runScript:
+    file: ../scripts/fetch-otp.js
+    env:
+      PHONE: '+228${PHONE_LOCAL}'
+- tapOn:
+    id: 'login-code'
+- inputText: ${output.otp}

@@ -1,0 +1,132 @@
+name: Maestro nightly
+
+# Parcours mobiles (apps/mobile/e2e) sur un émulateur Android contre l'API de recette (paiement factice).
+# Désactivé tant que la variable de dépôt MAESTRO_ENABLED n'est pas « true » : il faut un compte EAS
+# (secret EXPO_TOKEN, variable EAS_PROJECT_ID). Voir docs/qa/e2e.md, section « Prérequis manquants ».
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: maestro-nightly
+  cancel-in-progress: false
+
+jobs:
+  maestro:
+    if: ${{ vars.MAESTRO_ENABLED == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16.4-alpine
+        env:
+          POSTGRES_USER: streetwear
+          POSTGRES_PASSWORD: streetwear
+          POSTGRES_DB: streetwear_recette
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U streetwear" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      MAESTRO_VERSION: 2.12.1
+      EAS_CLI_VERSION: 16.32.0
+      DATABASE_URL: postgresql://streetwear:streetwear@localhost:5432/streetwear_recette
+      REDIS_URL: redis://localhost:6379/8
+      JWT_SECRET: nightly-only-secret-nightly-only-secret-0000
+      FAKE_PAYMENT_WEBHOOK_SECRET: nightly-only-fake-payment-secret-00000000
+      FAKE_PAYMENT_WEBHOOK_URL: http://localhost:3000/v1/webhooks/payments/fake
+      FAKE_PAYMENT_DELAY_MS: '3000'
+      PAYMENT_PROVIDER: fake
+      RATE_LIMIT_PER_MINUTE: '5000'
+      SMS_OUTBOX: ${{ github.workspace }}/.e2e-run/sms.jsonl
+      TEST_SMS_OUTBOX_FILE: ${{ github.workspace }}/.e2e-run/sms.jsonl
+      ASSET_CACHE_DIR: ${{ github.workspace }}/.e2e-run/assets
+      STORAGE_LOCAL_DIR: ${{ github.workspace }}/.e2e-run/storage
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.1.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: actions/setup-java@v4.7.1
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build the API, migrate and seed the demo data
+        run: |
+          mkdir -p .e2e-run
+          pnpm exec turbo run build --filter=api
+          pnpm --filter api exec prisma migrate deploy
+          node apps/api/dist/seed/demo.js
+
+      - name: Start the API and the worker
+        run: |
+          # The seed enqueued render jobs: the worker needs the asset cache (see docs/qa/e2e.md) only for the back-office journeys.
+          node apps/api/dist/main.js > .e2e-run/api.log 2>&1 &
+          node apps/api/dist/worker.js > .e2e-run/worker.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -fsS localhost:3000/v1/health && exit 0
+            sleep 1
+          done
+          cat .e2e-run/api.log
+          exit 1
+
+      - uses: expo/expo-github-action@v8.2.1
+        with:
+          eas-version: ${{ env.EAS_CLI_VERSION }}
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build the e2e APK on EAS
+        working-directory: apps/mobile
+        run: |
+          eas build --platform android --profile e2e --non-interactive --wait --json > "$RUNNER_TEMP/eas-build.json"
+          url="$(jq -r '.[0].artifacts.buildUrl' "$RUNNER_TEMP/eas-build.json")"
+          curl -fsSL -o "$RUNNER_TEMP/app.apk" "$url"
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip" -o "$RUNNER_TEMP/maestro.zip"
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$HOME"
+          echo "$HOME/maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run the five journeys on an Android emulator
+        uses: reactivecircus/android-emulator-runner@v2.33.0
+        env:
+          APK_PATH: ${{ runner.temp }}/app.apk
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: bash apps/mobile/e2e/ci-emulator.sh
+
+      - name: Upload the reports and the service logs
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: maestro-report
+          path: |
+            apps/mobile/e2e/report
+            .e2e-run/*.log
+            ~/.maestro/tests
+          retention-days: 14
+          if-no-files-found: ignore

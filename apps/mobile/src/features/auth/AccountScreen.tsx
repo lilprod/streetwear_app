@@ -54,13 +54,18 @@ export function AccountScreen() {
         {expired ? <Banner tone="info" text={t('session.expired')} /> : null}
         {status === 'authenticated' ? (
           <>
-            {who ? <Label style={styles.who}>{t('account.signedAs', { who })}</Label> : null}
+            {who ? (
+              <Label testID="account-who" style={styles.who}>
+                {t('account.signedAs', { who })}
+              </Label>
+            ) : null}
             <Rows rows={MEMBER_ROWS} />
           </>
         ) : (
           <>
             <Label style={styles.muted}>{t('account.guest')}</Label>
             <PrimaryButton
+              testID="account-login"
               label={t('account.login')}
               onPress={() => router.push('/purchase/login')}
             />

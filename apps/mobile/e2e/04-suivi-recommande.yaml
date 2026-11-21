@@ -1,0 +1,47 @@
+appId: com.streetwear.app
+name: Suivi d'une commande et recommande
+tags:
+  - critique
+# Client de démonstration +228 90 00 00 04 : le jeu de démo lui donne TG-000004 (en production) et TG-000008 (livrée).
+# Suppose une base fraîche (db:seed:demo) : les numéros sont attribués dans l'ordre du jeu de démo.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: 'Autoriser'
+    optional: true
+- tapOn:
+    id: 'tab-account'
+- tapOn:
+    id: 'account-login'
+- runFlow:
+    file: subflows/login.yaml
+    env:
+      PHONE_LOCAL: '90000004'
+- extendedWaitUntil:
+    visible:
+      id: 'tab-orders'
+    timeout: 30000
+- tapOn:
+    id: 'tab-orders'
+- extendedWaitUntil:
+    visible:
+      id: 'order-row-TG-000008'
+    timeout: 30000
+- tapOn:
+    id: 'order-row-TG-000008'
+- extendedWaitUntil:
+    visible:
+      id: 'order-status'
+    timeout: 20000
+- assertVisible: 'Livrée.*'
+- scrollUntilVisible:
+    element:
+      id: 'order-reorder'
+- tapOn:
+    id: 'order-reorder'
+- extendedWaitUntil:
+    visible:
+      id: 'cart-continue'
+    timeout: 30000
+- assertVisible: 'Panier'

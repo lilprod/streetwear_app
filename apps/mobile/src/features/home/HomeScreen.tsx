@@ -39,7 +39,11 @@ export function HomeScreen() {
         <Label accessibilityRole="header" style={styles.title}>
           {t('home.greeting')}
         </Label>
-        <PrimaryButton label={t('home.createDesign')} onPress={() => router.navigate('/studio')} />
+        <PrimaryButton
+          testID="home-create-design"
+          label={t('home.createDesign')}
+          onPress={() => router.navigate('/studio')}
+        />
 
         {lastDraft ? <ResumeCard draft={lastDraft} /> : null}
 

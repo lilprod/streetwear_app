@@ -7,6 +7,16 @@
       "android": { "buildType": "apk" },
       "env": { "EXPO_PUBLIC_APP_ENV": "local" }
     },
+    "e2e": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "recette",
+        "EXPO_PUBLIC_API_URL": "http://localhost:3000/v1",
+        "EXPO_PUBLIC_MAPS_ENABLED": "false",
+        "E2E_ALLOW_CLEARTEXT": "1"
+      }
+    },
     "preview": {
       "distribution": "internal",
       "channel": "preview",

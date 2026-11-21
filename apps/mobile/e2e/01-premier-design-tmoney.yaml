@@ -1,0 +1,58 @@
+appId: com.streetwear.app
+name: Premier design et achat en T-Money (livraison à domicile)
+tags:
+  - critique
+# Client de démonstration +228 90 00 00 01 ; paiement factice : numéro payeur finissant par 05 = succès.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: 'Autoriser'
+    optional: true
+- runFlow:
+    file: subflows/compose-design-and-pick-size.yaml
+    env:
+      SIZE: 'L'
+- tapOn:
+    id: 'size-add-to-cart'
+- extendedWaitUntil:
+    visible:
+      id: 'cart-continue'
+    timeout: 20000
+- tapOn:
+    id: 'cart-continue'
+# Visiteur : l'application demande la connexion avant la réception.
+- runFlow:
+    file: subflows/login.yaml
+    env:
+      PHONE_LOCAL: '90000001'
+- extendedWaitUntil:
+    visible:
+      id: 'saved-address-0'
+    timeout: 30000
+- tapOn:
+    id: 'reception-mode-home'
+- tapOn:
+    id: 'saved-address-0'
+- tapOn:
+    id: 'reception-continue'
+- extendedWaitUntil:
+    visible:
+      id: 'payment-method-tmoney'
+    timeout: 30000
+- tapOn:
+    id: 'payment-method-tmoney'
+- tapOn:
+    id: 'payment-phone'
+- inputText: '90000005'
+- hideKeyboard
+- tapOn:
+    id: 'payment-pay'
+# Le webhook factice confirme le paiement après FAKE_PAYMENT_DELAY_MS.
+- extendedWaitUntil:
+    visible: 'Merci !.*'
+    timeout: 90000
+- assertVisible:
+    id: 'order-number'
+- assertVisible:
+    id: 'order-status'

@@ -47,4 +47,14 @@ describe('parseEnv', () => {
     });
     expect(env.NOTIFICATION_CODE_KEY).toHaveLength(32);
   });
+
+  it('forbids the SMS test outbox in production', () => {
+    const prod = { ...valid, NODE_ENV: 'production', NOTIFICATION_CODE_KEY: 'k'.repeat(32) };
+    expect(() => parseEnv({ ...prod, TEST_SMS_OUTBOX_FILE: '/tmp/sms.jsonl' })).toThrow(
+      /TEST_SMS_OUTBOX_FILE/,
+    );
+    const dev = parseEnv({ ...valid, TEST_SMS_OUTBOX_FILE: '/tmp/sms.jsonl' });
+    expect(dev.TEST_SMS_OUTBOX_FILE).toBe('/tmp/sms.jsonl');
+    expect(parseEnv(prod).TEST_SMS_OUTBOX_FILE).toBe('');
+  });
 });

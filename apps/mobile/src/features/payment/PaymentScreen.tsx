@@ -316,6 +316,7 @@ export function PaymentScreen() {
                     ).map((m) => (
                       <Chip
                         key={m}
+                        testID={`payment-method-${m}`}
                         label={t(METHOD_LABEL[m])}
                         selected={orderMethod === m}
                         onPress={() => !order && setChoice(m)}
@@ -331,8 +332,16 @@ export function PaymentScreen() {
                       value={depositWith}
                       onChange={setDepositWith}
                       options={[
-                        { value: 'tmoney', label: t('payment.method.tmoney') },
-                        { value: 'flooz', label: t('payment.method.flooz') },
+                        {
+                          value: 'tmoney',
+                          label: t('payment.method.tmoney'),
+                          testID: 'deposit-method-tmoney',
+                        },
+                        {
+                          value: 'flooz',
+                          label: t('payment.method.flooz'),
+                          testID: 'deposit-method-flooz',
+                        },
                       ]}
                     />
                   </View>
@@ -340,6 +349,7 @@ export function PaymentScreen() {
               </View>
               {needsPhone ? (
                 <TextField
+                  testID="payment-phone"
                   label={t('payment.phone.label')}
                   value={phone}
                   onChangeText={(v) => setPhone(formatPhoneInput(v))}
@@ -356,6 +366,7 @@ export function PaymentScreen() {
         {phase.name === 'timeout' ? null : (
           <BottomBar>
             <PrimaryButton
+              testID="payment-pay"
               label={phase.name === 'failed' ? t('payment.retry') : amountLabel}
               loading={busy}
               onPress={pay}

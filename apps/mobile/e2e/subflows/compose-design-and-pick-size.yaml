@@ -1,0 +1,24 @@
+appId: com.streetwear.app
+# Paramètre : SIZE (S, M, L, XL...). Crée un design (motif Bandes, couleur noire).
+# S'arrête sur l'écran Taille et quantité, taille choisie ; l'appelant règle la quantité puis touche « Ajouter ».
+---
+- tapOn:
+    id: 'home-create-design'
+- extendedWaitUntil:
+    visible:
+      id: 'pattern-pat-bandes'
+    timeout: 20000
+- tapOn:
+    id: 'pattern-pat-bandes'
+- tapOn:
+    id: 'studio-tab-color'
+- tapOn:
+    id: 'color-col-noir'
+- tapOn:
+    id: 'studio-continue'
+- extendedWaitUntil:
+    visible:
+      id: 'size-${SIZE}'
+    timeout: 20000
+- tapOn:
+    id: 'size-${SIZE}'
