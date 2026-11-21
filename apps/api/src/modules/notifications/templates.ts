@@ -67,6 +67,13 @@ export const TEMPLATE_SPECS: readonly TemplateSpec[] = [
     amountXof: ['12 000 FCFA', '9 999 999 FCFA'],
     orderStatus: ['expirée', 'expirée'],
   }),
+  alertSpec('payment.late_success', {
+    orderNumber: ['TG-000123', 'TG-9999999'],
+    provider: ['fake', 'fake'],
+    amountXof: ['12 000 FCFA', '9 999 999 FCFA'],
+    reason: ['refus du paiement', 'écart de montant'],
+    orderStatus: ['paiement non abouti', 'paiement non abouti'],
+  }),
   alertSpec('reconciliation.mismatch', {
     date: ['2026-11-10', '2026-11-10'],
     provider: ['fake', 'fake'],
@@ -164,6 +171,11 @@ export const TEMPLATE_DEFAULTS: readonly TemplateDefault[] = [
     'payment.unexpected_success',
     'Paiement sur commande non payable : {{orderNumber}}',
     'Un paiement de {{amountXof}} ({{provider}}) est arrivé alors que la commande {{orderNumber}} est « {{orderStatus}} ». Un remboursement manuel est à effectuer.',
+  ),
+  email(
+    'payment.late_success',
+    'Paiement reçu après échec : {{orderNumber}}',
+    'Un paiement de {{amountXof}} ({{provider}}) est arrivé pour la commande {{orderNumber}} après un échec ({{reason}}) ; la commande est « {{orderStatus}} » et n’est pas passée en production. Vérifie auprès de l’agrégateur puis rembourse ou relance la commande manuellement.',
   ),
   email(
     'reconciliation.mismatch',

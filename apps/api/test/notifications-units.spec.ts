@@ -45,6 +45,7 @@ describe('modèles par défaut', () => {
       'production.render_failed',
       'payment.amount_mismatch',
       'payment.unexpected_success',
+      'payment.late_success',
       'reconciliation.mismatch',
     ]) {
       expect(has(key, 'email')).toBe(true);

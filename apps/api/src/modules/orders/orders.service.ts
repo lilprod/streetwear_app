@@ -228,6 +228,10 @@ export class OrdersService {
     } else if (to === 'expired') {
       await this.stock.releaseOrder(orderId, tx, events);
       await this.delivery.release(orderId, tx);
+      await tx.payment.updateMany({
+        where: { orderId, status: 'pending' },
+        data: { status: 'expired', failureReason: 'order_expired' },
+      });
     } else if (to === 'cancelled') {
       if (from === 'pending_payment') await this.stock.releaseOrder(orderId, tx, events);
       else await this.stock.restockOrder(orderId, tx, events, adminId);
