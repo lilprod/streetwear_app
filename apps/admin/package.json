@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --reporter=dot"
+    "test": "vitest run --reporter=dot",
+    "e2e": "pnpm --filter api... build && playwright test",
+    "e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@sentry/react": "^10.0.0",
@@ -24,6 +26,7 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@streetwear/config": "workspace:*",
     "@streetwear/ui-tokens": "workspace:*",
     "@testing-library/jest-dom": "^6.8.0",

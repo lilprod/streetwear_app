@@ -9,5 +9,5 @@
       "react/*": ["./node_modules/@types/react/*"]
     }
   },
-  "include": ["src", "*.ts"]
+  "include": ["src", "e2e", "*.ts"]
 }

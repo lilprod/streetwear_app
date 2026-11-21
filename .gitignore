@@ -17,3 +17,7 @@ expo-env.d.ts
 .storage/
 .asset-cache/
 dump.rdb
+
+# Playwright
+playwright-report/
+test-results/

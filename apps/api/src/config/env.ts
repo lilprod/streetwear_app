@@ -38,6 +38,7 @@ export const envSchema = z
     EMAIL_PROVIDER: z.enum(['smtp', 'fake']).default('fake'),
     SMTP_URL: z.string().default(''),
     EMAIL_FROM: z.string().default(''),
+    TEST_SMS_OUTBOX_FILE: z.string().default(''),
     PAYMENT_RETURN_URL: z.string().url().default('streetwear://paiement/retour'),
   })
   .superRefine((env, ctx) => {
@@ -53,6 +54,11 @@ export const envSchema = z
       env.NODE_ENV !== 'production' || env.NOTIFICATION_CODE_KEY !== '',
       'NOTIFICATION_CODE_KEY',
       'requis en production (clé distincte de JWT_SECRET)',
+    );
+    need(
+      env.NODE_ENV !== 'production' || env.TEST_SMS_OUTBOX_FILE === '',
+      'TEST_SMS_OUTBOX_FILE',
+      'interdit en production (exposerait les codes SMS)',
     );
     if (env.EMAIL_PROVIDER === 'smtp') {
       need(env.SMTP_URL !== '', 'SMTP_URL', 'requis avec EMAIL_PROVIDER=smtp');
