@@ -26,7 +26,7 @@ pnpm --filter api db:seed:demo
 
 - Mot de passe commun : `DemoLocal-2026!`
 - Double authentification : secret TOTP commun `JBSWY3DPEHPK3PXP` (à saisir dans une application d'authentification, ou `authenticator.generate('JBSWY3DPEHPK3PXP')` avec `otplib`).
-- Clients : `+22890000001` à `+22890000004` (connexion par code SMS ; en local le fournisseur SMS affiche le code dans les journaux).
+- Clients : `+22890000001` à `+22890000004` (connexion par code SMS). Le fournisseur SMS `console` ne journalise jamais le texte ; pour lire les codes en local, définir `TEST_SMS_OUTBOX_FILE` (fichier JSON par ligne, refusé quand `NODE_ENV=production`).
 
 ## Réception des uploads de médias en local
 
