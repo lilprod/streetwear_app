@@ -1,0 +1,34 @@
+{
+  "id": "C-EXP-2",
+  "title": "Commande payment_failed → expired ; paiement en attente → expired",
+  "ok": true,
+  "ms": 11069,
+  "checks": [
+    {
+      "label": "B est payment_failed",
+      "expected": "payment_failed",
+      "obtained": "payment_failed",
+      "ok": true
+    },
+    {
+      "label": "B : expired depuis payment_failed",
+      "expected": "expired",
+      "obtained": "expired",
+      "ok": true
+    },
+    {
+      "label": "B : stock libéré (1/0)",
+      "expected": "1/0",
+      "obtained": "1/0",
+      "ok": true
+    },
+    {
+      "label": "B : créneau libéré (0)",
+      "expected": "0",
+      "obtained": "0",
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

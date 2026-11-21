@@ -241,10 +241,12 @@ export function setStock(colorId, size, onHand, reserved = 0) {
   );
 }
 /** Crée un créneau de retrait demain (hors créneaux de démonstration) et renvoie son id. */
+let slotSeq = 0;
 export function makeSlot(capacity) {
   const id = uuid();
   const store = STORE_ID();
-  const offsetMin = Math.floor(Math.random() * 600);
+  slotSeq += 1;
+  const offsetMin = slotSeq * 31 + (Math.floor(Date.now() / 60000) % 20000);
   sql(
     `INSERT INTO pickup_slots(id,store_id,starts_at,ends_at,capacity,booked) VALUES ('${id}','${store}', date_trunc('minute', now()) + interval '2 days' + interval '${offsetMin} minutes', date_trunc('minute', now()) + interval '2 days' + interval '${offsetMin + 30} minutes', ${capacity}, 0)`,
   );

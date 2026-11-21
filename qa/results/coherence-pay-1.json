@@ -1,0 +1,40 @@
+{
+  "id": "C-PAY-1",
+  "title": "Même Idempotency-Key ×5 en parallèle : un seul paiement initié",
+  "ok": true,
+  "ms": 426,
+  "checks": [
+    {
+      "label": "réponses 201 identiques",
+      "expected": 1,
+      "obtained": 1,
+      "ok": true
+    },
+    {
+      "label": "statut 201",
+      "expected": 201,
+      "obtained": 201,
+      "ok": true
+    },
+    {
+      "label": "une ligne payments",
+      "expected": "1",
+      "obtained": "1",
+      "ok": true
+    },
+    {
+      "label": "même clé, corps différent : 409 IDEMPOTENCY_CONFLICT",
+      "expected": [409, "IDEMPOTENCY_CONFLICT"],
+      "obtained": [409, "IDEMPOTENCY_CONFLICT"],
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "payments",
+      "query": "SELECT count(*) FROM payments WHERE order_id='01a1fc0b-b4a4-7306-905a-0dbf14f8a53a'",
+      "rows": [["1"]]
+    }
+  ],
+  "notes": []
+}
