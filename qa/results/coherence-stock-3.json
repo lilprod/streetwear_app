@@ -1,0 +1,45 @@
+{
+  "id": "C-STOCK-3",
+  "title": "Même Idempotency-Key ×5 en parallèle : une commande, une réservation",
+  "ok": true,
+  "ms": 570,
+  "checks": [
+    {
+      "label": "statuts",
+      "expected": 5,
+      "obtained": 5,
+      "ok": true
+    },
+    {
+      "label": "un seul identifiant de commande",
+      "expected": 1,
+      "obtained": 1,
+      "ok": true
+    },
+    {
+      "label": "reserved = 2 (pas 10)",
+      "expected": "2",
+      "obtained": "2",
+      "ok": true
+    },
+    {
+      "label": "créneau réservé une fois",
+      "expected": "1",
+      "obtained": "1",
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "stock",
+      "query": "SELECT reserved FROM stock_items WHERE color_id='col-sable' AND size='M'",
+      "rows": [["2"]]
+    },
+    {
+      "label": "créneau",
+      "query": "SELECT booked FROM pickup_slots WHERE id='7addf079-8d04-4f6e-b389-c99952b6fac2'",
+      "rows": [["1"]]
+    }
+  ],
+  "notes": []
+}

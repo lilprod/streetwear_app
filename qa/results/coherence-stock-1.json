@@ -1,0 +1,62 @@
+{
+  "id": "C-STOCK-1",
+  "title": "20 clients achètent en même temps la dernière unité (terracotta, S)",
+  "ok": true,
+  "ms": 1628,
+  "checks": [
+    {
+      "label": "une seule commande créée (201)",
+      "expected": 1,
+      "obtained": 1,
+      "ok": true
+    },
+    {
+      "label": "toutes les autres refusées (409)",
+      "expected": 19,
+      "obtained": 19,
+      "ok": true
+    },
+    {
+      "label": "code des refus",
+      "expected": ["OUT_OF_STOCK"],
+      "obtained": ["OUT_OF_STOCK"],
+      "ok": true
+    },
+    {
+      "label": "on_hand=1, reserved=1, dispo=0",
+      "expected": ["1", "1", "0"],
+      "obtained": ["1", "1", "0"],
+      "ok": true
+    },
+    {
+      "label": "commandes en attente de ces clients",
+      "expected": ["1"],
+      "obtained": ["1"],
+      "ok": true
+    },
+    {
+      "label": "mouvements reserve = 1 unité, aucun autre",
+      "expected": ["reserve", "1"],
+      "obtained": ["reserve", "1"],
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "stock après la course",
+      "query": "SELECT on_hand, reserved, on_hand - reserved AS dispo FROM stock_items WHERE color_id='col-terracotta' AND size='S'",
+      "rows": [["1", "1", "0"]]
+    },
+    {
+      "label": "commandes créées",
+      "query": "SELECT count(*) FROM orders WHERE user_id IN ('ca8594be-6dbd-4e6d-a19a-d1b389c5f81e','e2f66995-e997-4021-a794-99eba6c7de96','d8345f47-0810-497d-8e30-48db4cc072d7','0a8caa23-2a12-49cb-9f44-924f0116e122','bd818916-ed4d-470c-a5da-45470168f5a9','5117a95e-4f8f-4b98-a9fa-f11a8fe271c2','6c395ee5-5a67-46f6-b746-98d5880ab55b','280f8728-95a2-4a6c-b0d0-ff9b1a04c3b8','d9d16871-c28e-4616-93d4-60af05d5093b','f1edae97-f337-4037-b7e9-87181aef5fc2','672145fb-1737-4038-8a07-4e4811174bb5','6eba25ae-26ca-4b65-9ef8-f60e213884ef','79cabe5e-cc12-4fd4-bb09-4ea03551f006','c04c1e0a-657a-4a38-a266-1d6491591bd8','e5518991-2865-4c3a-b3c7-cdc0ea7b0255','8e95c948-5550-482e-a800-555229657fb6','5223d307-c5f4-44e5-8ef4-91c99f0dbc3a','29009d29-30fc-4ed5-8bde-9f5ea56420c6','dcd660d4-416e-449d-9378-23e174adc3c6','8d7c9fe9-bbbd-484c-a4ef-80b5900e864a')",
+      "rows": [["1"]]
+    },
+    {
+      "label": "mouvements",
+      "query": "SELECT m.type, sum(m.quantity) FROM stock_movements m JOIN stock_items i ON i.id=m.stock_item_id JOIN orders o ON o.id=m.order_id WHERE i.color_id='col-terracotta' AND i.size='S' AND o.user_id IN ('ca8594be-6dbd-4e6d-a19a-d1b389c5f81e','e2f66995-e997-4021-a794-99eba6c7de96','d8345f47-0810-497d-8e30-48db4cc072d7','0a8caa23-2a12-49cb-9f44-924f0116e122','bd818916-ed4d-470c-a5da-45470168f5a9','5117a95e-4f8f-4b98-a9fa-f11a8fe271c2','6c395ee5-5a67-46f6-b746-98d5880ab55b','280f8728-95a2-4a6c-b0d0-ff9b1a04c3b8','d9d16871-c28e-4616-93d4-60af05d5093b','f1edae97-f337-4037-b7e9-87181aef5fc2','672145fb-1737-4038-8a07-4e4811174bb5','6eba25ae-26ca-4b65-9ef8-f60e213884ef','79cabe5e-cc12-4fd4-bb09-4ea03551f006','c04c1e0a-657a-4a38-a266-1d6491591bd8','e5518991-2865-4c3a-b3c7-cdc0ea7b0255','8e95c948-5550-482e-a800-555229657fb6','5223d307-c5f4-44e5-8ef4-91c99f0dbc3a','29009d29-30fc-4ed5-8bde-9f5ea56420c6','dcd660d4-416e-449d-9378-23e174adc3c6','8d7c9fe9-bbbd-484c-a4ef-80b5900e864a') GROUP BY m.type",
+      "rows": [["reserve", "1"]]
+    }
+  ],
+  "notes": []
+}

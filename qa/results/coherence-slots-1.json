@@ -1,0 +1,84 @@
+{
+  "id": "C-SLOT-1",
+  "title": "15 clients se disputent un créneau de capacité 3",
+  "ok": true,
+  "ms": 1380,
+  "checks": [
+    {
+      "label": "3 commandes créées",
+      "expected": 3,
+      "obtained": 3,
+      "ok": true
+    },
+    {
+      "label": "12 refus",
+      "expected": 12,
+      "obtained": 12,
+      "ok": true
+    },
+    {
+      "label": "code des refus",
+      "expected": ["SLOT_FULL"],
+      "obtained": ["SLOT_FULL"],
+      "ok": true
+    },
+    {
+      "label": "booked = capacity = 3",
+      "expected": ["3", "3"],
+      "obtained": ["3", "3"],
+      "ok": true
+    },
+    {
+      "label": "3 retraits enregistrés",
+      "expected": "3",
+      "obtained": "3",
+      "ok": true
+    },
+    {
+      "label": "les 12 refus n’ont laissé aucune réservation de stock",
+      "expected": "3",
+      "obtained": "3",
+      "ok": true
+    },
+    {
+      "label": "aucune commande orpheline des clients refusés",
+      "expected": "3",
+      "obtained": "3",
+      "ok": true
+    },
+    {
+      "label": "aucun créneau en surcapacité",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "créneau",
+      "query": "SELECT booked, capacity FROM pickup_slots WHERE id='7d044a49-319e-4a36-9b41-c855a28c1f95'",
+      "rows": [["3", "3"]]
+    },
+    {
+      "label": "pickups",
+      "query": "SELECT count(*) FROM pickups WHERE slot_id='7d044a49-319e-4a36-9b41-c855a28c1f95'",
+      "rows": [["3"]]
+    },
+    {
+      "label": "réservé",
+      "query": "SELECT coalesce(sum(m.quantity),0) FROM stock_movements m JOIN orders o ON o.id=m.order_id WHERE m.type='reserve' AND o.user_id IN ('0a262873-3f33-4869-967b-0b27e3fba098','a8b1c565-14cf-49f0-88ff-2a3692a8a258','2a3eb39d-d86f-409d-b672-b9ad68c2cd29','203e0860-8114-4040-82e9-778d2eadf8e3','3aee2df0-7f9a-48d9-982c-8def9754aa64','e9330582-eb24-4359-9c64-92afd6e0d5a9','aacae1f7-d070-4a46-82f3-2b26cfbc513b','cde91257-99c7-4a82-9bf8-f70231790ebc','69f6f461-8a87-42e2-8f0b-cbf1390cade6','a3c9329e-85e9-4f3f-a865-1aac67d4495a','8f5aae14-36b9-425b-8e52-6e36f92ac66d','60749a32-f846-49eb-878b-2998b11143d6','ea61e85a-5e24-4acf-b3d2-96e2dd5f98fb','75497c8a-37d8-40a1-80a3-794a1d102e5d','4bff718b-4e49-493e-a04a-7b36b4b58600')",
+      "rows": [["3"]]
+    },
+    {
+      "label": "commandes",
+      "query": "SELECT count(*) FROM orders WHERE user_id IN ('0a262873-3f33-4869-967b-0b27e3fba098','a8b1c565-14cf-49f0-88ff-2a3692a8a258','2a3eb39d-d86f-409d-b672-b9ad68c2cd29','203e0860-8114-4040-82e9-778d2eadf8e3','3aee2df0-7f9a-48d9-982c-8def9754aa64','e9330582-eb24-4359-9c64-92afd6e0d5a9','aacae1f7-d070-4a46-82f3-2b26cfbc513b','cde91257-99c7-4a82-9bf8-f70231790ebc','69f6f461-8a87-42e2-8f0b-cbf1390cade6','a3c9329e-85e9-4f3f-a865-1aac67d4495a','8f5aae14-36b9-425b-8e52-6e36f92ac66d','60749a32-f846-49eb-878b-2998b11143d6','ea61e85a-5e24-4acf-b3d2-96e2dd5f98fb','75497c8a-37d8-40a1-80a3-794a1d102e5d','4bff718b-4e49-493e-a04a-7b36b4b58600')",
+      "rows": [["3"]]
+    },
+    {
+      "label": "surcapacité",
+      "query": "SELECT id FROM pickup_slots WHERE booked > capacity OR booked < 0",
+      "rows": []
+    }
+  ],
+  "notes": []
+}
