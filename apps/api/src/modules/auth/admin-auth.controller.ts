@@ -14,7 +14,10 @@ import { AdminAuthService } from './admin-auth.service';
 import { Public } from './roles.decorator';
 
 const loginThrottle = {
-  default: { limit: () => (process.env.NODE_ENV === 'test' ? 1000 : 20), ttl: 60_000 },
+  default: {
+    limit: () => Number(process.env.RATE_LIMIT_ADMIN_LOGIN_PER_MINUTE) || 20,
+    ttl: 60_000,
+  },
 };
 
 @ApiTags('admin-auth')

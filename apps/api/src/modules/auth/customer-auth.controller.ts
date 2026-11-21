@@ -15,7 +15,7 @@ import { ZodPipe } from '../../common/zod.pipe';
 import { CustomerAuthService } from './customer-auth.service';
 
 const otpThrottle = {
-  default: { limit: () => (process.env.NODE_ENV === 'test' ? 1000 : 10), ttl: 60_000 },
+  default: { limit: () => Number(process.env.RATE_LIMIT_OTP_PER_MINUTE) || 10, ttl: 60_000 },
 };
 
 @ApiTags('auth')
