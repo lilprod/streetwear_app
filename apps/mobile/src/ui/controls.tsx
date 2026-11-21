@@ -145,7 +145,7 @@ export function Tabs<T extends string>({
   value,
   onChange,
 }: {
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; testID?: string }[];
   value: T;
   onChange: (v: T) => void;
 }) {
@@ -156,6 +156,7 @@ export function Tabs<T extends string>({
         return (
           <Pressable
             key={o.value}
+            testID={o.testID}
             accessibilityRole="tab"
             accessibilityLabel={o.label}
             accessibilityState={{ selected: active }}

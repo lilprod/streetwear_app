@@ -206,9 +206,10 @@ export function ReceptionScreen() {
                 <View style={styles.block}>
                   <Label style={styles.title}>{t('reception.saved.title')}</Label>
                   <View style={styles.chips}>
-                    {saved.map((a) => (
+                    {saved.map((a, i) => (
                       <Chip
                         key={a.id}
+                        testID={`saved-address-${i}`}
                         label={`${a.label} · ${a.district}`}
                         selected={selectedId === a.id}
                         onPress={() => pick(a)}
@@ -300,10 +301,10 @@ function PickupSection(props: {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chips}
       >
-        {props.days.map((d) => (
+        {props.days.map((d, i) => (
           <Chip
             key={d.date}
-            testID={`pickup-day-${d.date}`}
+            testID={`pickup-day-${i}`}
             label={d.label}
             selected={props.date === d.date}
             onPress={() => props.onDate(d.date)}
@@ -324,10 +325,10 @@ function PickupSection(props: {
       ) : null}
       {slots.status === 'ready' ? (
         <View style={styles.chips}>
-          {slots.data.map((s) => (
+          {slots.data.map((s, i) => (
             <Chip
               key={s.id}
-              testID={`pickup-slot-${s.id}`}
+              testID={`pickup-slot-${i}`}
               label={`${slotTimeLabel(s)} · ${remainingLabel(s.remaining)}`}
               selected={props.slotId === s.id}
               onPress={() => props.onSlot(s.id)}

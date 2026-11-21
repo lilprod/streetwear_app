@@ -1,0 +1,57 @@
+appId: com.streetwear.app
+name: Paiement à la livraison avec acompte (T-Money)
+tags:
+  - critique
+# Client de démonstration +228 90 00 00 03 (adresse enregistrée dans une zone desservie).
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: 'Autoriser'
+    optional: true
+- runFlow:
+    file: subflows/compose-design-and-pick-size.yaml
+    env:
+      SIZE: 'S'
+- tapOn:
+    id: 'size-add-to-cart'
+- extendedWaitUntil:
+    visible:
+      id: 'cart-continue'
+    timeout: 20000
+- tapOn:
+    id: 'cart-continue'
+- runFlow:
+    file: subflows/login.yaml
+    env:
+      PHONE_LOCAL: '90000003'
+- extendedWaitUntil:
+    visible:
+      id: 'saved-address-0'
+    timeout: 30000
+- tapOn:
+    id: 'reception-mode-home'
+- tapOn:
+    id: 'saved-address-0'
+- tapOn:
+    id: 'reception-continue'
+- extendedWaitUntil:
+    visible:
+      id: 'payment-method-cod'
+    timeout: 30000
+- tapOn:
+    id: 'payment-method-cod'
+- assertVisible: 'Acompte.*'
+- tapOn:
+    id: 'deposit-method-tmoney'
+- tapOn:
+    id: 'payment-phone'
+- inputText: '90000005'
+- hideKeyboard
+- tapOn:
+    id: 'payment-pay'
+- extendedWaitUntil:
+    visible: 'Merci !.*'
+    timeout: 90000
+- assertVisible:
+    id: 'order-number'

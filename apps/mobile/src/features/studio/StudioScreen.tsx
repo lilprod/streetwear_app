@@ -251,9 +251,9 @@ function StudioReady({
           value={tab}
           onChange={setTab}
           options={[
-            { value: 'patterns', label: t('studio.tab.patterns') },
-            { value: 'color', label: t('studio.tab.color') },
-            { value: 'text', label: t('studio.tab.text') },
+            { value: 'patterns', label: t('studio.tab.patterns'), testID: 'studio-tab-patterns' },
+            { value: 'color', label: t('studio.tab.color'), testID: 'studio-tab-color' },
+            { value: 'text', label: t('studio.tab.text'), testID: 'studio-tab-text' },
           ]}
         />
         {tab === 'patterns' ? (
