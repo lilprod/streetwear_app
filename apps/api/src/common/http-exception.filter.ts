@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
+import { captureServerError } from '../config/sentry';
 
 const CODES: Record<number, string> = {
   400: 'VALIDATION_FAILED',
@@ -54,6 +55,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? 'Corps de requête invalide ou trop volumineux.'
         : 'Une erreur est survenue. Réessayez plus tard.');
     let details: unknown;
+
+    if (status >= 500) captureServerError(exception);
 
     if (status >= 500 && !(exception instanceof HttpException)) {
       const e = exception instanceof Error ? exception : new Error('unknown');

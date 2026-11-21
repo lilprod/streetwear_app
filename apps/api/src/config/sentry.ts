@@ -21,12 +21,22 @@ export function scrub(value: unknown): unknown {
   return value;
 }
 
-export function initSentry(dsn: string, environment: string): void {
+export function initSentry(
+  dsn: string,
+  environment: string,
+  transport?: Sentry.NodeOptions['transport'],
+): void {
   if (!dsn) return;
   Sentry.init({
     dsn,
     environment,
     sendDefaultPii: false,
+    ...(transport ? { transport } : {}),
     beforeSend: (event) => scrub(event) as typeof event,
   });
+}
+
+/** Erreur serveur inattendue : envoyée à Sentry (sans effet si Sentry n'est pas initialisé) après le masquage `scrub`. */
+export function captureServerError(error: unknown, tags?: Record<string, string>): void {
+  Sentry.captureException(error, tags ? { tags } : undefined);
 }
