@@ -2,7 +2,7 @@
   "id": "C-PAY-4",
   "title": "Deux paiements (clés différentes, >2 min d’écart) qui réussissent tous deux chez l’agrégateur",
   "ok": true,
-  "ms": 2968,
+  "ms": 2944,
   "checks": [
     {
       "label": "second paiement accepté après 2 min",
@@ -62,12 +62,12 @@
   "sql": [
     {
       "label": "transitions paid",
-      "query": "SELECT count(*) FROM order_status_history WHERE order_id='01a1fd1e-f074-78e8-a06d-0064488057ca' AND to_status='paid'",
+      "query": "SELECT count(*) FROM order_status_history WHERE order_id='01a1fd5a-12f5-7f95-898c-9f752f9c0917' AND to_status='paid'",
       "rows": [["1"]]
     },
     {
       "label": "payments",
-      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd1e-f10b-7d31-a431-07719adc4f11'",
+      "query": "SELECT status, failure_reason FROM payments WHERE id='01a1fd5a-1392-77a0-bc16-ec09abd78d92'",
       "rows": [["succeeded", "order_not_payable"]]
     }
   ],

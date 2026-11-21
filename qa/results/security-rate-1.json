@@ -2,7 +2,7 @@
   "id": "S-RATE-1",
   "title": "OTP : 3 envois par heure et par numéro",
   "ok": true,
-  "ms": 89,
+  "ms": 109,
   "checks": [
     {
       "label": "envois 1 à 3 : 204 ; 4e : 429 RATE_LIMITED avec retryAfterMinutes",
@@ -26,7 +26,7 @@
   "sql": [
     {
       "label": "otp_codes",
-      "query": "SELECT count(*) FROM otp_codes WHERE phone='+22897425347'",
+      "query": "SELECT count(*) FROM otp_codes WHERE phone='+22896492815'",
       "rows": [["3"]]
     }
   ],

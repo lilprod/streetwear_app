@@ -2,7 +2,7 @@
   "id": "S-LOGS-1",
   "title": "Données personnelles et secrets dans les journaux API et worker",
   "ok": true,
-  "ms": 109,
+  "ms": 132,
   "checks": [
     {
       "label": "téléphone E.164 complet (+228 + 8 chiffres) : occurrences",
@@ -90,6 +90,6 @@
     }
   ],
   "notes": [
-    "4 fichiers (api-3100.log, api-3101.log, worker-3100.log, worker-3101.log), 1712 lignes analysées"
+    "4 fichiers (api-3100.log, api-3101.log, worker-3100.log, worker-3101.log), 5 lignes analysées"
   ]
 }

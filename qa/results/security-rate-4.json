@@ -2,7 +2,7 @@
   "id": "S-RATE-4",
   "title": "Connexion admin : verrouillage 15 min après 5 échecs, pas d’énumération de comptes",
   "ok": true,
-  "ms": 800,
+  "ms": 851,
   "checks": [
     {
       "label": "compte de test créé",
@@ -72,7 +72,7 @@
   "sql": [
     {
       "label": "verrou",
-      "query": "SELECT round(extract(epoch FROM (locked_until - now()))/60) FROM admin_users WHERE email='qa-lock-0715a295@streetwear.test'",
+      "query": "SELECT round(extract(epoch FROM (locked_until - now()))/60) FROM admin_users WHERE email='qa-lock-3d371c0d@streetwear.test'",
       "rows": [["15"]]
     }
   ],

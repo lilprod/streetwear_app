@@ -268,12 +268,12 @@ export async function run() {
       signedWebhook({ ref: h.ref, paymentId: h.paymentId, amount: h.amount, status: 'succeeded' }),
     );
     s3.expect(
-      'succès tardif sur paiement déjà échoué : ignoré (duplicate), commande reste payment_failed',
+      'succès tardif sur paiement déjà échoué : alerte payment.late_success, commande reste payment_failed',
       'payment_failed',
       orderStatus(h.orderId),
     );
     s3.note(
-      'Succès tardif après échec : le paiement terminal « failed » n’est pas rouvert ; si le client a réellement été débité, seul le rapprochement quotidien (reconciliation.mismatch) le révèle.',
+      'Succès tardif après échec : le paiement terminal « failed » n’est pas rouvert ni la commande payée ; une alerte payment.late_success est envoyée à l’équipe (remboursement ou relance manuels).',
     );
   }
   out.push(s3.finish('coherence-wh-3.json'));

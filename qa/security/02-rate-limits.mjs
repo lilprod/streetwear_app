@@ -21,7 +21,7 @@ import { JWT_SECRET } from '../lib/harness.mjs';
 const BASE = 'http://localhost:3101/v1';
 const stack = (cmd) =>
   execFileSync('bash', [join(QA_DIR, 'stack.sh'), cmd], {
-    env: { ...process.env, PORT: '3101', RATE: '100', WORKER: '0' },
+    env: { ...process.env, PORT: '3101', RATE: '100', WORKER: '0', TRUST_PROXY: '1' },
     encoding: 'utf8',
   });
 const h = (method, path, opts = {}) => http(method, path, { ...opts, base: BASE });
@@ -29,6 +29,8 @@ const phone = () => `+2289${String(Math.floor(Math.random() * 9_000_000) + 1_000
 const window = () => sleep(61_000);
 
 export async function run() {
+  // Les compteurs sont dans Redis, partagés avec l'API :3100 (même IP) : laisser s'écouler la fenêtre des scénarios précédents.
+  await window();
   stack('start');
   const out = [];
   try {
@@ -92,27 +94,32 @@ export async function run() {
     await window();
     const s3 = new Scenario(
       'S-RATE-3',
-      'OTP : plafond par IP (10/min) et dépendance au proxy inverse',
+      'OTP : plafond par client réel (10/min) derrière un proxy de confiance (TRUST_PROXY=1)',
     );
     {
-      const res = [];
-      for (let i = 0; i < 12; i += 1)
-        res.push(
-          (
-            await h('POST', '/auth/otp/request', {
-              body: { phone: phone() },
-              headers: { 'x-forwarded-for': `10.9.${i}.1` },
-            })
-          ).status,
-        );
-      const by = countBy(res, (x) => x);
+      const send = (ip) =>
+        h('POST', '/auth/otp/request', {
+          body: { phone: phone() },
+          headers: { 'x-forwarded-for': ip },
+        });
+      const distinct = [];
+      for (let i = 0; i < 12; i += 1) distinct.push((await send(`10.9.${i}.1`)).status);
+      const by = countBy(distinct, (x) => x);
       s3.expect(
-        '12 demandes de 12 numéros distincts, 12 X-Forwarded-For distincts : 10 × 204 puis 429',
+        '12 demandes de 12 X-Forwarded-For distincts : 12 × 204 (un compteur par client)',
+        { 204: 12 },
+        { 204: by[204] ?? 0 },
+      );
+      const same = [];
+      for (let i = 0; i < 12; i += 1) same.push((await send('10.9.200.1')).status);
+      const bySame = countBy(same, (x) => x);
+      s3.expect(
+        '12 demandes du même client : 10 × 204 puis 2 × 429',
         { 204: 10, 429: 2 },
-        { 204: by[204] ?? 0, 429: by[429] ?? 0 },
+        { 204: bySame[204] ?? 0, 429: bySame[429] ?? 0 },
       );
       s3.note(
-        'X-Forwarded-For est ignoré (pas de « trust proxy » dans apps/api/src) : derrière le reverse proxy de recette/production, tous les clients partagent le compteur de l’IP du proxy.',
+        'API lancée avec TRUST_PROXY=1 (un proxy de confiance). Sans TRUST_PROXY, X-Forwarded-For est ignoré et tous les clients partagent un compteur : couvert par apps/api/test/rate-limits.spec.ts.',
       );
     }
     out.push(s3.finish('security-rate-3.json'));
@@ -234,7 +241,7 @@ export async function run() {
         { 429: cb[429] ?? 0 },
       );
       s6.note(
-        'Le compteur de ThrottlerGuard est par route et par IP, en mémoire du processus : la limite effective est 100/min/route/IP et n’est pas partagée entre instances.',
+        'Compteur global par client (toutes routes), stocké dans Redis donc partagé entre instances ; les webhooks de paiement et /health en sont exclus.',
       );
     }
     out.push(s6.finish('security-rate-6.json'));
