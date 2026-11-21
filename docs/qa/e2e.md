@@ -25,7 +25,7 @@ Les motifs et polices du jeu de démo ne sont hébergés nulle part. `global-set
 
 ## Mobile (Maestro)
 
-Parcours dans `apps/mobile/e2e/` : 01 premier design + T-Money, 02 commande de 5 t-shirts avec retrait + Flooz, 03 paiement à la livraison avec acompte, 04 suivi et recommande, 05 code SMS faux puis bon. « Commande de groupe » = quantité 5 sur une ligne (aucune notion de groupe dans le backlog : à confirmer). Sans appareil, `pnpm --filter mobile test` vérifie la syntaxe YAML, les commandes, les fichiers référencés et que chaque `id:` correspond à un `testID` du code (`e2e/flows.test.ts`). Les flux n'ont **jamais été exécutés** (pas d'émulateur ; le binaire Maestro téléchargé n'a pas pu être lancé ici).
+Parcours dans `apps/mobile/e2e/` : 01 premier design + T-Money, 02 commande de groupe (12 t-shirts : 5 M, 4 L, 3 XL) avec retrait + Flooz, 03 paiement à la livraison avec acompte, 04 suivi et recommande, 05 code SMS faux puis bon. « Commande de groupe » = un design en plusieurs tailles dans un seul panier et un seul paiement (décision du chef de projet, 22/11/2026). Sans appareil, `pnpm --filter mobile test` vérifie la syntaxe YAML, les commandes, les fichiers référencés et que chaque `id:` correspond à un `testID` du code (`e2e/flows.test.ts`). Les flux n'ont **jamais été exécutés** (pas d'émulateur ; le binaire Maestro téléchargé n'a pas pu être lancé ici).
 
 Lancer sur un appareil ou un émulateur Android :
 1. Base fraîche + `pnpm --filter api db:seed:demo` (les flux 04 supposent TG-000008 au client +228 90 00 00 04).

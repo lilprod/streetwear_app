@@ -24,7 +24,7 @@ transactionnelles), `docs/delegation.md`.
 ## À faire
 
 1. **Plan de test** (`docs/qa/plan-de-test.md`) dès la vague 1 : matrice story × critère × type de test × statut ; appareils de test (5 Android réels dont 2 Go de RAM, 1 iPhone) ; jeux de données.
-2. **Bout en bout mobile** (Maestro, `apps/mobile/e2e/`) : premier design et achat en T-Money ; commande de groupe avec retrait ; paiement à la livraison avec acompte ; suivi et recommande ; connexion avec code faux puis bon.
+2. **Bout en bout mobile** (Maestro, `apps/mobile/e2e/`) : premier design et achat en T-Money ; commande de groupe avec retrait (un design en plusieurs tailles, un panier, un paiement : voir `docs/qa/plan-de-test.md`, US-14) ; paiement à la livraison avec acompte ; suivi et recommande ; connexion avec code faux puis bon.
 3. **Bout en bout back-office** (Playwright, `apps/admin/e2e/`) : reprendre ceux de SP11 et ajouter le cycle complet d'une commande jusqu'à « Livrée » avec la vue livreur.
 4. **Tests de cohérence** sur l'API de recette : concurrence sur le stock et les créneaux, webhooks rejoués et falsifiés, expiration, double paiement (rejouer les scénarios de SP04, SP05, SP06 en environnement réel).
 5. **Performance** : k6 sur les routes publiques et la création de commande (objectif : 95 % < 500 ms à 50 requêtes/s) ; démarrage à froid et images/s du studio sur Android 2 Go ; taille du binaire.

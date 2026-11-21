@@ -1,8 +1,11 @@
 appId: com.streetwear.app
-name: Commande de groupe (5 t-shirts) avec retrait en boutique, paiement Flooz
+name: Commande de groupe (12 t-shirts, 3 tailles) avec retrait en boutique, paiement Flooz
 tags:
   - critique
-# Client de démonstration +228 90 00 00 02. « Groupe » = quantité 5 sur une ligne (maximum d'une ligne : voir CART_LINE_MAX_QUANTITY).
+# Client de démonstration +228 90 00 00 02.
+# « Commande de groupe » (décision du chef de projet, 22/11/2026) : une personne commande pour un groupe
+# le même design en plusieurs tailles, en un seul panier et un seul paiement : 5 M + 4 L + 3 XL.
+# L'écran Taille garde la taille et la quantité quand on revient du panier.
 ---
 - launchApp:
     clearState: true
@@ -25,8 +28,42 @@ tags:
     id: 'size-add-to-cart'
 - extendedWaitUntil:
     visible:
-      id: 'cart-continue'
+      id: 'cart-line-M'
     timeout: 20000
+# Deuxième taille : retour à l'écran Taille (quantité encore à 5), L × 4.
+- back
+- tapOn:
+    id: 'size-L'
+- tapOn:
+    id: 'quantity-dec'
+- assertVisible:
+    id: 'quantity-value'
+    text: '4'
+- tapOn:
+    id: 'size-add-to-cart'
+- extendedWaitUntil:
+    visible:
+      id: 'cart-line-L'
+    timeout: 20000
+# Troisième taille : XL × 3.
+- back
+- tapOn:
+    id: 'size-XL'
+- tapOn:
+    id: 'quantity-dec'
+- assertVisible:
+    id: 'quantity-value'
+    text: '3'
+- tapOn:
+    id: 'size-add-to-cart'
+- extendedWaitUntil:
+    visible:
+      id: 'cart-line-XL'
+    timeout: 20000
+- assertVisible:
+    id: 'cart-line-M'
+- assertVisible:
+    id: 'cart-line-L'
 - tapOn:
     id: 'cart-continue'
 - runFlow:

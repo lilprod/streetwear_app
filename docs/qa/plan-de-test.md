@@ -163,6 +163,10 @@ de SP12 doit créer ; aucun chemin n'est encore présent.
 | Critère | Type | Fichier ou procédure | Statut |
 |---|---|---|---|
 | Même design en plusieurs tailles | I + U | `apps/api/test/cart-orders.spec.ts` (« keeps sizes apart ») ; `apps/mobile/src/features/cart/cart.test.ts` (« adds a line and merges the same design and size ») | couvert automatiquement |
+| Commande de groupe : un design en 3 tailles (5 M + 4 L + 3 XL), un panier, un paiement, retrait en boutique | U + E-M | `apps/mobile/src/features/cart/cart.test.ts` (« keeps a group order (one design in three sizes) as three lines after sign-in ») ; `apps/mobile/e2e/02-commande-groupe-retrait.yaml` | U couvert ; Maestro à exécuter sur appareil |
+| Commande de groupe : fiche de production avec les 3 tailles et quantités | Manuel | Après le parcours 02 : `GET /admin/orders/:id/production-sheet.pdf` depuis le back-office (Production > Fiche PDF) | à exécuter manuellement |
+
+> **Commande de groupe** (décision du chef de projet, 22/11/2026) : une personne commande pour un groupe le même design en plusieurs tailles, dans un seul panier, avec un seul paiement et une seule livraison ou un seul retrait. Les commandes collectives (plusieurs payeurs, nom par t-shirt, remise au volume, lien de partage) sont hors du MVP.
 | Ligne indisponible signalée et bloquante | U + I | `apps/mobile/src/features/purchase/screens.test.tsx` (« blocks the order until they are removed ») ; `apps/api/test/cart-orders.spec.ts` (« flags unavailable ») | couvert automatiquement |
 
 ### US-15 — Payer en T-Money ou Flooz (SP05, SP10)

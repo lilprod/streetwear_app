@@ -93,7 +93,10 @@ export function CartScreen() {
 function Line({ line, busy }: { line: CartLineView; busy: boolean }) {
   const name = line.name ?? t('cart.line.unnamed');
   return (
-    <View style={[styles.line, !line.available && styles.lineOff]}>
+    <View
+      testID={`cart-line-${line.size}`}
+      style={[styles.line, !line.available && styles.lineOff]}
+    >
       <View style={styles.lineTop}>
         {line.previewUrl ? (
           <Image

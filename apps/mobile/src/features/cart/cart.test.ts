@@ -177,6 +177,22 @@ describe('account cart', () => {
     expect(deps.guest.list()).toHaveLength(0);
   });
 
+  it('keeps a group order (one design in three sizes) as three lines after sign-in', async () => {
+    await addLine(line({ size: 'M', quantity: 5 }), deps);
+    await addLine(line({ size: 'L', quantity: 4 }), deps);
+    await addLine(line({ size: 'XL', quantity: 3 }), deps);
+    await signIn();
+    expect(await syncGuestCartToAccount(deps)).toBe(true);
+    const { view } = cartStore.getState();
+    expect(view.lines.map((l) => [l.size, l.quantity]).sort()).toEqual([
+      ['L', 4],
+      ['M', 5],
+      ['XL', 3],
+    ]);
+    expect(view.itemCount).toBe(12);
+    expect(new Set(view.lines.map((l) => l.name)).size).toBe(1);
+  });
+
   it('keeps unsent guest lines and flags the failure when the merge breaks midway', async () => {
     await addLine(line(), deps);
     await addLine(line({ size: 'L' }), deps);
