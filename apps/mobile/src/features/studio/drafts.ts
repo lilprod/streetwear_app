@@ -1,5 +1,6 @@
 import { validateDesignSpec, type DesignSpec } from '@streetwear/shared';
 import type { KeyValueStorage } from '../../storage/storage';
+import type { InactiveItem } from './availability';
 import type { Side } from './model';
 
 export type DraftRecord = {
@@ -14,6 +15,7 @@ export type DraftRecord = {
   previewFrontDirty: boolean;
   previewBackDirty: boolean;
   syncError: string | null;
+  inactiveItems?: InactiveItem[];
 };
 
 const PREFIX = 'draft:';
@@ -95,7 +97,9 @@ export function createDraftsRepo(storage: KeyValueStorage, now: () => Date = () 
     pending(): DraftRecord[] {
       return this.list().filter(
         (r) =>
-          (r.dirty && r.syncError !== 'TEXT_REJECTED') || r.previewFrontDirty || r.previewBackDirty,
+          (r.dirty && r.syncError !== 'TEXT_REJECTED' && r.syncError !== 'PATTERN_INACTIVE') ||
+          r.previewFrontDirty ||
+          r.previewBackDirty,
       );
     },
 
