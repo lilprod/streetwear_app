@@ -317,26 +317,41 @@ export class OrdersService {
 
   private readonly expiryLogger = new Logger('OrdersExpiry');
 
-  /** Expire les commandes non payées échues à `now` ; renvoie le nombre expiré. */
-  async expireDue(now: Date = new Date(), limit = 200): Promise<number> {
-    const due = await this.prisma.order.findMany({
-      where: { status: { in: ['pending_payment', 'payment_failed'] }, expiresAt: { lte: now } },
-      select: { id: true },
-      orderBy: { expiresAt: 'asc' },
-      take: limit,
-    });
+  /**
+   * Expire les commandes non payées échues à `now`, par lots de `limit`, jusqu'à épuisement ou
+   * `maxDurationMs` (le reste est repris à la passe suivante). Une commande en erreur n'est tentée
+   * qu'une fois par passe. Renvoie le nombre expiré.
+   */
+  async expireDue(now: Date = new Date(), limit = 200, maxDurationMs = 45_000): Promise<number> {
+    const startedAt = Date.now();
+    const failed: string[] = [];
     let expired = 0;
-    for (const { id } of due) {
-      try {
-        await this.transition(id, 'expired', { type: 'system' }, 'Délai de paiement dépassé');
-        expired++;
-      } catch (e) {
-        if (e instanceof ApiException && e.getStatus() === 409) continue;
-        // Une commande incohérente ne doit pas bloquer l'expiration des autres (le job serait rejoué sur elle indéfiniment).
-        this.expiryLogger.error(
-          `Expiration impossible pour la commande ${id} : ${e instanceof Error ? e.name : 'erreur inconnue'}`,
-        );
+    let more = true;
+    while (more) {
+      const due = await this.prisma.order.findMany({
+        where: {
+          status: { in: ['pending_payment', 'payment_failed'] },
+          expiresAt: { lte: now },
+          ...(failed.length > 0 ? { id: { notIn: failed } } : {}),
+        },
+        select: { id: true },
+        orderBy: { expiresAt: 'asc' },
+        take: limit,
+      });
+      for (const { id } of due) {
+        try {
+          await this.transition(id, 'expired', { type: 'system' }, 'Délai de paiement dépassé');
+          expired++;
+        } catch (e) {
+          failed.push(id);
+          if (e instanceof ApiException && e.getStatus() === 409) continue;
+          // Une commande incohérente ne doit pas bloquer l'expiration des autres.
+          this.expiryLogger.error(
+            `Expiration impossible pour la commande ${id} : ${e instanceof Error ? e.name : 'erreur inconnue'}`,
+          );
+        }
       }
+      more = due.length >= limit && Date.now() - startedAt < maxDurationMs;
     }
     return expired;
   }
