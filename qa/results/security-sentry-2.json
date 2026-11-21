@@ -1,0 +1,28 @@
+{
+  "id": "S-SENTRY-2",
+  "title": "De bout en bout : enveloppe réellement envoyée à Sentry (DSN local)",
+  "ok": true,
+  "ms": 361,
+  "checks": [
+    {
+      "label": "une enveloppe a été émise",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "valeurs personnelles présentes dans l’enveloppe émise",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "cookies / en-tête Authorization absents",
+      "expected": false,
+      "obtained": false,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

@@ -1,0 +1,22 @@
+{
+  "id": "S-SENTRY-1",
+  "title": "Fonction scrub : champs personnels masqués dans un événement type",
+  "ok": true,
+  "ms": 612,
+  "checks": [
+    {
+      "label": "valeurs personnelles encore présentes après scrub",
+      "expected": [],
+      "obtained": [],
+      "ok": true
+    },
+    {
+      "label": "champs masqués attendus : phone, address, landmark",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

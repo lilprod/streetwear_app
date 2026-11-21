@@ -1,0 +1,114 @@
+{
+  "id": "S-HDR-1",
+  "title": "En-têtes de sécurité portés par l’API (helmet ou équivalent)",
+  "ok": true,
+  "ms": 66,
+  "checks": [
+    {
+      "label": "GET /health (200) : X-Content-Type-Options",
+      "expected": "nosniff",
+      "obtained": "nosniff",
+      "ok": true
+    },
+    {
+      "label": "GET /health (200) : protection contre l’inclusion en cadre (X-Frame-Options ou CSP frame-ancestors)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /health (200) : Referrer-Policy",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /health (200) : X-Powered-By absent",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "GET /catalog/colors (200) : X-Content-Type-Options",
+      "expected": "nosniff",
+      "obtained": "nosniff",
+      "ok": true
+    },
+    {
+      "label": "GET /catalog/colors (200) : protection contre l’inclusion en cadre (X-Frame-Options ou CSP frame-ancestors)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /catalog/colors (200) : Referrer-Policy",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /catalog/colors (200) : X-Powered-By absent",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "POST /admin/auth/login (400) : X-Content-Type-Options",
+      "expected": "nosniff",
+      "obtained": "nosniff",
+      "ok": true
+    },
+    {
+      "label": "POST /admin/auth/login (400) : protection contre l’inclusion en cadre (X-Frame-Options ou CSP frame-ancestors)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "POST /admin/auth/login (400) : Referrer-Policy",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "POST /admin/auth/login (400) : X-Powered-By absent",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "GET /admin/users (401) : X-Content-Type-Options",
+      "expected": "nosniff",
+      "obtained": "nosniff",
+      "ok": true
+    },
+    {
+      "label": "GET /admin/users (401) : protection contre l’inclusion en cadre (X-Frame-Options ou CSP frame-ancestors)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /admin/users (401) : Referrer-Policy",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "GET /admin/users (401) : X-Powered-By absent",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "réponse d’erreur : Cache-Control no-store/private (pas de mise en cache d’une réponse authentifiée)",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": [
+    "Strict-Transport-Security : à poser par le reverse proxy (TLS y est terminé) ; non vérifiable contre l’API en HTTP local."
+  ]
+}

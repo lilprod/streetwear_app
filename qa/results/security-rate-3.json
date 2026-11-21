@@ -1,0 +1,24 @@
+{
+  "id": "S-RATE-3",
+  "title": "OTP : plafond par IP (10/min) et dépendance au proxy inverse",
+  "ok": true,
+  "ms": 74,
+  "checks": [
+    {
+      "label": "12 demandes de 12 numéros distincts, 12 X-Forwarded-For distincts : 10 × 204 puis 429",
+      "expected": {
+        "204": 10,
+        "429": 2
+      },
+      "obtained": {
+        "204": 10,
+        "429": 2
+      },
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": [
+    "X-Forwarded-For est ignoré (pas de « trust proxy » dans apps/api/src) : derrière le reverse proxy de recette/production, tous les clients partagent le compteur de l’IP du proxy."
+  ]
+}

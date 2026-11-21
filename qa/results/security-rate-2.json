@@ -1,0 +1,34 @@
+{
+  "id": "S-RATE-2",
+  "title": "OTP : 5 mauvais codes bloquent le code (même le bon)",
+  "ok": true,
+  "ms": 90,
+  "checks": [
+    {
+      "label": "5 essais faux : OTP_INVALID ×4 puis OTP_ATTEMPTS_EXCEEDED",
+      "expected": [
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_ATTEMPTS_EXCEEDED"
+      ],
+      "obtained": [
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_INVALID",
+        "OTP_ATTEMPTS_EXCEEDED"
+      ],
+      "ok": true
+    },
+    {
+      "label": "bon code après 5 échecs : refusé",
+      "expected": [400, "OTP_ATTEMPTS_EXCEEDED"],
+      "obtained": [400, "OTP_ATTEMPTS_EXCEEDED"],
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

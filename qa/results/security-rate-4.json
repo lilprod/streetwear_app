@@ -1,0 +1,80 @@
+{
+  "id": "S-RATE-4",
+  "title": "Connexion admin : verrouillage 15 min après 5 échecs, pas d’énumération de comptes",
+  "ok": false,
+  "ms": 767,
+  "checks": [
+    {
+      "label": "compte de test créé",
+      "expected": 201,
+      "obtained": 201,
+      "ok": true
+    },
+    {
+      "label": "5 mots de passe faux",
+      "expected": [
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS"
+      ],
+      "obtained": [
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "INVALID_CREDENTIALS",
+        "ACCOUNT_LOCKED"
+      ],
+      "ok": false
+    },
+    {
+      "label": "bon mot de passe pendant le verrouillage : 403 ACCOUNT_LOCKED",
+      "expected": [403, "ACCOUNT_LOCKED"],
+      "obtained": [403, "ACCOUNT_LOCKED"],
+      "ok": true
+    },
+    {
+      "label": "retryAfterMinutes ≈ 15",
+      "expected": true,
+      "obtained": true,
+      "ok": true
+    },
+    {
+      "label": "locked_until ≈ +15 min en base",
+      "expected": "15",
+      "obtained": "15",
+      "ok": true
+    },
+    {
+      "label": "compte inconnu et mot de passe faux : réponses identiques (pas d’énumération)",
+      "expected": [
+        401,
+        {
+          "error": {
+            "code": "INVALID_CREDENTIALS",
+            "message": "E-mail ou mot de passe incorrect."
+          }
+        }
+      ],
+      "obtained": [
+        401,
+        {
+          "error": {
+            "code": "INVALID_CREDENTIALS",
+            "message": "E-mail ou mot de passe incorrect."
+          }
+        }
+      ],
+      "ok": true
+    }
+  ],
+  "sql": [
+    {
+      "label": "verrou",
+      "query": "SELECT round(extract(epoch FROM (locked_until - now()))/60) FROM admin_users WHERE email='qa-lock-601162ac@streetwear.test'",
+      "rows": [["15"]]
+    }
+  ],
+  "notes": []
+}

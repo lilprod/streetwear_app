@@ -1,0 +1,34 @@
+{
+  "id": "S-HDR-2",
+  "title": "CORS absent (décision du lead : même origine)",
+  "ok": true,
+  "ms": 11,
+  "checks": [
+    {
+      "label": "GET avec Origin étrangère : pas de Access-Control-Allow-Origin",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "préflight OPTIONS : pas de Access-Control-Allow-Origin",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "préflight OPTIONS : pas de Access-Control-Allow-Methods",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    },
+    {
+      "label": "Origin: null : pas d’autorisation",
+      "expected": null,
+      "obtained": null,
+      "ok": true
+    }
+  ],
+  "sql": [],
+  "notes": []
+}

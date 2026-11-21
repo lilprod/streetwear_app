@@ -143,13 +143,13 @@ export async function run() {
             .body?.error?.code,
         );
       s4.expect(
-        '5 mots de passe faux',
+        '5 mots de passe faux : 4 x INVALID_CREDENTIALS puis ACCOUNT_LOCKED dès le 5e échec',
         [
           'INVALID_CREDENTIALS',
           'INVALID_CREDENTIALS',
           'INVALID_CREDENTIALS',
           'INVALID_CREDENTIALS',
-          'INVALID_CREDENTIALS',
+          'ACCOUNT_LOCKED',
         ],
         codes,
       );

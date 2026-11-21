@@ -1,0 +1,34 @@
+{
+  "id": "S-RATE-6",
+  "title": "Limite globale (contrat : 100 req/min par IP)",
+  "ok": false,
+  "ms": 284,
+  "checks": [
+    {
+      "label": "105 requêtes sur une route : 100 × 200 puis 5 × 429",
+      "expected": {
+        "200": 100,
+        "429": 5
+      },
+      "obtained": {
+        "200": 100,
+        "429": 5
+      },
+      "ok": true
+    },
+    {
+      "label": "60 requêtes sur une AUTRE route dans la même minute (contrat « par IP » : 429 attendu, 160 > 100)",
+      "expected": {
+        "429": 60
+      },
+      "obtained": {
+        "429": 0
+      },
+      "ok": false
+    }
+  ],
+  "sql": [],
+  "notes": [
+    "Le compteur de ThrottlerGuard est par route et par IP, en mémoire du processus : la limite effective est 100/min/route/IP et n’est pas partagée entre instances."
+  ]
+}

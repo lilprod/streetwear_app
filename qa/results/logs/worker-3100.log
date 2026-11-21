@@ -1,212 +1,25 @@
-{"level":30,"time":1795229783723,"pid":17341,"hostname":"vm","context":"NestFactory","msg":"Starting Nest application..."}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"ThrottlerModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"SmsModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"DiscoveryModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"EventEmitterModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"ZonesModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"LoggerModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"AuditModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"MediaModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"SettingsModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"AdminUsersModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"NotificationsModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"AppModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"AuthModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"StockModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"AdminCatalogModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"CatalogModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"UsersModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"DesignsModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"CartModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"ProductionModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"PaymentsModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"OrdersModule dependencies initialized"}
-{"level":30,"time":1795229783724,"pid":17341,"hostname":"vm","context":"InstanceLoader","msg":"DeliveryModule dependencies initialized"}
-{"level":30,"time":1795229783729,"pid":17341,"hostname":"vm","msg":"Worker démarré (files : slot-generation, orders-expire, render-print-files, payments-reconcile, notifications)"}
-{"level":30,"time":1795229783927,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783944,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783944,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***02"}
-{"level":30,"time":1795229783945,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783945,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***01"}
-{"level":30,"time":1795229783958,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 02"}
-{"level":30,"time":1795229783959,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783959,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***04"}
-{"level":30,"time":1795229783961,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 01"}
-{"level":30,"time":1795229783964,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783964,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***03"}
-{"level":30,"time":1795229783964,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 04"}
-{"level":30,"time":1795229783972,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 03"}
-{"level":50,"time":1795229783982,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000002, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229783989,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783990,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783997,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229783997,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***02"}
-{"level":30,"time":1795229783999,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 02"}
-{"level":30,"time":1795229784002,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784002,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***03"}
-{"level":30,"time":1795229784004,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784005,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 03"}
-{"level":30,"time":1795229784005,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.shipped (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784005,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***02"}
-{"level":30,"time":1795229784008,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.shipped (sms) : sent → +228 90 •• •• 02"}
-{"level":50,"time":1795229784021,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000003, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784023,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.delivered (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784025,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784025,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784025,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***04"}
-{"level":30,"time":1795229784026,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.ready_for_pickup (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784026,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***03"}
-{"level":30,"time":1795229784028,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 04"}
-{"level":30,"time":1795229784028,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.ready_for_pickup (sms) : sent → +228 90 •• •• 03"}
-{"level":30,"time":1795229784046,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784047,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***01"}
-{"level":30,"time":1795229784050,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 01"}
-{"level":30,"time":1795229784051,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.in_production (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784053,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.delivered (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784053,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229784053,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***02"}
-{"level":30,"time":1795229784056,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 02"}
-{"level":50,"time":1795229784057,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000004, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784066,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000002 »"}
-{"level":30,"time":1795229784070,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000003 »"}
-{"level":30,"time":1795229784070,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000004 »"}
-{"level":30,"time":1795229784075,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000002 »"}
-{"level":30,"time":1795229784077,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784080,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000004 »"}
-{"level":50,"time":1795229784080,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000005, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784081,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000003 »"}
-{"level":30,"time":1795229784084,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784085,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784090,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000005 »"}
-{"level":30,"time":1795229784096,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000005 »"}
-{"level":30,"time":1795229784097,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":50,"time":1795229784098,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000006, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784104,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000006 »"}
-{"level":30,"time":1795229784109,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000006 »"}
-{"level":50,"time":1795229784110,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000007, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784111,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784116,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000007 »"}
-{"level":50,"time":1795229784121,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000008, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784121,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000007 »"}
-{"level":30,"time":1795229784123,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784131,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000008 »"}
-{"level":50,"time":1795229784137,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000009, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784138,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000008 »"}
-{"level":30,"time":1795229784139,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784149,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000009 »"}
-{"level":50,"time":1795229784160,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000010, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229784163,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000009 »"}
-{"level":30,"time":1795229784165,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229784171,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000010 »"}
-{"level":30,"time":1795229784176,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000010 »"}
-{"level":30,"time":1795229784177,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229871403,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Stock bas : Indigo XL (2) »"}
-{"level":30,"time":1795229871410,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Stock bas : Indigo XL (2) »"}
-{"level":30,"time":1795229871411,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte stock.below_threshold traitée (2 destinataire(s))"}
-{"level":30,"time":1795229919159,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229919159,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***99"}
-{"level":30,"time":1795229919162,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 99"}
-{"level":50,"time":1795229919168,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000064, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229919179,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000064 »"}
-{"level":30,"time":1795229919185,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000064 »"}
-{"level":30,"time":1795229919187,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229922500,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229922500,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***00"}
-{"level":30,"time":1795229922504,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 00"}
-{"level":50,"time":1795229922513,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000065, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229922522,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000065 »"}
-{"level":30,"time":1795229922527,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000065 »"}
-{"level":30,"time":1795229922529,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229923220,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000066 »"}
-{"level":30,"time":1795229923232,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000066 »"}
-{"level":30,"time":1795229923236,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229925279,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000067 »"}
-{"level":30,"time":1795229925288,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000067 »"}
-{"level":30,"time":1795229925292,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229925885,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.payment_failed (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229935279,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229935279,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***73"}
-{"level":30,"time":1795229935281,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 73"}
-{"level":50,"time":1795229935285,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000069, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229935294,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000069 »"}
-{"level":30,"time":1795229935305,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000069 »"}
-{"level":30,"time":1795229935306,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229938519,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229938519,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***74"}
-{"level":30,"time":1795229938521,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 74"}
-{"level":50,"time":1795229938523,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000070, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229938530,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000070 »"}
-{"level":30,"time":1795229938535,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000070 »"}
-{"level":30,"time":1795229938537,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229939208,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000071 »"}
-{"level":30,"time":1795229939213,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000071 »"}
-{"level":30,"time":1795229939215,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229941192,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000072 »"}
-{"level":30,"time":1795229941197,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000072 »"}
-{"level":30,"time":1795229941199,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229941716,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.payment_failed (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229946538,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229946538,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***82"}
-{"level":30,"time":1795229946540,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 82"}
-{"level":50,"time":1795229946544,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000074, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229946552,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000074 »"}
-{"level":30,"time":1795229946557,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000074 »"}
-{"level":30,"time":1795229946559,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":50,"time":1795229949984,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000075, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229949986,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229949986,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***83"}
-{"level":30,"time":1795229949987,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 83"}
-{"level":30,"time":1795229950002,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000075 »"}
-{"level":30,"time":1795229950016,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000075 »"}
-{"level":30,"time":1795229950024,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229950920,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000076 »"}
-{"level":30,"time":1795229950934,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000076 »"}
-{"level":30,"time":1795229950940,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229953006,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000077 »"}
-{"level":30,"time":1795229953012,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Écart de montant : TG-000077 »"}
-{"level":30,"time":1795229953014,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.amount_mismatch traitée (2 destinataire(s))"}
-{"level":30,"time":1795229953556,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.payment_failed (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229975606,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229975606,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***72"}
-{"level":50,"time":1795229975607,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000081, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229975607,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 72"}
-{"level":30,"time":1795229975614,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000081 »"}
-{"level":30,"time":1795229975618,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000081 »"}
-{"level":30,"time":1795229975619,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229976179,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229976179,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***73"}
-{"level":30,"time":1795229976181,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 73"}
-{"level":50,"time":1795229976184,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000082, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229976190,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000082 »"}
-{"level":30,"time":1795229976195,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000082 »"}
-{"level":30,"time":1795229976197,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229988831,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229988831,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***71"}
-{"level":30,"time":1795229988833,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 71"}
-{"level":50,"time":1795229988833,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000086, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229988839,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000086 »"}
-{"level":30,"time":1795229988844,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000086 »"}
-{"level":30,"time":1795229988845,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229989454,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795229989454,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***72"}
-{"level":30,"time":1795229989455,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 72"}
-{"level":50,"time":1795229989457,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000087, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795229989464,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000087 »"}
-{"level":30,"time":1795229989469,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000087 »"}
-{"level":30,"time":1795229989470,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
-{"level":30,"time":1795229989507,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000087 »"}
-{"level":30,"time":1795229989513,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000087 »"}
-{"level":30,"time":1795229989514,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.unexpected_success traitée (2 destinataire(s))"}
-{"level":30,"time":1795230018707,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.payment_failed (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795230023855,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.expired (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795230023861,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.expired (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795230026255,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000088 »"}
-{"level":30,"time":1795230026260,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Paiement sur commande non payable : TG-000088 »"}
-{"level":30,"time":1795230026261,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte payment.unexpected_success traitée (2 destinataire(s))"}
-{"level":30,"time":1795230141191,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (push) : skipped [NO_PUSH_TOKEN]"}
-{"level":30,"time":1795230141192,"pid":17341,"hostname":"vm","context":"Sms","msg":"SMS envoyé à ***28"}
-{"level":30,"time":1795230141193,"pid":17341,"hostname":"vm","context":"Notifications","msg":"order.paid (sms) : sent → +228 90 •• •• 28"}
-{"level":50,"time":1795230141198,"pid":17341,"hostname":"vm","context":"PrintFilesService","msg":"Rendu HD en échec (commande TG-000094, PATTERN_ASSET_MISSING)"}
-{"level":30,"time":1795230141205,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000094 »"}
-{"level":30,"time":1795230141213,"pid":17341,"hostname":"vm","context":"Email","msg":"E-mail factice : « Rendu HD en échec : TG-000094 »"}
-{"level":30,"time":1795230141215,"pid":17341,"hostname":"vm","context":"Notifications","msg":"Alerte production.render_failed traitée (2 destinataire(s))"}
+{"level":30,"time":1795230560396,"pid":8987,"hostname":"vm","context":"NestFactory","msg":"Starting Nest application..."}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"ThrottlerModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"SmsModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"DiscoveryModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"EventEmitterModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"ZonesModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"LoggerModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"AuditModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"MediaModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"SettingsModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"AdminUsersModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"NotificationsModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"AppModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"AuthModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"StockModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"AdminCatalogModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"CatalogModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"UsersModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"DesignsModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"CartModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"ProductionModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"PaymentsModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"OrdersModule dependencies initialized"}
+{"level":30,"time":1795230560397,"pid":8987,"hostname":"vm","context":"InstanceLoader","msg":"DeliveryModule dependencies initialized"}
+{"level":30,"time":1795230560402,"pid":8987,"hostname":"vm","msg":"Worker démarré (files : slot-generation, orders-expire, render-print-files, payments-reconcile, notifications)"}
