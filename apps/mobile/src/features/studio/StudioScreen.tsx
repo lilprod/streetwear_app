@@ -17,6 +17,7 @@ import {
   StateView,
   Tabs,
 } from '../../ui/controls';
+import { checkAvailability, type InactiveItem, type Unavailable } from './availability';
 import { patternsById as indexPatterns, type Catalog } from './catalog';
 import { useCatalog, useDraftSync, useDraftsRepo, useOnline, type SyncStatus } from './hooks';
 import {
@@ -24,6 +25,7 @@ import {
   contentToSpec,
   emptyContent,
   layersOf,
+  sideOfLayer,
   textLayerOf,
   type Side,
 } from './model';
@@ -32,6 +34,7 @@ import { SHIRT_H_MM, SHIRT_W_MM } from './shirt';
 import { StudioCanvas } from './StudioCanvas';
 import { AdjustPanel, AdjustToggle, ColorPanel, PatternsPanel, TextPanel } from './StudioPanels';
 import { studioStore } from './store';
+import { UnavailableNotices } from './UnavailableNotices';
 import { useStudioFonts } from './useStudioFonts';
 
 type PanelTab = 'patterns' | 'color' | 'text';
@@ -98,6 +101,7 @@ function StudioReady({
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<PanelTab>('patterns');
   const [adjustOpen, setAdjustOpen] = useState(false);
+  const [flagged, setFlagged] = useState<InactiveItem[]>([]);
 
   const content = useStore(studioStore, (s) => s.content);
   const side = useStore(studioStore, (s) => s.side);
@@ -124,9 +128,16 @@ function StudioReady({
       s.load({ content: emptyContent(catalog.colors[0]?.id ?? 'col-noir') });
     }
     if (draftId) repo.setCurrentId(draftId);
+    setFlagged(rec?.inactiveItems ?? []);
     setLoaded(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!loaded || (sync.status !== 'error' && sync.status !== 'synced')) return;
+    const rec = repo.get(studioStore.getState().localId);
+    setFlagged(rec?.inactiveItems ?? []);
+  }, [loaded, sync.status, repo]);
 
   const saveNow = useCallback(() => {
     const s = studioStore.getState();
@@ -169,7 +180,13 @@ function StudioReady({
   }, [loaded]);
 
   const spec = useMemo(() => contentToSpec(content), [content]);
+  const availability = useMemo(
+    () => checkAvailability(content, catalog, { verified: !stale, flagged }),
+    [content, catalog, stale, flagged],
+  );
+  const blocked = availability.unavailable.length > 0;
   const price = useMemo(() => {
+    if (blocked) return null;
     try {
       return spec
         ? computeUnitPriceXof(spec, catalog.pricing, patternsById)
@@ -177,7 +194,7 @@ function StudioReady({
     } catch {
       return null;
     }
-  }, [spec, catalog.pricing, patternsById]);
+  }, [spec, blocked, catalog.pricing, patternsById]);
 
   const text = textLayerOf(content);
   const banned = !!text && containsBannedWord(text.text, catalog.bannedWords);
@@ -188,6 +205,14 @@ function StudioReady({
     220,
     Math.min(width - 40, ((height - 420) * SHIRT_W_MM) / SHIRT_H_MM),
   );
+
+  const onReplace = useCallback((item: Unavailable) => {
+    const s = studioStore.getState();
+    const layerSide = item.layerId ? sideOfLayer(s.content, item.layerId) : null;
+    if (layerSide) s.setSide(layerSide);
+    if (item.layerId) s.select(item.layerId);
+    setTab(item.kind === 'pattern' ? 'patterns' : item.kind === 'font' ? 'text' : 'color');
+  }, []);
 
   const onSide = useCallback((v: Side) => studioStore.getState().setSide(v), []);
 
@@ -241,6 +266,11 @@ function StudioReady({
             )}
           />
         </View>
+        <UnavailableNotices
+          availability={availability}
+          onReplace={onReplace}
+          onRemove={actions.removeLayerById}
+        />
         {hasSelection ? (
           <View style={styles.adjustWrap}>
             <AdjustToggle open={adjustOpen} onToggle={() => setAdjustOpen((v) => !v)} />
@@ -296,7 +326,7 @@ function StudioReady({
           <PrimaryButton
             testID="studio-continue"
             label={t('studio.continue')}
-            disabled={!spec || banned}
+            disabled={!spec || banned || blocked}
             onPress={() => {
               if (!saveNow()) return;
               onContinue(studioStore.getState().localId);

@@ -1,5 +1,6 @@
 import type { ApiClient } from '../../api/types';
 import { ApiError } from '../../api/types';
+import { parseInactiveItems } from './availability';
 import type { DraftRecord, DraftsRepo } from './drafts';
 
 export const PREVIEW_MAX_BASE64_CHARS = Math.ceil((500 * 1024 * 4) / 3);
@@ -21,6 +22,7 @@ async function syncOne(api: ApiClient, repo: DraftsRepo, snapshot: DraftRecord):
       serverId: design.id,
       dirty: r.updatedAt !== snapshot.updatedAt,
       syncError: null,
+      inactiveItems: undefined,
     }));
   }
   const fresh = repo.get(snapshot.localId) ?? snapshot;
@@ -68,7 +70,11 @@ export function syncDrafts(api: ApiClient, repo: DraftsRepo): Promise<SyncResult
         }
         result.failed += 1;
         const code = e instanceof ApiError ? e.code : 'SERVICE_UNAVAILABLE';
-        repo.update(rec.localId, (r) => ({ ...r, syncError: code }));
+        const inactiveItems =
+          e instanceof ApiError && e.code === 'PATTERN_INACTIVE'
+            ? parseInactiveItems(e.details)
+            : undefined;
+        repo.update(rec.localId, (r) => ({ ...r, syncError: code, inactiveItems }));
       }
     }
     return result;

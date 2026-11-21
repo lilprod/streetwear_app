@@ -51,6 +51,7 @@ export type StudioActions = {
   editText: (patch: TextPatch, defaults: { fontId: string; colorHex: string; side?: Side }) => void;
 
   removeSelected: () => void;
+  removeLayerById: (id: string) => void;
   beginGesture: () => void;
   commitGesture: (id: string, geo: Geo) => void;
   nudge: (dxMm: number, dyMm: number) => void;
@@ -149,6 +150,13 @@ export function createStudioStore(defaultColorId = 'col-noir', makeId: () => str
         if (!selectedId) return;
         commit(removeLayer(content, selectedId));
         set({ selectedId: null });
+      },
+
+      removeLayerById: (id) => {
+        const { content, selectedId } = get();
+        if (!findLayer(content, id)) return;
+        commit(removeLayer(content, id));
+        if (selectedId === id) set({ selectedId: null });
       },
 
       beginGesture: () => set({ gestureBase: get().content }),

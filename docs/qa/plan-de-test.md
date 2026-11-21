@@ -74,7 +74,7 @@ de SP12 doit créer ; aucun chemin n'est encore présent.
 | Recherche par nom et par tag, sans accent ni casse | I | `apps/api/test/catalog.spec.ts` (« searches tags and treats % literally ») ; l'insensibilité aux accents n'est pas nommée | couvert automatiquement (partiel, à vérifier) |
 | Vignettes WebP ≤ 40 Ko | — | Aucun test ; les adaptateurs médias citent WebP (`apps/api/src/media/`) sans contrôle de taille | non couvert |
 | Motif désactivé n'apparaît plus | I | `apps/api/test/catalog.spec.ts` (« hides inactive patterns but keeps the rest ») | couvert automatiquement |
-| Brouillon utilisant un motif désactivé affiche « Motif indisponible » | U / M | Aucune occurrence du libellé dans `apps/mobile/src` ni `apps/api/src` ; l'API refuse l'écriture (`apps/api/test/designs.spec.ts`, « refuses a deactivated pattern on write ») | non couvert (écart probable, à confirmer sur appareil) |
+| Brouillon utilisant un motif désactivé affiche « Motif indisponible » | U / M | Le studio signale « Motif indisponible » sur le calque, bloque « Choisir la taille » et propose de remplacer ou retirer (`apps/mobile/src/features/studio/unavailable.test.tsx`, AN-001) ; l'API refuse l'écriture (`apps/api/test/designs.spec.ts`, « refuses a deactivated pattern on write ») | couvert (AN-001 corrigée) |
 
 ### US-04 — Choisir la couleur du t-shirt (SP09)
 
@@ -407,7 +407,7 @@ explicitement par le sponsor dans `docs/qa/pv-recette.md`.
 
 | # | Story | Critère | Raison | Gravité probable |
 |---|---|---|---|---|
-| 1 | US-03 | Brouillon avec motif désactivé affiche « Motif indisponible » | Libellé absent du code | majeure (à confirmer) |
+| 1 | US-03 | Brouillon avec motif désactivé affiche « Motif indisponible » | Corrigé : AN-001 | corrigée |
 | 2 | US-03 | Vignettes WebP ≤ 40 Ko | Aucun contrôle de taille testé | mineure |
 | 3 | US-01 | Session de 30 jours | Durée non testée | mineure (à vérifier) |
 | 4 | US-02 | Mot de passe ≥ 12 caractères | Non nommé dans les tests | majeure (à vérifier) |
