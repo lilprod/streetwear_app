@@ -1,7 +1,11 @@
 import type { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import { LoggerModule } from 'nestjs-pino';
 import request from 'supertest';
+import { setupApp } from '../src/setup-app';
 import { scrub } from '../src/config/sentry';
 import { createApp } from './helpers';
+import { withEnv } from './with-env';
 
 describe('security hardening (SP12-B)', () => {
   let app: INestApplication;
@@ -97,4 +101,36 @@ describe('Sentry scrub', () => {
     expect(out).toContain('TG-000001');
     expect(out).toContain('boom');
   });
+});
+
+describe('OpenAPI docs (AN-010)', () => {
+  it('serves /v1/docs outside production', async () => {
+    const { app } = await createApp();
+    try {
+      const res = await request(app.getHttpServer()).get('/v1/docs');
+      expect(res.status).toBe(200);
+    } finally {
+      await app.close();
+    }
+  }, 30_000);
+
+  it('answers 404 on /v1/docs and /v1/docs-json when NODE_ENV=production', async () => {
+    await withEnv({ NODE_ENV: 'production', NOTIFICATION_CODE_KEY: 'k'.repeat(40) }, async () => {
+      const mod = await Test.createTestingModule({
+        imports: [LoggerModule.forRoot({ pinoHttp: { level: 'silent' } })],
+      }).compile();
+      const app = mod.createNestApplication({ bufferLogs: true });
+      setupApp(app);
+      await app.init();
+      try {
+        for (const path of ['/v1/docs', '/v1/docs-json']) {
+          const res = await request(app.getHttpServer()).get(path);
+          expect(res.status).toBe(404);
+          expect(res.body.error.code).toBe('NOT_FOUND');
+        }
+      } finally {
+        await app.close();
+      }
+    });
+  }, 30_000);
 });
