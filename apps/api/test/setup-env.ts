@@ -29,7 +29,15 @@ for (const k of [
 ]) {
   Reflect.deleteProperty(process.env, k);
 }
-process.env.DATABASE_URL =
+// Prisma sizes its pool from the CPU count (2 vCPU on GitHub runners → 5 connections). Concurrent
+// order tests hold one connection per transaction waiting on the stock row lock, so a small pool
+// times out (P2024). Tests get an explicit pool unless the URL already sets one.
+const withPool = (url: string): string =>
+  /[?&]connection_limit=/.test(url)
+    ? url
+    : `${url}${url.includes('?') ? '&' : '?'}connection_limit=25&pool_timeout=20`;
+process.env.DATABASE_URL = withPool(
   process.env.TEST_DATABASE_URL ??
-  'postgresql://streetwear:streetwear@localhost:5432/streetwear_test';
+    'postgresql://streetwear:streetwear@localhost:5432/streetwear_test',
+);
 process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/1';
