@@ -52,8 +52,15 @@ jobs:
           restore-keys: turbo-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter api exec prisma migrate deploy
-      - name: Lint, typecheck, test, build (affected packages only)
-        run: pnpm exec turbo run lint typecheck test build --affected
+      # Pull request: only the packages changed against the base branch.
+      # Push to main: everything (--affected would compare main with itself and run nothing).
+      - name: Lint, typecheck, test, build (affected packages on pull requests, all on main)
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            pnpm exec turbo run lint typecheck test build --affected
+          else
+            pnpm exec turbo run lint typecheck test build
+          fi
       - name: Smoke test of the compiled API
         run: |
           pnpm exec turbo run build --filter=api
